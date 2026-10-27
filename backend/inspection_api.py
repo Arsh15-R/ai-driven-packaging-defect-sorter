@@ -34,11 +34,27 @@ app = FastAPI(
 # Configure CORS
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=settings.CORS_ORIGINS if settings.CORS_ORIGINS != ["*"] else ["*"],
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+@app.middleware("http")
+async def add_private_network_headers(request, call_next):
+    """Permit Chromium Private Network Access (PNA) requests from HTTPS web apps to localhost."""
+    if request.method == "OPTIONS" and request.headers.get("access-control-request-private-network"):
+        from fastapi import Response
+        res = Response(status_code=204)
+        res.headers["Access-Control-Allow-Origin"] = request.headers.get("origin", "*")
+        res.headers["Access-Control-Allow-Methods"] = "*"
+        res.headers["Access-Control-Allow-Headers"] = "*"
+        res.headers["Access-Control-Allow-Credentials"] = "true"
+        res.headers["Access-Control-Allow-Private-Network"] = "true"
+        return res
+    response = await call_next(request)
+    response.headers["Access-Control-Allow-Private-Network"] = "true"
+    return response
 
 # Mount local defect images directory for local preview
 settings.DEFECT_IMG_DIR.mkdir(parents=True, exist_ok=True)

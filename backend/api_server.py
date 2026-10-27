@@ -47,6 +47,22 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+
+@app.middleware("http")
+async def add_private_network_headers(request, call_next):
+    """Permit Chromium Private Network Access (PNA) requests from HTTPS web apps to localhost."""
+    if request.method == "OPTIONS" and request.headers.get("access-control-request-private-network"):
+        res = Response(status_code=204)
+        res.headers["Access-Control-Allow-Origin"] = request.headers.get("origin", "*")
+        res.headers["Access-Control-Allow-Methods"] = "*"
+        res.headers["Access-Control-Allow-Headers"] = "*"
+        res.headers["Access-Control-Allow-Credentials"] = "true"
+        res.headers["Access-Control-Allow-Private-Network"] = "true"
+        return res
+    response = await call_next(request)
+    response.headers["Access-Control-Allow-Private-Network"] = "true"
+    return response
+
 CSV_LOG_PATH = PROJECT_ROOT / "logs" / "defect_log.csv"
 DEFECT_IMG_DIR = PROJECT_ROOT / "logs" / "defect_images"
 DEFECT_IMG_DIR.mkdir(parents=True, exist_ok=True)
