@@ -4,160 +4,109 @@
 
 @layer base {
   body {
-    @apply bg-space-black text-slate-100 antialiased selection:bg-apple-cyan/30 selection:text-white overflow-x-hidden;
-    font-feature-settings: "cv02", "cv03", "cv04", "cv11", "ss01";
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
+    @apply bg-[#0d1117] text-[#f0f6fc] antialiased overflow-x-hidden;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  }
+
+  /* Non-negotiable constraint: Underline only for links */
+  a {
+    @apply underline;
+  }
+
+  /* Non-negotiable constraint: Never italic */
+  em, i, cite, dfn {
+    font-style: normal;
+    font-weight: 700;
   }
 }
 
-/* Vision Pro / macOS Luxury Glass Cards */
-.apple-glass {
-  background: rgba(14, 20, 32, 0.65);
-  backdrop-filter: blur(28px) saturate(190%);
-  -webkit-backdrop-filter: blur(28px) saturate(190%);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  box-shadow: 0 20px 50px -15px rgba(0, 0, 0, 0.8), inset 0 1px 1px 0 rgba(255, 255, 255, 0.14);
+/* Reduced Motion Compliance */
+@media (prefers-reduced-motion: reduce) {
+  *, ::before, ::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }
 
-.apple-glass-card {
-  background: linear-gradient(135deg, rgba(22, 28, 44, 0.65) 0%, rgba(11, 15, 26, 0.75) 100%);
-  backdrop-filter: blur(32px) saturate(190%);
-  -webkit-backdrop-filter: blur(32px) saturate(190%);
-  border: 1px solid rgba(255, 255, 255, 0.09);
-  box-shadow: 0 24px 48px -12px rgba(0, 0, 0, 0.85), inset 0 1px 1px 0 rgba(255, 255, 255, 0.16);
-  transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+/* Flat Surface System (Single background family: #0d1117, #161b22, #21262d, #30363d) */
+.surface-base {
+  background-color: #0d1117;
 }
 
-.apple-glass-card:hover {
-  border-color: rgba(255, 255, 255, 0.18);
-  box-shadow: 0 28px 56px -12px rgba(0, 0, 0, 0.95), inset 0 1px 2px 0 rgba(255, 255, 255, 0.25);
-  transform: translateY(-2px);
+.surface-panel {
+  background-color: #161b22;
+  border: 1px solid #30363d;
 }
 
-.apple-glass-subtle {
-  background: rgba(255, 255, 255, 0.03);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border: 1px solid rgba(255, 255, 255, 0.06);
+.surface-subtle {
+  background-color: #21262d;
 }
 
-/* Cupertino Dynamic Island Capsule */
-.dynamic-island {
-  background: rgba(5, 7, 12, 0.85);
-  backdrop-filter: blur(30px) saturate(200%);
-  -webkit-backdrop-filter: blur(30px) saturate(200%);
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  box-shadow: 0 16px 40px -8px rgba(0, 0, 0, 0.9), inset 0 1px 1.5px rgba(255, 255, 255, 0.22);
+/* Accessible Interactive Base (44px minimum target, 0.97 press feedback, visible focus) */
+.interactive-target {
+  min-height: 44px;
+  min-width: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: opacity 150ms ease-out, transform 150ms ease-out;
 }
 
-/* Apple Segmented Control Pill */
-.segmented-control-bar {
-  background: rgba(18, 24, 38, 0.68);
-  backdrop-filter: blur(24px) saturate(180%);
-  -webkit-backdrop-filter: blur(24px) saturate(180%);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.7), inset 0 1px 1px rgba(255, 255, 255, 0.12);
+.interactive-target:active {
+  transform: scale(0.97);
 }
 
-.segmented-pill-active {
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.18) 0%, rgba(255, 255, 255, 0.06) 100%);
-  border: 1px solid rgba(255, 255, 255, 0.25);
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4), inset 0 1px 1.5px rgba(255, 255, 255, 0.35);
-  color: #ffffff;
+.interactive-target:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px #0d1117, 0 0 0 4px #3b82f6;
 }
 
-/* Skeuomorphic Anodized Aluminum Tactile Pusher Button */
-.tactile-pusher-btn {
-  background: radial-gradient(circle at 50% 30%, #3a0a0c 0%, #1c0507 80%, #0d0203 100%);
-  border: 1px solid rgba(255, 69, 58, 0.4);
-  box-shadow: 
-    0 10px 30px rgba(255, 69, 58, 0.35),
-    0 4px 12px rgba(0, 0, 0, 0.8),
-    inset 0 1px 2px rgba(255, 255, 255, 0.35),
-    inset 0 -3px 6px rgba(0, 0, 0, 0.7);
-  transition: all 0.15s cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-.tactile-pusher-btn:hover {
-  background: radial-gradient(circle at 50% 30%, #520d10 0%, #29070a 80%, #120305 100%);
-  border-color: rgba(255, 69, 58, 0.6);
-  box-shadow: 
-    0 12px 35px rgba(255, 69, 58, 0.5),
-    0 6px 16px rgba(0, 0, 0, 0.9),
-    inset 0 1px 3px rgba(255, 255, 255, 0.45),
-    inset 0 -3px 6px rgba(0, 0, 0, 0.7);
-}
-
-.tactile-pusher-btn:active {
-  transform: translateY(2px) scale(0.98);
-  box-shadow: 
-    0 4px 15px rgba(255, 69, 58, 0.6),
-    inset 0 3px 8px rgba(0, 0, 0, 0.9),
-    inset 0 -1px 2px rgba(255, 255, 255, 0.2);
-}
-
-/* Brushed Aluminum Console Dial / Button Style */
-.brushed-metal {
-  background: linear-gradient(145deg, #2a2e39 0%, #151821 50%, #1e222e 100%);
-  box-shadow: 
-    0 8px 24px -4px rgba(0, 0, 0, 0.7),
-    inset 0 1px 2px rgba(255, 255, 255, 0.22),
-    inset 0 -2px 4px rgba(0, 0, 0, 0.6);
-}
-
-/* Precision Glass Sliders */
+/* Flat Precision Range Slider */
 input[type="range"] {
   -webkit-appearance: none;
   appearance: none;
   width: 100%;
-  height: 6px;
-  background: rgba(255, 255, 255, 0.08);
-  border-radius: 9999px;
+  height: 8px;
+  background: #21262d;
+  border-radius: 4px;
   outline: none;
-  transition: all 0.2s;
-}
-
-input[type="range"]:hover {
-  background: rgba(255, 255, 255, 0.14);
 }
 
 input[type="range"]::-webkit-slider-thumb {
   -webkit-appearance: none;
   appearance: none;
-  width: 20px;
-  height: 20px;
-  border-radius: 50%;
-  background: radial-gradient(circle at 35% 35%, #ffffff 0%, #e2e8f0 40%, #94a3b8 100%);
+  width: 24px;
+  height: 24px;
+  border-radius: 4px;
+  background: #3b82f6;
   cursor: pointer;
-  border: 1px solid rgba(255, 255, 255, 0.6);
-  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.7), 0 0 12px rgba(100, 210, 255, 0.5);
-  transition: transform 0.15s ease, box-shadow 0.15s ease;
-}
-
-input[type="range"]::-webkit-slider-thumb:hover {
-  transform: scale(1.15);
-  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.8), 0 0 18px rgba(100, 210, 255, 0.8);
+  border: 2px solid #ffffff;
+  transition: transform 150ms ease-out;
 }
 
 input[type="range"]::-webkit-slider-thumb:active {
-  transform: scale(1.05);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.9), 0 0 22px rgba(100, 210, 255, 1);
+  transform: scale(0.97);
 }
 
-/* Custom Sleek Scrollbar */
+input[type="range"]:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px #0d1117, 0 0 0 4px #3b82f6;
+}
+
+/* Clean Scrollbar */
 ::-webkit-scrollbar {
-  width: 7px;
-  height: 7px;
+  width: 8px;
+  height: 8px;
 }
 ::-webkit-scrollbar-track {
-  background: rgba(4, 6, 10, 0.6);
+  background: #0d1117;
 }
 ::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.12);
-  border-radius: 9999px;
-  border: 1px solid rgba(255, 255, 255, 0.04);
+  background: #30363d;
+  border-radius: 4px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(255, 255, 255, 0.24);
+  background: #484f58;
 }
