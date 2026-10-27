@@ -4,8 +4,8 @@
 
 @layer base {
   body {
-    @apply bg-[#080b12] text-[#f8fafc] antialiased overflow-x-hidden selection:bg-[#2563eb]/30 selection:text-white;
-    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", Inter, -apple-system, "Segoe UI", Roboto, sans-serif;
+    @apply bg-[#080b12] text-[#f8fafc] antialiased overflow-x-hidden selection:bg-[#2563eb] selection:text-white;
+    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Inter, Roboto, Helvetica, Arial, sans-serif;
     font-variant-numeric: tabular-nums;
   }
 
@@ -21,7 +21,7 @@
   }
 }
 
-/* Reduced Motion Compliance: strict zeroing under prefers-reduced-motion */
+/* Reduced Motion Compliance */
 @media (prefers-reduced-motion: reduce) {
   *, ::before, ::after {
     animation-duration: 0.01ms !important;
@@ -32,86 +32,43 @@
 }
 
 /* =========================================================================
-   AUTHENTIC APPLE VISIONOS & macOS SONOMA GLASS MATERIAL SYSTEM
-   (Strictly based on: dense tinted acrylic, 28px optical blur, 190% saturation,
-    1px top specular rim lighting, and soft directional elevation shadow)
+   HUMAN-CRAFTED INDUSTRIAL DESIGN SYSTEM
+   - 100% Flat surfaces
+   - Absolutely ZERO gradients
+   - Crisp 1px border geometry
+   - Strict spacing & tabular typography
    ========================================================================= */
 
-/* Primary Floating Glass Panel (Headers, Main Viewports, Drawers) */
-.apple-glass-panel {
-  background: rgba(16, 21, 33, 0.72);
-  backdrop-filter: blur(28px) saturate(190%);
-  -webkit-backdrop-filter: blur(28px) saturate(190%);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  box-shadow: 
-    inset 0 1px 1px 0 rgba(255, 255, 255, 0.18),
-    0 16px 36px -8px rgba(0, 0, 0, 0.65);
+/* Primary Flat Surface Panel */
+.flat-panel {
+  background-color: #0d121f;
+  border: 1px solid #1e2638;
 }
 
-/* Secondary Glass Card (Data Tiles, KPI Ledgers, Grid Items) */
-.apple-glass-card {
-  background: rgba(16, 21, 33, 0.72);
-  backdrop-filter: blur(28px) saturate(190%);
-  -webkit-backdrop-filter: blur(28px) saturate(190%);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  box-shadow: 
-    inset 0 1px 1px 0 rgba(255, 255, 255, 0.18),
-    0 16px 36px -8px rgba(0, 0, 0, 0.65);
+/* Secondary Data Card */
+.flat-card {
+  background-color: #111728;
+  border: 1px solid #1e2638;
 }
 
-/* Cupertino Dynamic Island Capsule (Floating centered status) */
-.apple-dynamic-island {
-  background: rgba(12, 16, 26, 0.85);
-  backdrop-filter: blur(28px) saturate(190%);
-  -webkit-backdrop-filter: blur(28px) saturate(190%);
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  box-shadow: 
-    inset 0 1px 1px 0 rgba(255, 255, 255, 0.22),
-    0 14px 32px -6px rgba(0, 0, 0, 0.75);
+/* Recessed Inset Well / Subsurface */
+.flat-well {
+  background-color: #080b12;
+  border: 1px solid #182030;
 }
 
-/* Floating Segmented Pill Bar */
-.apple-pill-bar {
-  background: rgba(12, 16, 26, 0.80);
-  backdrop-filter: blur(28px) saturate(190%);
-  -webkit-backdrop-filter: blur(28px) saturate(190%);
-  border: 1px solid rgba(255, 255, 255, 0.10);
-  box-shadow: 
-    inset 0 1px 1px 0 rgba(255, 255, 255, 0.18),
-    0 14px 32px -6px rgba(0, 0, 0, 0.60);
-}
-
-/* Active Segmented Pill (Electric Cobalt Accent) */
-.apple-pill-active {
-  background: rgba(37, 99, 235, 0.28);
-  border: 1px solid rgba(59, 130, 246, 0.50);
-  box-shadow: inset 0 1px 1.5px 0 rgba(255, 255, 255, 0.24);
-  color: #ffffff;
-}
-
-/* Nested Subsurface Well (Inset containers, secondary data boxes) */
-.apple-subsurface {
-  background: rgba(10, 14, 22, 0.65);
-  border: 1px solid rgba(255, 255, 255, 0.06);
-  box-shadow: inset 0 1px 2px 0 rgba(0, 0, 0, 0.45);
-}
-
-/* Tactile Control Target (44px min hit area, 0.97 press feedback, visible focus ring) */
+/* Tactile Control Target (44px min hit area, 0.98 active feedback, visible focus ring) */
 .interactive-target {
   min-height: 44px;
   min-width: 44px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  transition: opacity 150ms ease-out, transform 150ms ease-out, background-color 150ms ease-out, border-color 150ms ease-out;
-}
-
-.interactive-target:hover {
-  border-color: rgba(255, 255, 255, 0.22);
+  transition: background-color 120ms ease-out, border-color 120ms ease-out, transform 120ms ease-out;
 }
 
 .interactive-target:active {
-  transform: scale(0.97);
+  transform: scale(0.98);
 }
 
 .interactive-target:focus-visible {
@@ -126,80 +83,75 @@
   pointer-events: none;
 }
 
-/* Primary Action Button (Electric Cobalt) */
-.apple-btn-primary {
-  background: #2563eb;
+/* Primary Action Button (Solid Electric Cobalt, Flat) */
+.btn-primary {
+  background-color: #2563eb;
   color: #ffffff;
-  border: 1px solid rgba(255, 255, 255, 0.20);
-  box-shadow: 
-    inset 0 1px 1px 0 rgba(255, 255, 255, 0.30),
-    0 4px 12px rgba(37, 99, 235, 0.35);
+  border: 1px solid #3b82f6;
+  font-weight: 700;
 }
-.apple-btn-primary:hover {
-  background: #1d4ed8;
-}
-
-/* Secondary Action Button (Frosted Acrylic) */
-.apple-btn-secondary {
-  background: rgba(255, 255, 255, 0.05);
-  color: #f8fafc;
-  border: 1px solid rgba(255, 255, 255, 0.10);
-  box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.14);
-}
-.apple-btn-secondary:hover {
-  background: rgba(255, 255, 255, 0.09);
-  border-color: rgba(255, 255, 255, 0.20);
+.btn-primary:hover {
+  background-color: #1d4ed8;
+  border-color: #2563eb;
 }
 
-/* Semantic Badges with High Contrast & Explicit Bracketed Labels */
-.apple-badge-good {
-  background: rgba(16, 185, 129, 0.12);
+/* Secondary Action Button (Solid Dark Slate, Flat) */
+.btn-secondary {
+  background-color: #161e30;
+  color: #e2e8f0;
+  border: 1px solid #25334c;
+  font-weight: 700;
+}
+.btn-secondary:hover {
+  background-color: #1d2840;
+  border-color: #3b82f6;
+  color: #ffffff;
+}
+
+/* Semantic Badges (Solid Flat Fills, High-Contrast Text) */
+.badge-pass {
+  background-color: #062316;
   color: #34d399;
-  border: 1px solid rgba(52, 211, 153, 0.32);
+  border: 1px solid #059669;
 }
 
-.apple-badge-defect {
-  background: rgba(239, 68, 68, 0.14);
+.badge-fail {
+  background-color: #2c0f13;
   color: #f87171;
-  border: 1px solid rgba(248, 113, 113, 0.35);
+  border: 1px solid #dc2626;
 }
 
-.apple-badge-alert {
-  background: rgba(245, 158, 11, 0.14);
+.badge-warn {
+  background-color: #281907;
   color: #fbbf24;
-  border: 1px solid rgba(251, 191, 36, 0.35);
+  border: 1px solid #d97706;
 }
 
-/* Precision Glass Range Slider (Cupertino Hardware feel) */
+/* Industrial Precision Slider (Flat, No Gradient) */
 input[type="range"] {
   -webkit-appearance: none;
   appearance: none;
   width: 100%;
-  height: 8px;
-  background: rgba(255, 255, 255, 0.08);
-  border-radius: 9999px;
+  height: 6px;
+  background-color: #1e2638;
+  border-radius: 4px;
   outline: none;
 }
 
 input[type="range"]::-webkit-slider-thumb {
   -webkit-appearance: none;
   appearance: none;
-  width: 24px;
-  height: 24px;
-  border-radius: 9999px;
-  background: #2563eb;
+  width: 20px;
+  height: 20px;
+  border-radius: 4px;
+  background-color: #2563eb;
   cursor: pointer;
   border: 2px solid #ffffff;
-  box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.35), 0 4px 10px rgba(0, 0, 0, 0.5);
-  transition: transform 150ms ease-out;
+  transition: background-color 120ms ease-out;
 }
 
 input[type="range"]::-webkit-slider-thumb:hover {
-  background: #1d4ed8;
-}
-
-input[type="range"]::-webkit-slider-thumb:active {
-  transform: scale(0.97);
+  background-color: #1d4ed8;
 }
 
 input[type="range"]:focus-visible {
@@ -207,18 +159,18 @@ input[type="range"]:focus-visible {
   box-shadow: 0 0 0 2px #080b12, 0 0 0 4px #2563eb;
 }
 
-/* Custom Scrollbar */
+/* Flat Industrial Scrollbar */
 ::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
+  width: 6px;
+  height: 6px;
 }
 ::-webkit-scrollbar-track {
-  background: #080b12;
+  background-color: #080b12;
 }
 ::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.16);
-  border-radius: 9999px;
+  background-color: #1e2638;
+  border-radius: 3px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(255, 255, 255, 0.28);
+  background-color: #2d3952;
 }
