@@ -30,6 +30,10 @@ else:
 class Settings:
     """Application settings loaded from environment variables."""
 
+    # Project directories
+    PROJECT_ROOT: Path = PROJECT_ROOT
+    BACKEND_DIR: Path = BACKEND_DIR
+
     # Supabase Settings
     SUPABASE_URL: str = os.getenv("SUPABASE_URL", "").rstrip("/")
     SUPABASE_SERVICE_ROLE_KEY: str = os.getenv("SUPABASE_SERVICE_ROLE_KEY", "")

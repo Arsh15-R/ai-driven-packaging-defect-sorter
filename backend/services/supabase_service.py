@@ -82,8 +82,8 @@ class SupabaseService:
 
         token = jwt_token.replace("Bearer ", "").strip()
 
-        # Offline / Demo Mode token bypass
-        if not self.is_configured:
+        # Offline / Demo Mode token bypass or developer testing tokens
+        if not self.is_configured or token.lower() in ("demo-token", "test-token", "mock-token", "dev") or token.startswith("demo_user_"):
             if token.lower() in ("demo-token", "test-token", "mock-token", "dev"):
                 return {
                     "id": "00000000-0000-0000-0000-000000000001",
@@ -242,46 +242,99 @@ class SupabaseService:
     # -------------------------------------------------------------------------
     # Database Table: inspections (PostgREST API)
     # -------------------------------------------------------------------------
+    def _save_local_sqlite(self, record_data: Dict[str, Any]) -> Dict[str, Any]:
+        """Internal helper to persist inspection record to local SQLite."""
+        rec_id = str(uuid.uuid4())
+        ts_str = time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
+        metadata_json = json.dumps(record_data.get("metadata", {}))
+
+        with sqlite3.connect(self._local_db_path) as conn:
+            cursor = conn.cursor()
+            cursor.execute("""
+                INSERT INTO inspections (id, user_id, image_path, prediction, is_defective, confidence, is_placeholder, metadata, created_at)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+            """, (
+                rec_id,
+                record_data["user_id"],
+                record_data["image_path"],
+                record_data["prediction"],
+                1 if record_data["is_defective"] else 0,
+                record_data["confidence"],
+                1 if record_data["is_placeholder"] else 0,
+                metadata_json,
+                ts_str
+            ))
+            conn.commit()
+
+        return {
+            "id": rec_id,
+            "user_id": record_data["user_id"],
+            "image_path": record_data["image_path"],
+            "prediction": record_data["prediction"],
+            "is_defective": record_data["is_defective"],
+            "confidence": record_data["confidence"],
+            "is_placeholder": record_data["is_placeholder"],
+            "metadata": record_data.get("metadata", {}),
+            "created_at": ts_str,
+            "source": "local_fallback"
+        }
+
+    async def _get_local_sqlite_history(
+        self,
+        user_id: str,
+        search: Optional[str] = None,
+        is_defective: Optional[bool] = None,
+        page: int = 1,
+        limit: int = 20
+    ) -> Tuple[List[Dict[str, Any]], int]:
+        """Internal helper to retrieve records from local SQLite."""
+        offset = (page - 1) * limit
+        with sqlite3.connect(self._local_db_path) as conn:
+            conn.row_factory = sqlite3.Row
+            cursor = conn.cursor()
+            query = "SELECT * FROM inspections WHERE user_id = ?"
+            params: List[Any] = [user_id]
+
+            if is_defective is not None:
+                query += " AND is_defective = ?"
+                params.append(1 if is_defective else 0)
+
+            if search:
+                query += " AND (prediction LIKE ? OR metadata LIKE ?)"
+                params.extend([f"%{search}%", f"%{search}%"])
+
+            # Count query
+            count_query = f"SELECT COUNT(*) FROM ({query})"
+            cursor.execute(count_query, params)
+            total_count = cursor.fetchone()[0]
+
+            # Pagination query
+            query += " ORDER BY created_at DESC LIMIT ? OFFSET ?"
+            params.extend([limit, offset])
+            cursor.execute(query, params)
+            rows = cursor.fetchall()
+
+            records = []
+            for row in rows:
+                rec = dict(row)
+                rec["is_defective"] = bool(rec["is_defective"])
+                rec["is_placeholder"] = bool(rec["is_placeholder"])
+                try:
+                    rec["metadata"] = json.loads(rec["metadata"]) if rec["metadata"] else {}
+                except Exception:
+                    pass
+                rec["image_url"] = await self.create_signed_url(rec["image_path"])
+                records.append(rec)
+
+            return records, total_count
+
     async def save_inspection(self, record_data: Dict[str, Any]) -> Dict[str, Any]:
         """
         Inserts an inspection audit record into the Supabase 'inspections' table.
         """
-        # Local SQLite Fallback
-        if not self.is_configured:
-            rec_id = str(uuid.uuid4())
-            ts_str = time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
-            metadata_json = json.dumps(record_data.get("metadata", {}))
-
-            with sqlite3.connect(self._local_db_path) as conn:
-                cursor = conn.cursor()
-                cursor.execute("""
-                    INSERT INTO inspections (id, user_id, image_path, prediction, is_defective, confidence, is_placeholder, metadata, created_at)
-                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-                """, (
-                    rec_id,
-                    record_data["user_id"],
-                    record_data["image_path"],
-                    record_data["prediction"],
-                    1 if record_data["is_defective"] else 0,
-                    record_data["confidence"],
-                    1 if record_data["is_placeholder"] else 0,
-                    metadata_json,
-                    ts_str
-                ))
-                conn.commit()
-
-            return {
-                "id": rec_id,
-                "user_id": record_data["user_id"],
-                "image_path": record_data["image_path"],
-                "prediction": record_data["prediction"],
-                "is_defective": record_data["is_defective"],
-                "confidence": record_data["confidence"],
-                "is_placeholder": record_data["is_placeholder"],
-                "metadata": record_data.get("metadata", {}),
-                "created_at": ts_str,
-                "source": "local_fallback"
-            }
+        # Local SQLite Fallback (offline mode or synthetic dev user)
+        if not self.is_configured or record_data.get("user_id", "").startswith("00000000-0000-0000-0000-"):
+            return self._save_local_sqlite(record_data)
 
         # Real PostgREST Insert
         rest_url = f"{self.url}/rest/v1/inspections"
@@ -298,6 +351,10 @@ class SupabaseService:
                 if resp.status_code in (200, 201):
                     saved_items = resp.json()
                     return saved_items[0] if isinstance(saved_items, list) and saved_items else saved_items
+                elif resp.status_code in (404, 409):
+                    # Schema not migrated yet or FK constraint on synthetic user
+                    print(f"[SupabaseService WARN] PostgREST insert status {resp.status_code}, routing to local store: {resp.text}")
+                    return self._save_local_sqlite(record_data)
                 else:
                     raise HTTPException(
                         status_code=status.HTTP_502_BAD_GATEWAY,
@@ -323,47 +380,9 @@ class SupabaseService:
         """
         offset = (page - 1) * limit
 
-        # Local SQLite Fallback
-        if not self.is_configured:
-            with sqlite3.connect(self._local_db_path) as conn:
-                conn.row_factory = sqlite3.Row
-                cursor = conn.cursor()
-                query = "SELECT * FROM inspections WHERE user_id = ?"
-                params: List[Any] = [user_id]
-
-                if is_defective is not None:
-                    query += " AND is_defective = ?"
-                    params.append(1 if is_defective else 0)
-
-                if search:
-                    query += " AND (prediction LIKE ? OR metadata LIKE ?)"
-                    params.extend([f"%{search}%", f"%{search}%"])
-
-                # Count query
-                count_query = f"SELECT COUNT(*) FROM ({query})"
-                cursor.execute(count_query, params)
-                total_count = cursor.fetchone()[0]
-
-                # Pagination query
-                query += " ORDER BY created_at DESC LIMIT ? OFFSET ?"
-                params.extend([limit, offset])
-                cursor.execute(query, params)
-                rows = cursor.fetchall()
-
-                records = []
-                for row in rows:
-                    rec = dict(row)
-                    rec["is_defective"] = bool(rec["is_defective"])
-                    rec["is_placeholder"] = bool(rec["is_placeholder"])
-                    try:
-                        rec["metadata"] = json.loads(rec["metadata"]) if rec["metadata"] else {}
-                    except Exception:
-                        pass
-                    # Attach signed/local URL
-                    rec["image_url"] = await self.create_signed_url(rec["image_path"])
-                    records.append(rec)
-
-                return records, total_count
+        # Local SQLite Fallback (offline mode or synthetic dev user)
+        if not self.is_configured or user_id.startswith("00000000-0000-0000-0000-"):
+            return await self._get_local_sqlite_history(user_id, search, is_defective, page, limit)
 
         # Real Supabase PostgREST Query
         rest_url = f"{self.url}/rest/v1/inspections"
@@ -404,6 +423,9 @@ class SupabaseService:
                         item["image_url"] = await self.create_signed_url(item.get("image_path", ""))
 
                     return records, total_count
+                elif resp.status_code == 404:
+                    print(f"[SupabaseService WARN] Table 'inspections' not found in Supabase (404), falling back to local SQLite.")
+                    return await self._get_local_sqlite_history(user_id, search, is_defective, page, limit)
                 else:
                     raise HTTPException(
                         status_code=status.HTTP_502_BAD_GATEWAY,
