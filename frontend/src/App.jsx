@@ -467,7 +467,7 @@ export default function App() {
               </span>
               <span className="hidden md:inline text-white/20">|</span>
               <span className="hidden md:inline text-[#2563eb] tabular-nums whitespace-nowrap font-bold">
-                RTX 3050 &bull; {stats.fps.toFixed(1)} FPS
+                EDGE AI &bull; {stats.fps.toFixed(1)} FPS
               </span>
             </span>
           </button>
