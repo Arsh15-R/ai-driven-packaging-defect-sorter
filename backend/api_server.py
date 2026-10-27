@@ -95,7 +95,7 @@ class SystemState:
 
         # Hardware & Webcam
         self.cap: Optional[cv2.VideoCapture] = None
-        self.actuator: Optional[ConveyorActuator] = None
+        self.actuator: Optional[ConveyorActuator] = ConveyorActuator(transit_delay_seconds=self.conveyor_delay, simulate=False)
         self.yolo_model = None
         self.last_eval_time = 0.0
         self.debounce_cooldown = 1.6
