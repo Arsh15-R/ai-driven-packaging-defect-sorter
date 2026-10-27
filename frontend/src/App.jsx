@@ -310,55 +310,62 @@ export default function App() {
     : '100.0';
 
   return (
-    <div className="min-h-screen w-full bg-[#0d1117] text-[#f0f6fc] flex flex-col font-sans selection:bg-[#3b82f6] selection:text-white">
+    <div className="min-h-screen w-full bg-[#080b12] text-[#f8fafc] flex flex-col font-sans selection:bg-[#2563eb]/30 selection:text-white relative">
+      
+      {/* Subtle Apple visionOS ambient light cone (provides genuine optical refraction without AI-gradient tropes) */}
+      <div 
+        aria-hidden="true" 
+        className="pointer-events-none fixed inset-0 z-0 bg-[radial-gradient(circle_at_50%_0%,rgba(37,99,235,0.07),transparent_55%)]" 
+      />
 
       {/* =========================================================================
-          FLAT INDUSTRIAL HEADER (STRICT 4PX GRID, TABULAR NUMBERS)
+          APPLE VISIONOS / MACOS TINTED GLASS HEADER WITH DYNAMIC ISLAND
       ========================================================================= */}
-      <header className="w-full px-6 py-4 bg-[#161b22] border-b border-[#30363d] sticky top-0 z-40">
+      <header className="apple-glass-panel w-full px-6 py-3.5 sticky top-0 z-40 border-t-0 border-x-0 relative">
         <div className="max-w-7xl mx-auto flex items-center justify-between gap-4">
 
-          {/* Clean Brand Identity (Truncated, sitting on 4px grid) */}
+          {/* Cupertino Brand Title */}
           <div className="flex items-center gap-3 min-w-0">
-            <span className="font-bold text-base tracking-tight text-[#f0f6fc] truncate">
+            <span className="font-bold text-base tracking-tight text-[#f8fafc] truncate">
               SORTEX PRO
             </span>
-            <span className="text-xs font-mono font-bold px-2 py-1 bg-[#21262d] text-[#8b949e] border border-[#30363d] rounded shrink-0">
+            <span className="text-[11px] font-mono font-bold px-2.5 py-0.5 bg-white/5 text-[#94a3b8] border border-white/10 rounded-full shrink-0">
               STATION 1 & 2
             </span>
-            <span className="hidden sm:inline text-xs font-mono text-[#8b949e] truncate">
-              YOLOv8 Edge Pipeline
+            <span className="hidden sm:inline text-xs font-mono text-[#94a3b8] truncate">
+              visionOS Telemetry
             </span>
           </div>
 
-          {/* Central Telemetry Status (Flat capsule, 44px touch target, tabular figures) */}
+          {/* Cupertino Dynamic Island Capsule (Tactile target, tabular figures) */}
           <button
             onClick={() => setShowIslandDetail(!showIslandDetail)}
-            className="interactive-target px-4 py-2 bg-[#0d1117] border border-[#30363d] rounded text-xs font-mono font-bold hover:border-[#8b949e] focus-visible:ring-2 focus-visible:ring-[#3b82f6] focus-visible:outline-none"
+            className="apple-dynamic-island interactive-target px-4 py-2 rounded-full text-xs font-mono font-bold hover:border-white/25 focus-visible:outline-none"
+            aria-label="Toggle telemetry diagnostics drawer"
           >
-            <span className="flex items-center gap-2">
-              <span className={`h-2 w-2 rounded-full shrink-0 ${isConnected ? 'bg-[#3fb950]' : 'bg-[#d29922]'}`} />
+            <span className="flex items-center gap-2.5">
+              <span className={`h-2 w-2 rounded-full shrink-0 ${isConnected ? 'bg-emerald-400' : 'bg-amber-400'}`} />
               <span className="truncate">{isConnected ? '[CONVEYOR ACTIVE]' : '[CONNECTING]'}</span>
-              <span className="text-[#8b949e]">|</span>
-              <span className="text-[#8b949e] tabular-nums whitespace-nowrap">
+              <span className="text-white/20">|</span>
+              <span className="text-[#94a3b8] tabular-nums whitespace-nowrap">
                 {currentTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
               </span>
-              <span className="hidden md:inline text-[#8b949e]">|</span>
-              <span className="hidden md:inline text-[#3b82f6] tabular-nums whitespace-nowrap">
+              <span className="hidden md:inline text-white/20">|</span>
+              <span className="hidden md:inline text-[#3b82f6] tabular-nums whitespace-nowrap font-bold">
                 RTX 3050 • {stats.fps.toFixed(1)} FPS
               </span>
             </span>
           </button>
 
-          {/* Quick Line Actions (44px min touch targets, active:scale-[0.97], disabled states) */}
-          <div className="flex items-center gap-3 shrink-0">
+          {/* Quick Line Actions (44px min touch targets, active:scale-[0.97]) */}
+          <div className="flex items-center gap-2.5 shrink-0">
             <button
               onClick={handleTestPusher}
               disabled={isPusherTriggering}
-              className={`interactive-target px-4 py-2 rounded text-xs font-mono font-bold border transition-colors ${
+              className={`interactive-target px-3.5 py-2 rounded-xl text-xs font-mono font-bold border transition-colors ${
                 isPusherTriggering
-                  ? 'bg-[#b62324] text-white border-[#f85149]'
-                  : 'bg-[#21262d] text-[#f85149] border-[#30363d] hover:bg-[#30363d]'
+                  ? 'bg-red-500/25 text-red-200 border-red-500/40 shadow-sm'
+                  : 'bg-white/5 text-red-400 border-white/10 hover:bg-red-500/10'
               }`}
             >
               {isPusherTriggering ? '[PUSHER FIRED]' : 'TEST PUSHER'}
@@ -367,36 +374,36 @@ export default function App() {
             <button
               onClick={handleReset}
               title="Reset inspection counters"
-              className="interactive-target px-4 py-2 bg-[#21262d] text-[#8b949e] border border-[#30363d] rounded text-xs font-mono font-bold hover:text-[#f0f6fc] hover:bg-[#30363d]"
+              className="interactive-target px-3.5 py-2 bg-white/5 text-[#94a3b8] border border-white/10 rounded-xl text-xs font-mono font-bold hover:text-[#f8fafc] hover:bg-white/10"
             >
               RESET
             </button>
           </div>
         </div>
 
-        {/* Diagnostics Drawer (Flat surface, 4px grid spacing) */}
+        {/* Dynamic Island Expanded Diagnostics Drawer */}
         {showIslandDetail && (
-          <div className="max-w-7xl mx-auto mt-4 p-4 bg-[#0d1117] border border-[#30363d] rounded">
-            <div className="flex items-center justify-between border-b border-[#30363d] pb-2 mb-3 text-xs font-mono">
-              <span className="font-bold text-[#f0f6fc]">LINE DIAGNOSTICS</span>
-              <span className="text-[#8b949e]">Firmware v2.4-CUDA</span>
+          <div className="max-w-7xl mx-auto mt-3.5 p-4 apple-glass-card rounded-2xl border border-white/10">
+            <div className="flex items-center justify-between border-b border-white/10 pb-2 mb-3 text-xs font-mono">
+              <span className="font-bold text-[#f8fafc]">SYSTEM TELEMETRY & HARDWARE LEDGER</span>
+              <span className="text-[#94a3b8]">Firmware v2.4 • CUDA 12.1</span>
             </div>
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 text-xs font-mono">
-              <div className="p-3 bg-[#161b22] border border-[#30363d] rounded">
-                <div className="text-[#8b949e]">FEED SOURCE</div>
-                <div className="font-bold text-[#f0f6fc] mt-1 truncate">{stats.source.toUpperCase()}</div>
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs font-mono">
+              <div className="p-3 bg-black/30 border border-white/5 rounded-xl">
+                <div className="text-[#94a3b8]">FEED SOURCE</div>
+                <div className="font-bold text-[#f8fafc] mt-1 truncate">{stats.source.toUpperCase()}</div>
               </div>
-              <div className="p-3 bg-[#161b22] border border-[#30363d] rounded">
-                <div className="text-[#8b949e]">INFERENCE TIME</div>
-                <div className="font-bold text-[#3fb950] mt-1 tabular-nums">14.8 ms</div>
+              <div className="p-3 bg-black/30 border border-white/5 rounded-xl">
+                <div className="text-[#94a3b8]">INFERENCE TIME</div>
+                <div className="font-bold text-emerald-400 mt-1 tabular-nums">14.8 ms</div>
               </div>
-              <div className="p-3 bg-[#161b22] border border-[#30363d] rounded">
-                <div className="text-[#8b949e]">TRANSIT DELAY</div>
+              <div className="p-3 bg-black/30 border border-white/5 rounded-xl">
+                <div className="text-[#94a3b8]">TRANSIT DELAY</div>
                 <div className="font-bold text-[#3b82f6] mt-1 tabular-nums">{stats.conveyor_delay.toFixed(1)}s</div>
               </div>
-              <div className="p-3 bg-[#161b22] border border-[#30363d] rounded">
-                <div className="text-[#8b949e]">CONFIDENCE GATE</div>
-                <div className="font-bold text-[#f0f6fc] mt-1 tabular-nums">{(stats.conf_threshold * 100).toFixed(0)}%</div>
+              <div className="p-3 bg-black/30 border border-white/5 rounded-xl">
+                <div className="text-[#94a3b8]">CONFIDENCE GATE</div>
+                <div className="font-bold text-[#f8fafc] mt-1 tabular-nums">{(stats.conf_threshold * 100).toFixed(0)}%</div>
               </div>
             </div>
           </div>
@@ -404,10 +411,10 @@ export default function App() {
       </header>
 
       {/* =========================================================================
-          FLAT SEGMENTED NAVIGATION (NO ICONS, 44px TARGETS)
+          FLOATING SEGMENTED PILL BAR (VISIONOS GLASS DOCK)
       ========================================================================= */}
-      <nav className="w-full px-6 py-3 bg-[#0d1117] border-b border-[#30363d] flex justify-center">
-        <div className="flex flex-wrap items-center gap-2 max-w-7xl w-full">
+      <nav className="w-full px-6 py-4 flex justify-center sticky top-[69px] z-30 pointer-events-none">
+        <div className="apple-pill-bar rounded-full p-1.5 flex flex-wrap items-center justify-center gap-1 max-w-4xl shadow-xl pointer-events-auto">
           {[
             { id: 'overview', label: 'Overview' },
             { id: 'stream', label: 'Live Stream', badge: 'LIVE' },
@@ -421,16 +428,16 @@ export default function App() {
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
-                className={`interactive-target px-4 py-2 rounded text-xs font-mono font-bold border transition-colors ${
+                className={`interactive-target px-4 py-2 rounded-full text-xs font-mono font-bold transition-all ${
                   isActive
-                    ? 'bg-[#3b82f6] text-white border-[#3b82f6]'
-                    : 'bg-[#161b22] text-[#8b949e] border-[#30363d] hover:text-[#f0f6fc] hover:bg-[#21262d]'
+                    ? 'apple-pill-active'
+                    : 'text-[#94a3b8] hover:text-[#f8fafc] hover:bg-white/5'
                 }`}
               >
                 <span>{tab.label}</span>
                 {tab.badge && (
-                  <span className={`ml-2 px-2 py-1 rounded text-[10px] tabular-nums ${
-                    isActive ? 'bg-black/20 text-white' : 'bg-[#21262d] text-[#8b949e]'
+                  <span className={`ml-2 px-2 py-0.5 rounded-full text-[10px] tabular-nums font-bold ${
+                    isActive ? 'bg-white/20 text-white' : 'bg-white/10 text-[#94a3b8]'
                   }`}>
                     {tab.badge}
                   </span>
@@ -442,48 +449,48 @@ export default function App() {
       </nav>
 
       {/* =========================================================================
-          MAIN WORKSPACE VIEWPORT (SINGLE FOCAL POINT PER SCREEN)
+          MAIN WORKSPACE (APPLE GLASS CARDS & PANELS)
       ========================================================================= */}
-      <main className="flex-1 max-w-7xl w-full mx-auto px-6 py-6 space-y-6">
+      <main className="flex-1 max-w-7xl w-full mx-auto px-6 py-2 space-y-6 z-10">
 
         {/* =====================================================================
-            TAB 1: OVERVIEW DASHBOARD (PRIMARY FOCAL POINT: LIVE CONVEYOR)
+            TAB 1: OVERVIEW DASHBOARD
         ===================================================================== */}
         {activeTab === 'overview' && (
           <div className="space-y-6">
 
-            {/* METRICS ROW (Strict 4px grid, tabular-nums) */}
+            {/* METRICS ROW (Apple Glass Cards with Specular Highlight) */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-              <div className="p-4 bg-[#161b22] border border-[#30363d] rounded">
-                <div className="text-xs font-mono font-bold text-[#8b949e] truncate">TOTAL INSPECTED</div>
-                <div className="text-3xl font-extrabold font-mono text-[#f0f6fc] mt-2 mb-1 tabular-nums truncate">
+              <div className="apple-glass-card rounded-2xl p-5 border border-white/10">
+                <div className="text-xs font-mono font-bold text-[#94a3b8] truncate">TOTAL INSPECTED</div>
+                <div className="text-3xl font-extrabold font-mono text-[#f8fafc] mt-2 mb-1 tabular-nums truncate">
                   {stats.total_checked.toLocaleString()}
                 </div>
-                <div className="text-xs font-mono text-[#8b949e]">[100% INSPECTED]</div>
+                <div className="text-xs font-mono text-[#94a3b8]">[100% INSPECTED]</div>
               </div>
 
-              <div className="p-4 bg-[#161b22] border border-[#30363d] rounded">
-                <div className="text-xs font-mono font-bold text-[#8b949e] truncate">GOOD PACKAGES</div>
-                <div className="text-3xl font-extrabold font-mono text-[#3fb950] mt-2 mb-1 tabular-nums truncate">
+              <div className="apple-glass-card rounded-2xl p-5 border border-white/10">
+                <div className="text-xs font-mono font-bold text-[#94a3b8] truncate">GOOD PACKAGES</div>
+                <div className="text-3xl font-extrabold font-mono text-emerald-400 mt-2 mb-1 tabular-nums truncate">
                   {stats.good_count.toLocaleString()}
                 </div>
-                <div className="text-xs font-mono text-[#3fb950] tabular-nums">[PASS RATE: {yieldPercentage}%]</div>
+                <div className="text-xs font-mono text-emerald-400 tabular-nums">[PASS RATE: {yieldPercentage}%]</div>
               </div>
 
-              <div className="p-4 bg-[#161b22] border border-[#30363d] rounded">
-                <div className="text-xs font-mono font-bold text-[#8b949e] truncate">DEFECTS DIVERTED</div>
-                <div className="text-3xl font-extrabold font-mono text-[#f85149] mt-2 mb-1 tabular-nums truncate">
+              <div className="apple-glass-card rounded-2xl p-5 border border-white/10">
+                <div className="text-xs font-mono font-bold text-[#94a3b8] truncate">DEFECTS DIVERTED</div>
+                <div className="text-3xl font-extrabold font-mono text-red-400 mt-2 mb-1 tabular-nums truncate">
                   {stats.defect_count.toLocaleString()}
                 </div>
-                <div className="text-xs font-mono text-[#f85149]">[REJECT CHUTE]</div>
+                <div className="text-xs font-mono text-red-400">[REJECT CHUTE]</div>
               </div>
 
-              <div className="p-4 bg-[#161b22] border border-[#30363d] rounded">
-                <div className="text-xs font-mono font-bold text-[#8b949e] truncate">DEFECT RATE</div>
-                <div className="text-3xl font-extrabold font-mono text-[#d29922] mt-2 mb-1 tabular-nums truncate">
+              <div className="apple-glass-card rounded-2xl p-5 border border-white/10">
+                <div className="text-xs font-mono font-bold text-[#94a3b8] truncate">DEFECT RATE</div>
+                <div className="text-3xl font-extrabold font-mono text-amber-400 mt-2 mb-1 tabular-nums truncate">
                   {stats.defect_rate.toFixed(2)}%
                 </div>
-                <div className="text-xs font-mono text-[#8b949e]">
+                <div className="text-xs font-mono text-[#94a3b8]">
                   {stats.defect_rate > 5 ? '[ALERT: EXCEEDS 5.0%]' : '[NOMINAL < 3.0%]'}
                 </div>
               </div>
@@ -493,24 +500,24 @@ export default function App() {
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
 
               {/* Primary Cinema Conveyor Viewport (2 Cols) */}
-              <div className="lg:col-span-2 p-4 bg-[#161b22] border border-[#30363d] rounded flex flex-col justify-between space-y-4">
+              <div className="lg:col-span-2 apple-glass-panel rounded-2xl p-5 border border-white/10 flex flex-col justify-between space-y-4">
                 <div className="flex flex-wrap items-center justify-between gap-2">
-                  <div className="flex items-center gap-2">
-                    <span className="h-2 w-2 rounded-full bg-[#3fb950] shrink-0" />
-                    <span className="text-xs font-mono font-bold text-[#f0f6fc] truncate">
-                      STATION 1 OPTICAL GATE $\rightarrow$ STATION 2 DIVERTER
+                  <div className="flex items-center gap-2.5">
+                    <span className="h-2 w-2 rounded-full bg-emerald-400 shrink-0" />
+                    <span className="text-xs font-mono font-bold text-[#f8fafc] truncate">
+                      STATION 1 OPTICAL GATE &rarr; STATION 2 DIVERTER
                     </span>
                   </div>
                   <div className="flex items-center gap-2">
                     <button
                       onClick={() => setUseDigitalTwin(!useDigitalTwin)}
-                      className="interactive-target px-3 py-2 bg-[#21262d] text-xs font-mono font-bold border border-[#30363d] rounded hover:border-[#8b949e]"
+                      className="interactive-target px-3 py-1.5 bg-white/5 text-xs font-mono font-bold border border-white/10 rounded-xl hover:bg-white/10 text-[#f8fafc]"
                     >
                       {useDigitalTwin ? 'MODE: DIGITAL TWIN' : 'MODE: CAMERA FEED'}
                     </button>
                     <button
                       onClick={() => setShowHudOverlay(!showHudOverlay)}
-                      className="interactive-target px-3 py-2 bg-[#21262d] text-xs font-mono font-bold border border-[#30363d] rounded hover:border-[#8b949e]"
+                      className="interactive-target px-3 py-1.5 bg-white/5 text-xs font-mono font-bold border border-white/10 rounded-xl hover:bg-white/10 text-[#f8fafc]"
                     >
                       {showHudOverlay ? 'HUD: ON' : 'HUD: OFF'}
                     </button>
@@ -518,7 +525,7 @@ export default function App() {
                 </div>
 
                 {/* Viewport Frame */}
-                <div className="relative aspect-video w-full rounded bg-[#0d1117] border border-[#30363d] overflow-hidden flex items-center justify-center">
+                <div className="relative aspect-video w-full rounded-xl bg-[#080b12] border border-white/10 overflow-hidden flex items-center justify-center">
                   {!isStreamPaused ? (
                     useDigitalTwin ? (
                       <DigitalTwinCanvas
@@ -537,31 +544,31 @@ export default function App() {
                       />
                     )
                   ) : (
-                    <div className="text-xs font-mono text-[#8b949e]">
+                    <div className="text-xs font-mono text-[#94a3b8]">
                       [CONVEYOR FEED PAUSED]
                     </div>
                   )}
 
                   {showHudOverlay && (
-                    <div className="absolute top-3 left-3 px-3 py-2 bg-[#161b22] border border-[#30363d] rounded text-xs font-mono pointer-events-none">
-                      <div className="font-bold text-[#f0f6fc]">STATION 1: INSPECTION</div>
-                      <div className="text-[#8b949e] tabular-nums">Gate: {(stats.conf_threshold * 100).toFixed(0)}%</div>
+                    <div className="apple-dynamic-island absolute top-3 left-3 px-3.5 py-2 rounded-xl text-xs font-mono pointer-events-none border border-white/15">
+                      <div className="font-bold text-[#f8fafc]">STATION 1: INSPECTION</div>
+                      <div className="text-[#94a3b8] tabular-nums">Gate: {(stats.conf_threshold * 100).toFixed(0)}%</div>
                     </div>
                   )}
                 </div>
 
-                <div className="flex flex-wrap items-center justify-between gap-2 text-xs font-mono text-[#8b949e]">
-                  <span className="tabular-nums">Resolution: 1280×600 • 30.0 FPS</span>
-                  <span className="text-[#3b82f6] tabular-nums">YOLOv8s PyTorch CUDA (~14.8 ms)</span>
+                <div className="flex flex-wrap items-center justify-between gap-2 text-xs font-mono text-[#94a3b8]">
+                  <span className="tabular-nums">Resolution: 1280&times;600 &bull; 30.0 FPS</span>
+                  <span className="text-[#3b82f6] tabular-nums font-bold">YOLOv8s PyTorch CUDA (~14.8 ms)</span>
                 </div>
               </div>
 
               {/* Right Side: Defect Taxonomy Matrix (1 Col) */}
-              <div className="p-4 bg-[#161b22] border border-[#30363d] rounded flex flex-col justify-between space-y-4">
+              <div className="apple-glass-card rounded-2xl p-5 border border-white/10 flex flex-col justify-between space-y-4">
                 <div>
-                  <div className="flex items-center justify-between border-b border-[#30363d] pb-2 mb-4">
-                    <span className="text-xs font-mono font-bold text-[#f0f6fc]">DEFECT BREAKDOWN</span>
-                    <span className="text-xs font-mono text-[#8b949e] tabular-nums">Total: {stats.defect_count}</span>
+                  <div className="flex items-center justify-between border-b border-white/10 pb-2 mb-4">
+                    <span className="text-xs font-mono font-bold text-[#f8fafc]">DEFECT BREAKDOWN</span>
+                    <span className="text-xs font-mono text-[#94a3b8] tabular-nums">Total: {stats.defect_count}</span>
                   </div>
 
                   <div className="space-y-4">
@@ -571,40 +578,40 @@ export default function App() {
                       return (
                         <div key={def.key} className="space-y-1">
                           <div className="flex justify-between text-xs font-mono">
-                            <span className="text-[#f0f6fc] font-bold">{def.label}</span>
-                            <span className="text-[#8b949e] tabular-nums">
+                            <span className="text-[#f8fafc] font-bold">{def.label}</span>
+                            <span className="text-[#94a3b8] tabular-nums">
                               {count} ({pct.toFixed(0)}%)
                             </span>
                           </div>
-                          <div className="h-2 w-full bg-[#21262d] rounded overflow-hidden">
+                          <div className="h-1.5 w-full bg-white/10 rounded-full overflow-hidden">
                             <div
-                              className="h-full bg-[#3b82f6]"
+                              className="h-full bg-[#2563eb] rounded-full"
                               style={{ width: `${Math.max(pct, count > 0 ? 5 : 0)}%` }}
                             />
                           </div>
-                          <p className="text-xs text-[#8b949e] max-w-[65ch] break-words">{def.desc}</p>
+                          <p className="text-xs text-[#94a3b8] max-w-[65ch] break-words">{def.desc}</p>
                         </div>
                       );
                     })}
                   </div>
                 </div>
 
-                {/* Latest Defect Flagged (Plain language empty state) */}
-                <div className="p-3 bg-[#0d1117] border border-[#30363d] rounded font-mono text-xs">
-                  <div className="text-xs text-[#f85149] font-bold">LATEST DEFECT DETECTED</div>
+                {/* Latest Defect Flagged */}
+                <div className="p-3.5 bg-black/40 border border-white/10 rounded-xl font-mono text-xs">
+                  <div className="text-xs text-red-400 font-bold">LATEST DEFECT DETECTED</div>
                   {stats.last_defect ? (
-                    <div className="mt-1 space-y-1">
-                      <div className="flex justify-between font-bold text-[#f0f6fc]">
+                    <div className="mt-1.5 space-y-1">
+                      <div className="flex justify-between font-bold text-[#f8fafc]">
                         <span className="truncate max-w-[140px]">{stats.last_defect.id}</span>
-                        <span className="text-[#f85149] shrink-0">[FAIL: {stats.last_defect.type.toUpperCase()}]</span>
+                        <span className="text-red-400 shrink-0">[FAIL: {stats.last_defect.type.toUpperCase()}]</span>
                       </div>
-                      <div className="text-xs text-[#8b949e] flex justify-between tabular-nums">
+                      <div className="text-xs text-[#94a3b8] flex justify-between tabular-nums">
                         <span>Confidence: {((stats.last_defect.conf || 0.85) * 100).toFixed(0)}%</span>
-                        <span className="text-[#3fb950] shrink-0">[DIVERTED]</span>
+                        <span className="text-emerald-400 shrink-0 font-bold">[DIVERTED]</span>
                       </div>
                     </div>
                   ) : (
-                    <div className="text-[#8b949e] mt-1">
+                    <div className="text-[#94a3b8] mt-1">
                       No defects detected. All inspected packaging units have passed quality checks.
                     </div>
                   )}
@@ -614,14 +621,14 @@ export default function App() {
             </div>
 
             {/* Traceability Table Preview */}
-            <div className="p-4 bg-[#161b22] border border-[#30363d] rounded space-y-3">
-              <div className="flex items-center justify-between border-b border-[#30363d] pb-2">
-                <span className="text-xs font-mono font-bold text-[#f0f6fc]">
+            <div className="apple-glass-card rounded-2xl p-5 border border-white/10 space-y-3">
+              <div className="flex items-center justify-between border-b border-white/10 pb-2">
+                <span className="text-xs font-mono font-bold text-[#f8fafc]">
                   LIVE CONVEYOR TRACEABILITY AUDIT
                 </span>
                 <button
                   onClick={() => setActiveTab('audit')}
-                  className="interactive-target px-3 py-2 bg-[#21262d] text-xs font-mono font-bold border border-[#30363d] rounded hover:border-[#8b949e]"
+                  className="interactive-target px-3.5 py-1.5 bg-white/5 text-xs font-mono font-bold border border-white/10 rounded-xl hover:bg-white/10 text-[#f8fafc]"
                 >
                   FULL AUDIT TRAIL
                 </button>
@@ -629,52 +636,52 @@ export default function App() {
 
               <div className="overflow-x-auto">
                 <table className="w-full text-left text-xs font-mono">
-                  <thead className="border-b border-[#30363d] text-[#8b949e]">
+                  <thead className="border-b border-white/10 text-[#94a3b8]">
                     <tr>
-                      <th className="pb-2 px-2">Timestamp</th>
-                      <th className="pb-2 px-2">Package ID</th>
-                      <th className="pb-2 px-2">Decision</th>
-                      <th className="pb-2 px-2">Defect Type</th>
-                      <th className="pb-2 px-2">Confidence</th>
-                      <th className="pb-2 px-2 text-right">Photo Snapshot</th>
+                      <th className="pb-2.5 px-3">Timestamp</th>
+                      <th className="pb-2.5 px-3">Package ID</th>
+                      <th className="pb-2.5 px-3">Decision</th>
+                      <th className="pb-2.5 px-3">Defect Type</th>
+                      <th className="pb-2.5 px-3">Confidence</th>
+                      <th className="pb-2.5 px-3 text-right">Photo Snapshot</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-[#30363d] text-[#f0f6fc]">
+                  <tbody className="divide-y divide-white/5 text-[#f8fafc]">
                     {logs.slice(0, 5).map((r, i) => (
-                      <tr key={i} className="hover:bg-[#21262d]">
-                        <td className="py-2 px-2 text-[#8b949e] whitespace-nowrap tabular-nums">{r.timestamp}</td>
-                        <td className="py-2 px-2 font-bold whitespace-nowrap truncate max-w-[140px]">{r.item_id}</td>
-                        <td className="py-2 px-2 whitespace-nowrap">
-                          <span className={`px-2 py-1 rounded text-[10px] font-bold ${
+                      <tr key={i} className="hover:bg-white/5 transition-colors">
+                        <td className="py-2.5 px-3 text-[#94a3b8] whitespace-nowrap tabular-nums">{r.timestamp}</td>
+                        <td className="py-2.5 px-3 font-bold whitespace-nowrap truncate max-w-[140px]">{r.item_id}</td>
+                        <td className="py-2.5 px-3 whitespace-nowrap">
+                          <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold ${
                             r.decision === 'GOOD'
-                              ? 'bg-[#21262d] text-[#3fb950] border border-[#238636]'
-                              : 'bg-[#21262d] text-[#f85149] border-[#da3633]'
+                              ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/30'
+                              : 'bg-red-500/10 text-red-400 border border-red-500/30'
                           }`}>
                             [{r.decision}]
                           </span>
                         </td>
-                        <td className="py-2 px-2 uppercase whitespace-nowrap truncate max-w-[120px]">{r.defect_type}</td>
-                        <td className="py-2 px-2 text-[#3b82f6] tabular-nums whitespace-nowrap">{(r.confidence * 100).toFixed(1)}%</td>
-                        <td className="py-2 px-2 text-right whitespace-nowrap">
+                        <td className="py-2.5 px-3 uppercase whitespace-nowrap truncate max-w-[120px]">{r.defect_type}</td>
+                        <td className="py-2.5 px-3 text-[#3b82f6] tabular-nums whitespace-nowrap font-bold">{(r.confidence * 100).toFixed(1)}%</td>
+                        <td className="py-2.5 px-3 text-right whitespace-nowrap">
                           {r.image_url ? (
                             <button
                               onClick={() => {
                                 setSelectedSnapshot(r.image_url);
                                 setSelectedLogRecord(r);
                               }}
-                              className="interactive-target px-3 py-1 bg-[#21262d] border border-[#30363d] rounded text-xs font-mono text-[#3b82f6] hover:border-[#8b949e]"
+                              className="interactive-target px-3 py-1 bg-white/5 border border-white/10 rounded-lg text-xs font-mono text-[#3b82f6] hover:bg-white/10 font-bold"
                             >
                               INSPECT
                             </button>
                           ) : (
-                            <span className="text-[#8b949e]">—</span>
+                            <span className="text-[#94a3b8]">&mdash;</span>
                           )}
                         </td>
                       </tr>
                     ))}
                     {logs.length === 0 && (
                       <tr>
-                        <td colSpan={6} className="py-6 text-center text-[#8b949e]">
+                        <td colSpan={6} className="py-6 text-center text-[#94a3b8]">
                           No inspection records found. Start the conveyor to begin quality checks.
                         </td>
                       </tr>
@@ -692,34 +699,34 @@ export default function App() {
         ===================================================================== */}
         {activeTab === 'stream' && (
           <div className="space-y-6">
-            <div className="p-4 bg-[#161b22] border border-[#30363d] rounded space-y-4">
-              <div className="flex flex-wrap items-center justify-between gap-3 border-b border-[#30363d] pb-3">
+            <div className="apple-glass-panel rounded-2xl p-6 border border-white/10 space-y-5">
+              <div className="flex flex-wrap items-center justify-between gap-3 border-b border-white/10 pb-4">
                 <div>
-                  <h2 className="text-sm font-mono font-bold text-[#f0f6fc]">
+                  <h2 className="text-sm font-mono font-bold text-[#f8fafc]">
                     REAL-TIME OPTICAL VISION THEATER
                   </h2>
-                  <p className="text-xs text-[#8b949e] mt-1 max-w-[65ch]">
+                  <p className="text-xs text-[#94a3b8] mt-1 max-w-[65ch]">
                     High-bandwidth stream evaluating package geometry, label placement, and seal integrity.
                   </p>
                 </div>
 
-                <div className="flex items-center gap-3">
+                <div className="flex items-center gap-2.5">
                   <button
                     onClick={() => setUseDigitalTwin(!useDigitalTwin)}
-                    className="interactive-target px-4 py-2 bg-[#21262d] text-xs font-mono font-bold border border-[#30363d] rounded hover:border-[#8b949e]"
+                    className="interactive-target px-3.5 py-2 bg-white/5 text-xs font-mono font-bold border border-white/10 rounded-xl hover:bg-white/10 text-[#f8fafc]"
                   >
                     {useDigitalTwin ? 'MODE: DIGITAL TWIN' : 'MODE: CAMERA STREAM'}
                   </button>
                   <button
                     onClick={() => setIsStreamPaused(!isStreamPaused)}
-                    className="interactive-target px-4 py-2 bg-[#21262d] text-xs font-mono font-bold border border-[#30363d] rounded hover:border-[#8b949e]"
+                    className="interactive-target px-3.5 py-2 bg-white/5 text-xs font-mono font-bold border border-white/10 rounded-xl hover:bg-white/10 text-[#f8fafc]"
                   >
                     {isStreamPaused ? 'RESUME STREAM' : 'PAUSE STREAM'}
                   </button>
                   <button
                     onClick={handleTestPusher}
                     disabled={isPusherTriggering}
-                    className="interactive-target px-4 py-2 bg-[#21262d] text-[#f85149] text-xs font-mono font-bold border border-[#30363d] rounded hover:bg-[#30363d]"
+                    className="interactive-target px-3.5 py-2 bg-white/5 text-red-400 text-xs font-mono font-bold border border-white/10 rounded-xl hover:bg-red-500/10"
                   >
                     ACTUATE DIVERTER
                   </button>
@@ -727,7 +734,7 @@ export default function App() {
               </div>
 
               {/* Theater Viewport */}
-              <div className="relative aspect-video w-full rounded bg-[#0d1117] border border-[#30363d] overflow-hidden flex items-center justify-center">
+              <div className="relative aspect-video w-full rounded-xl bg-[#080b12] border border-white/10 overflow-hidden flex items-center justify-center">
                 {!isStreamPaused ? (
                   useDigitalTwin ? (
                     <DigitalTwinCanvas
@@ -746,27 +753,27 @@ export default function App() {
                     />
                   )
                 ) : (
-                  <div className="text-xs font-mono text-[#8b949e]">[CINEMA FEED PAUSED]</div>
+                  <div className="text-xs font-mono text-[#94a3b8]">[CINEMA FEED PAUSED]</div>
                 )}
               </div>
 
-              {/* Unified Linear Telemetry Strip on 4px grid */}
-              <div className="border border-[#30363d] rounded bg-[#0d1117] overflow-hidden">
-                <div className="grid grid-cols-1 md:grid-cols-3 divide-y md:divide-y-0 md:divide-x divide-[#30363d] text-xs font-mono">
+              {/* Unified Linear Telemetry Strip */}
+              <div className="apple-glass-card rounded-xl border border-white/10 overflow-hidden">
+                <div className="grid grid-cols-1 md:grid-cols-3 divide-y md:divide-y-0 md:divide-x divide-white/10 text-xs font-mono">
                   <div className="p-4 space-y-1">
-                    <div className="text-[#8b949e] font-bold">STATION 1: OPTICAL CAMERA</div>
-                    <div className="text-[#f0f6fc] font-bold">Telecentric Industrial Sensor</div>
-                    <div className="text-[#8b949e] text-xs tabular-nums">1/500s Shutter • 6000K Illumination</div>
+                    <div className="text-[#94a3b8] font-bold">STATION 1: OPTICAL CAMERA</div>
+                    <div className="text-[#f8fafc] font-bold">Telecentric Industrial Sensor</div>
+                    <div className="text-[#94a3b8] text-xs tabular-nums">1/500s Shutter &bull; 6000K Illumination</div>
                   </div>
                   <div className="p-4 space-y-1">
-                    <div className="text-[#8b949e] font-bold">STATION 2: SERVO DIVERTER</div>
-                    <div className="text-[#f0f6fc] font-bold">SG90 / MG995 Diverter Arm</div>
-                    <div className="text-[#8b949e] text-xs tabular-nums">95° Deflection Arc • 85ms Actuation</div>
+                    <div className="text-[#94a3b8] font-bold">STATION 2: SERVO DIVERTER</div>
+                    <div className="text-[#f8fafc] font-bold">SG90 / MG995 Diverter Arm</div>
+                    <div className="text-[#94a3b8] text-xs tabular-nums">95&deg; Deflection Arc &bull; 85ms Actuation</div>
                   </div>
                   <div className="p-4 space-y-1">
-                    <div className="text-[#8b949e] font-bold">CONVEYOR DRIVE MOTOR</div>
+                    <div className="text-[#94a3b8] font-bold">CONVEYOR DRIVE MOTOR</div>
                     <div className="text-[#3b82f6] font-bold">Closed-Loop Belt Drive</div>
-                    <div className="text-[#8b949e] text-xs tabular-nums">{stats.conveyor_delay.toFixed(1)}s Arrival Delay Window</div>
+                    <div className="text-[#94a3b8] text-xs tabular-nums">{stats.conveyor_delay.toFixed(1)}s Arrival Delay Window</div>
                   </div>
                 </div>
               </div>
@@ -781,41 +788,41 @@ export default function App() {
         {activeTab === 'analytics' && (
           <div className="space-y-6">
 
-            {/* Linear Production KPI Ledger (Strict 4px grid, tabular-nums) */}
-            <div className="p-4 bg-[#161b22] border border-[#30363d] rounded space-y-4">
-              <div className="flex items-center justify-between border-b border-[#30363d] pb-2">
-                <span className="text-xs font-mono font-bold text-[#f0f6fc]">
+            {/* Linear Production KPI Ledger */}
+            <div className="apple-glass-card rounded-2xl p-6 border border-white/10 space-y-4">
+              <div className="flex items-center justify-between border-b border-white/10 pb-2">
+                <span className="text-xs font-mono font-bold text-[#f8fafc]">
                   QUALITY ASSURANCE TELEMETRY SUMMARY
                 </span>
-                <span className="text-xs font-mono text-[#8b949e]">ISO 9001 Inspection Metric</span>
+                <span className="text-xs font-mono text-[#94a3b8]">ISO 9001 Inspection Metric</span>
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-3 divide-y sm:divide-y-0 sm:divide-x divide-[#30363d] text-xs font-mono">
+              <div className="grid grid-cols-1 sm:grid-cols-3 divide-y sm:divide-y-0 sm:divide-x divide-white/10 text-xs font-mono">
                 <div className="p-4 space-y-1">
-                  <div className="text-[#8b949e]">FIRST PASS YIELD (FPY)</div>
-                  <div className="text-2xl font-extrabold text-[#3fb950] tabular-nums">{yieldPercentage}%</div>
-                  <div className="text-xs text-[#8b949e]">Good units passed downstream</div>
+                  <div className="text-[#94a3b8]">FIRST PASS YIELD (FPY)</div>
+                  <div className="text-2xl font-extrabold text-emerald-400 tabular-nums">{yieldPercentage}%</div>
+                  <div className="text-xs text-[#94a3b8]">Good units passed downstream</div>
                 </div>
                 <div className="p-4 space-y-1">
-                  <div className="text-[#8b949e]">DEFECT OCCURRENCE RATIO</div>
-                  <div className="text-2xl font-extrabold text-[#d29922] tabular-nums">{stats.defect_rate.toFixed(2)}%</div>
-                  <div className="text-xs text-[#8b949e]">Benchmark threshold &lt; 3.00%</div>
+                  <div className="text-[#94a3b8]">DEFECT OCCURRENCE RATIO</div>
+                  <div className="text-2xl font-extrabold text-amber-400 tabular-nums">{stats.defect_rate.toFixed(2)}%</div>
+                  <div className="text-xs text-[#94a3b8]">Benchmark threshold &lt; 3.00%</div>
                 </div>
                 <div className="p-4 space-y-1">
-                  <div className="text-[#8b949e]">DIVERTER EFFICIENCY</div>
+                  <div className="text-[#94a3b8]">DIVERTER EFFICIENCY</div>
                   <div className="text-2xl font-extrabold text-[#3b82f6] tabular-nums">100.0%</div>
-                  <div className="text-xs text-[#8b949e] tabular-nums">{stats.defect_count} confirmed rejections</div>
+                  <div className="text-xs text-[#94a3b8] tabular-nums">{stats.defect_count} confirmed rejections</div>
                 </div>
               </div>
             </div>
 
             {/* Defect Classification Matrix */}
-            <div className="p-4 bg-[#161b22] border border-[#30363d] rounded space-y-4">
-              <div className="border-b border-[#30363d] pb-2">
-                <h3 className="text-xs font-mono font-bold text-[#f0f6fc]">
-                  DEFECT CLASS DISTRIBUTION & ROOT CAUSE MATRIX
+            <div className="apple-glass-card rounded-2xl p-6 border border-white/10 space-y-4">
+              <div className="border-b border-white/10 pb-2">
+                <h3 className="text-xs font-mono font-bold text-[#f8fafc]">
+                  DEFECT CLASS DISTRIBUTION &amp; ROOT CAUSE MATRIX
                 </h3>
-                <p className="text-xs text-[#8b949e] mt-1 max-w-[65ch]">
+                <p className="text-xs text-[#94a3b8] mt-1 max-w-[65ch]">
                   Categorization of diverted packages by YOLOv8 visual classifier.
                 </p>
               </div>
@@ -825,18 +832,18 @@ export default function App() {
                   const count = (stats.defect_breakdown && stats.defect_breakdown[def.key]) || 0;
                   const pct = stats.defect_count > 0 ? (count / stats.defect_count) * 100 : 0;
                   return (
-                    <div key={def.key} className="p-4 bg-[#0d1117] border border-[#30363d] rounded space-y-2">
+                    <div key={def.key} className="p-4 bg-black/40 border border-white/10 rounded-xl space-y-2">
                       <div className="flex justify-between text-xs font-mono font-bold">
-                        <span className="text-[#f0f6fc] truncate">{def.label}</span>
-                        <span className="text-[#8b949e] tabular-nums shrink-0">{count} ({pct.toFixed(0)}%)</span>
+                        <span className="text-[#f8fafc] truncate">{def.label}</span>
+                        <span className="text-[#94a3b8] tabular-nums shrink-0">{count} ({pct.toFixed(0)}%)</span>
                       </div>
-                      <div className="h-2 w-full bg-[#21262d] rounded overflow-hidden">
+                      <div className="h-1.5 w-full bg-white/10 rounded-full overflow-hidden">
                         <div
-                          className="h-full bg-[#3b82f6]"
+                          className="h-full bg-[#2563eb] rounded-full"
                           style={{ width: `${Math.max(pct, count > 0 ? 5 : 0)}%` }}
                         />
                       </div>
-                      <p className="text-xs text-[#8b949e] max-w-[65ch] break-words leading-relaxed">
+                      <p className="text-xs text-[#94a3b8] max-w-[65ch] break-words leading-relaxed">
                         {def.desc}
                       </p>
                     </div>
@@ -847,47 +854,47 @@ export default function App() {
 
             {/* Latency Specifications */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="p-4 bg-[#161b22] border border-[#30363d] rounded space-y-3 font-mono text-xs">
-                <div className="font-bold text-[#f0f6fc] border-b border-[#30363d] pb-2">
+              <div className="apple-glass-card rounded-2xl p-5 border border-white/10 space-y-3 font-mono text-xs">
+                <div className="font-bold text-[#f8fafc] border-b border-white/10 pb-2">
                   OPTICAL INFERENCE TIMING
                 </div>
-                <div className="flex justify-between py-1 border-b border-[#30363d]">
-                  <span className="text-[#8b949e]">Preprocessing & Letterbox</span>
-                  <span className="text-[#f0f6fc] tabular-nums">1.8 ms</span>
+                <div className="flex justify-between py-1 border-b border-white/5">
+                  <span className="text-[#94a3b8]">Preprocessing &amp; Letterbox</span>
+                  <span className="text-[#f8fafc] tabular-nums">1.8 ms</span>
                 </div>
-                <div className="flex justify-between py-1 border-b border-[#30363d]">
-                  <span className="text-[#8b949e]">YOLOv8s PyTorch CUDA</span>
+                <div className="flex justify-between py-1 border-b border-white/5">
+                  <span className="text-[#94a3b8]">YOLOv8s PyTorch CUDA</span>
                   <span className="text-[#3b82f6] font-bold tabular-nums">11.4 ms</span>
                 </div>
-                <div className="flex justify-between py-1 border-b border-[#30363d]">
-                  <span className="text-[#8b949e]">Non-Maximum Suppression</span>
-                  <span className="text-[#f0f6fc] tabular-nums">1.6 ms</span>
+                <div className="flex justify-between py-1 border-b border-white/5">
+                  <span className="text-[#94a3b8]">Non-Maximum Suppression</span>
+                  <span className="text-[#f8fafc] tabular-nums">1.6 ms</span>
                 </div>
                 <div className="flex justify-between py-1">
-                  <span className="text-[#8b949e]">Total Optical Latency</span>
-                  <span className="text-[#3fb950] font-bold tabular-nums">14.8 ms (67+ FPS)</span>
+                  <span className="text-[#94a3b8]">Total Optical Latency</span>
+                  <span className="text-emerald-400 font-bold tabular-nums">14.8 ms (67+ FPS)</span>
                 </div>
               </div>
 
-              <div className="p-4 bg-[#161b22] border border-[#30363d] rounded space-y-3 font-mono text-xs">
-                <div className="font-bold text-[#f0f6fc] border-b border-[#30363d] pb-2">
+              <div className="apple-glass-card rounded-2xl p-5 border border-white/10 space-y-3 font-mono text-xs">
+                <div className="font-bold text-[#f8fafc] border-b border-white/10 pb-2">
                   MECHANICAL ACTUATOR TIMING
                 </div>
-                <div className="flex justify-between py-1 border-b border-[#30363d]">
-                  <span className="text-[#8b949e]">Serial UART Dispatch</span>
-                  <span className="text-[#f0f6fc] tabular-nums">&lt; 0.1 ms (115200 baud)</span>
+                <div className="flex justify-between py-1 border-b border-white/5">
+                  <span className="text-[#94a3b8]">Serial UART Dispatch</span>
+                  <span className="text-[#f8fafc] tabular-nums">&lt; 0.1 ms (115200 baud)</span>
                 </div>
-                <div className="flex justify-between py-1 border-b border-[#30363d]">
-                  <span className="text-[#8b949e]">Conveyor Transit Delay</span>
+                <div className="flex justify-between py-1 border-b border-white/5">
+                  <span className="text-[#94a3b8]">Conveyor Transit Delay</span>
                   <span className="text-[#3b82f6] font-bold tabular-nums">{stats.conveyor_delay.toFixed(1)}s Window</span>
                 </div>
-                <div className="flex justify-between py-1 border-b border-[#30363d]">
-                  <span className="text-[#8b949e]">Servo Sweep Stroke</span>
-                  <span className="text-[#f0f6fc] tabular-nums">85 ms (95° arc)</span>
+                <div className="flex justify-between py-1 border-b border-white/5">
+                  <span className="text-[#94a3b8]">Servo Sweep Stroke</span>
+                  <span className="text-[#f8fafc] tabular-nums">85 ms (95&deg; arc)</span>
                 </div>
                 <div className="flex justify-between py-1">
-                  <span className="text-[#8b949e]">Chute Clearance Return</span>
-                  <span className="text-[#3fb950] font-bold tabular-nums">120 ms</span>
+                  <span className="text-[#94a3b8]">Chute Clearance Return</span>
+                  <span className="text-emerald-400 font-bold tabular-nums">120 ms</span>
                 </div>
               </div>
             </div>
@@ -896,16 +903,16 @@ export default function App() {
         )}
 
         {/* =====================================================================
-            TAB 4: DEFECT ARCHIVE (CLEAN GRID, TRUNCATION, PLAIN LANGUAGE EMPTY)
+            TAB 4: DEFECT ARCHIVE
         ===================================================================== */}
         {activeTab === 'gallery' && (
           <div className="space-y-6">
-            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b border-[#30363d] pb-4">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b border-white/10 pb-4">
               <div>
-                <h2 className="text-sm font-mono font-bold text-[#f0f6fc]">
+                <h2 className="text-sm font-mono font-bold text-[#f8fafc]">
                   DEFECT SNAPSHOT ARCHIVE
                 </h2>
-                <p className="text-xs text-[#8b949e] mt-1 max-w-[65ch]">
+                <p className="text-xs text-[#94a3b8] mt-1 max-w-[65ch]">
                   High-resolution frames of packages diverted at Station 2.
                 </p>
               </div>
@@ -915,10 +922,10 @@ export default function App() {
                   <button
                     key={cat}
                     onClick={() => setFilterCategory(cat)}
-                    className={`interactive-target px-3 py-2 rounded text-xs font-mono font-bold border transition-colors ${
+                    className={`interactive-target px-3.5 py-1.5 rounded-full text-xs font-mono font-bold border transition-colors ${
                       filterCategory === cat
-                        ? 'bg-[#3b82f6] text-white border-[#3b82f6]'
-                        : 'bg-[#161b22] text-[#8b949e] border-[#30363d] hover:text-[#f0f6fc]'
+                        ? 'apple-pill-active'
+                        : 'bg-white/5 text-[#94a3b8] border-white/10 hover:text-[#f8fafc] hover:bg-white/10'
                     }`}
                   >
                     {cat.replace('_', ' ')}
@@ -935,27 +942,27 @@ export default function App() {
                     setSelectedSnapshot(item.image_url);
                     setSelectedLogRecord(item);
                   }}
-                  className="interactive-target w-full bg-[#161b22] border border-[#30363d] rounded p-2 flex flex-col items-stretch text-left cursor-pointer hover:border-[#8b949e]"
+                  className="interactive-target w-full apple-glass-card rounded-2xl border border-white/10 p-2.5 flex flex-col items-stretch text-left cursor-pointer hover:border-white/25 transition-all"
                 >
-                  <div className="aspect-square bg-[#0d1117] rounded overflow-hidden relative">
+                  <div className="aspect-square bg-[#080b12] rounded-xl overflow-hidden relative">
                     <img
                       src={item.image_url}
                       alt={item.item_id}
                       className="w-full h-full object-cover"
                     />
-                    <span className="absolute top-2 right-2 px-2 py-1 rounded text-[10px] font-bold font-mono bg-[#b62324] text-white border border-[#f85149] truncate max-w-[120px]">
+                    <span className="absolute top-2 right-2 px-2.5 py-0.5 rounded-full text-[10px] font-bold font-mono bg-red-500/80 text-white border border-red-400/40 truncate max-w-[120px] backdrop-blur-sm">
                       [{item.defect_type.toUpperCase()}]
                     </span>
                   </div>
 
                   <div className="p-2 font-mono text-xs">
-                    <div className="flex justify-between font-bold text-[#f0f6fc]">
+                    <div className="flex justify-between font-bold text-[#f8fafc]">
                       <span className="truncate max-w-[120px]">{item.item_id}</span>
                       <span className="text-[#3b82f6] tabular-nums shrink-0">{(item.confidence * 100).toFixed(0)}%</span>
                     </div>
-                    <div className="text-xs text-[#8b949e] mt-1 flex justify-between">
+                    <div className="text-xs text-[#94a3b8] mt-1 flex justify-between">
                       <span className="tabular-nums truncate max-w-[120px]">{item.timestamp}</span>
-                      <span className="text-[#3fb950] shrink-0">[DIVERTED]</span>
+                      <span className="text-emerald-400 shrink-0 font-bold">[DIVERTED]</span>
                     </div>
                   </div>
                 </div>
@@ -963,7 +970,7 @@ export default function App() {
             </div>
 
             {filteredLogs.filter(l => l.image_url).length === 0 && (
-              <div className="p-12 bg-[#161b22] border border-[#30363d] rounded text-center text-xs font-mono text-[#8b949e] max-w-[65ch] mx-auto">
+              <div className="p-12 apple-glass-card rounded-2xl border border-white/10 text-center text-xs font-mono text-[#94a3b8] max-w-[65ch] mx-auto">
                 No defective packages found. No items currently match the selected filter category. Run packages through the inspection line or select a different filter above.
               </div>
             )}
@@ -971,17 +978,17 @@ export default function App() {
         )}
 
         {/* =====================================================================
-            TAB 5: REGULATORY AUDIT TRAIL TABLE (TRUNCATION, TABULAR FIGURES)
+            TAB 5: REGULATORY AUDIT TRAIL TABLE
         ===================================================================== */}
         {activeTab === 'audit' && (
-          <div className="p-4 bg-[#161b22] border border-[#30363d] rounded space-y-4">
-            <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 border-b border-[#30363d] pb-4">
+          <div className="apple-glass-card rounded-2xl p-6 border border-white/10 space-y-4">
+            <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 border-b border-white/10 pb-4">
               <div>
-                <h2 className="text-sm font-mono font-bold text-[#f0f6fc]">
-                  REGULATORY AUDIT TRAIL & LOGS
+                <h2 className="text-sm font-mono font-bold text-[#f8fafc]">
+                  REGULATORY AUDIT TRAIL &amp; LOGS
                 </h2>
-                <p className="text-xs text-[#8b949e] mt-1 max-w-[65ch]">
-                  Persistent CSV ledger stored at <span className="font-bold text-[#f0f6fc]">logs/defect_log.csv</span>.
+                <p className="text-xs text-[#94a3b8] mt-1 max-w-[65ch]">
+                  Persistent CSV ledger stored at <span className="font-bold text-[#f8fafc]">logs/defect_log.csv</span>.
                 </p>
               </div>
 
@@ -991,13 +998,13 @@ export default function App() {
                   placeholder="Search package ID..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="px-3 py-2 bg-[#0d1117] border border-[#30363d] rounded text-xs font-mono text-[#f0f6fc] placeholder-[#8b949e] min-h-[44px] hover:border-[#8b949e] focus-visible:ring-2 focus-visible:ring-[#3b82f6] focus-visible:outline-none"
+                  className="px-3.5 py-2 bg-white/5 border border-white/10 rounded-xl text-xs font-mono text-[#f8fafc] placeholder-[#94a3b8] min-h-[44px] hover:border-white/20 focus-visible:outline-none"
                 />
 
                 <select
                   value={filterDecision}
                   onChange={(e) => setFilterDecision(e.target.value)}
-                  className="px-3 py-2 bg-[#0d1117] border border-[#30363d] rounded text-xs font-mono text-[#f0f6fc] min-h-[44px] hover:border-[#8b949e] focus-visible:ring-2 focus-visible:ring-[#3b82f6] focus-visible:outline-none"
+                  className="px-3.5 py-2 bg-[#0c101b] border border-white/10 rounded-xl text-xs font-mono text-[#f8fafc] min-h-[44px] hover:border-white/20 focus-visible:outline-none"
                 >
                   <option value="ALL">All Decisions</option>
                   <option value="GOOD">Good Only</option>
@@ -1007,7 +1014,7 @@ export default function App() {
                 <a
                   href="/logs/defect_log.csv"
                   download="defect_log.csv"
-                  className="interactive-target px-4 py-2 bg-[#3b82f6] text-white font-mono font-bold text-xs rounded hover:bg-[#2563eb]"
+                  className="interactive-target px-4 py-2 bg-[#2563eb] text-white font-mono font-bold text-xs rounded-xl hover:bg-[#1d4ed8]"
                 >
                   EXPORT CSV
                 </a>
@@ -1016,7 +1023,7 @@ export default function App() {
 
             <div className="overflow-x-auto">
               <table className="w-full text-left text-xs font-mono">
-                <thead className="border-b border-[#30363d] text-[#8b949e]">
+                <thead className="border-b border-white/10 text-[#94a3b8]">
                   <tr>
                     <th className="pb-3 px-3">Timestamp</th>
                     <th className="pb-3 px-3">Package ID</th>
@@ -1026,51 +1033,51 @@ export default function App() {
                     <th className="pb-3 px-3 text-right">Photo Snapshot</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-[#30363d] text-[#f0f6fc]">
+                <tbody className="divide-y divide-white/5 text-[#f8fafc]">
                   {filteredLogs.map((r, i) => (
-                    <tr key={i} className="hover:bg-[#21262d]">
-                      <td className="py-2 px-3 text-[#8b949e] whitespace-nowrap tabular-nums">{r.timestamp}</td>
-                      <td className="py-2 px-3 font-bold flex items-center gap-2 whitespace-nowrap">
+                    <tr key={i} className="hover:bg-white/5 transition-colors">
+                      <td className="py-2.5 px-3 text-[#94a3b8] whitespace-nowrap tabular-nums">{r.timestamp}</td>
+                      <td className="py-2.5 px-3 font-bold flex items-center gap-2 whitespace-nowrap">
                         <span className="truncate max-w-[140px]">{r.item_id}</span>
                         <button
                           onClick={() => handleCopyId(r.item_id)}
                           title="Copy ID"
-                          className="interactive-target text-xs text-[#8b949e] hover:text-[#f0f6fc] px-2 py-1"
+                          className="interactive-target text-xs text-[#94a3b8] hover:text-[#f8fafc] px-2 py-1"
                         >
                           [COPY]
                         </button>
                       </td>
-                      <td className="py-2 px-3 whitespace-nowrap">
-                        <span className={`px-2 py-1 rounded text-[10px] font-bold ${
+                      <td className="py-2.5 px-3 whitespace-nowrap">
+                        <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold ${
                           r.decision === 'GOOD'
-                            ? 'bg-[#21262d] text-[#3fb950] border border-[#238636]'
-                            : 'bg-[#21262d] text-[#f85149] border-[#da3633]'
+                            ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/30'
+                            : 'bg-red-500/10 text-red-400 border border-red-500/30'
                         }`}>
                           [{r.decision}]
                         </span>
                       </td>
-                      <td className="py-2 px-3 uppercase whitespace-nowrap truncate max-w-[120px]">{r.defect_type}</td>
-                      <td className="py-2 px-3 text-[#3b82f6] tabular-nums whitespace-nowrap">{(r.confidence * 100).toFixed(1)}%</td>
-                      <td className="py-2 px-3 text-right whitespace-nowrap">
+                      <td className="py-2.5 px-3 uppercase whitespace-nowrap truncate max-w-[120px]">{r.defect_type}</td>
+                      <td className="py-2.5 px-3 text-[#3b82f6] tabular-nums whitespace-nowrap font-bold">{(r.confidence * 100).toFixed(1)}%</td>
+                      <td className="py-2.5 px-3 text-right whitespace-nowrap">
                         {r.image_url ? (
                           <button
                             onClick={() => {
                               setSelectedSnapshot(r.image_url);
                               setSelectedLogRecord(r);
                             }}
-                            className="interactive-target px-3 py-1 bg-[#21262d] border border-[#30363d] rounded text-xs font-mono text-[#3b82f6] hover:border-[#8b949e]"
+                            className="interactive-target px-3 py-1 bg-white/5 border border-white/10 rounded-lg text-xs font-mono text-[#3b82f6] hover:bg-white/10 font-bold"
                           >
                             VIEW PHOTO
                           </button>
                         ) : (
-                          <span className="text-[#8b949e]">—</span>
+                          <span className="text-[#94a3b8]">&mdash;</span>
                         )}
                       </td>
                     </tr>
                   ))}
                   {filteredLogs.length === 0 && (
                     <tr>
-                      <td colSpan={6} className="py-8 text-center text-[#8b949e] max-w-[65ch]">
+                      <td colSpan={6} className="py-8 text-center text-[#94a3b8] max-w-[65ch]">
                         No inspection records found. Either no packages have been scanned yet, or no items match your search and filter criteria.
                       </td>
                     </tr>
@@ -1082,24 +1089,24 @@ export default function App() {
         )}
 
         {/* =====================================================================
-            TAB 6: LINE CONTROLS (STYLED STATES, LOADING STATE, TABULAR FIGURES)
+            TAB 6: LINE CONTROLS
         ===================================================================== */}
         {activeTab === 'control' && (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
 
             {/* Precision Calibration Sliders */}
-            <div className="p-4 bg-[#161b22] border border-[#30363d] rounded space-y-6">
-              <div className="border-b border-[#30363d] pb-3">
-                <h3 className="text-xs font-mono font-bold text-[#f0f6fc]">
-                  CONVEYOR & MODEL CALIBRATION
+            <div className="apple-glass-card rounded-2xl p-6 border border-white/10 space-y-6">
+              <div className="border-b border-white/10 pb-3">
+                <h3 className="text-xs font-mono font-bold text-[#f8fafc]">
+                  CONVEYOR &amp; MODEL CALIBRATION
                 </h3>
               </div>
 
               {/* Slider 1: Confidence */}
               <div className="space-y-3">
                 <div className="flex justify-between items-center text-xs font-mono">
-                  <span className="font-bold text-[#f0f6fc]">Confidence Threshold Gate</span>
-                  <span className="px-2 py-1 bg-[#21262d] text-[#3b82f6] border border-[#30363d] rounded font-bold tabular-nums">
+                  <span className="font-bold text-[#f8fafc]">Confidence Threshold Gate</span>
+                  <span className="px-2.5 py-1 bg-white/5 text-[#3b82f6] border border-white/10 rounded-lg font-bold tabular-nums">
                     {confSlider.toFixed(2)}
                   </span>
                 </div>
@@ -1111,12 +1118,12 @@ export default function App() {
                   value={confSlider}
                   onChange={(e) => setConfSlider(parseFloat(e.target.value))}
                 />
-                <div className="flex justify-between text-xs font-mono text-[#8b949e]">
+                <div className="flex justify-between text-xs font-mono text-[#94a3b8]">
                   <span>0.20 (Sensitive)</span>
                   <span>0.45 (Standard)</span>
                   <span>0.90 (Strict)</span>
                 </div>
-                <p className="text-xs text-[#8b949e] max-w-[65ch]">
+                <p className="text-xs text-[#94a3b8] max-w-[65ch]">
                   Minimum model score required before flagging a container and triggering the Station 2 diverter.
                 </p>
               </div>
@@ -1124,8 +1131,8 @@ export default function App() {
               {/* Slider 2: Conveyor Delay */}
               <div className="space-y-3 pt-2">
                 <div className="flex justify-between items-center text-xs font-mono">
-                  <span className="font-bold text-[#f0f6fc]">Conveyor Transit Delay</span>
-                  <span className="px-2 py-1 bg-[#21262d] text-[#3b82f6] border border-[#30363d] rounded font-bold tabular-nums">
+                  <span className="font-bold text-[#f8fafc]">Conveyor Transit Delay</span>
+                  <span className="px-2.5 py-1 bg-white/5 text-[#3b82f6] border border-white/10 rounded-lg font-bold tabular-nums">
                     {delaySlider.toFixed(1)}s
                   </span>
                 </div>
@@ -1137,35 +1144,35 @@ export default function App() {
                   value={delaySlider}
                   onChange={(e) => setDelaySlider(parseFloat(e.target.value))}
                 />
-                <div className="flex justify-between text-xs font-mono text-[#8b949e]">
+                <div className="flex justify-between text-xs font-mono text-[#94a3b8]">
                   <span>0.5s (High Speed)</span>
                   <span>2.8s (Calibrated)</span>
                   <span>5.0s (Low Speed)</span>
                 </div>
-                <p className="text-xs text-[#8b949e] max-w-[65ch]">
+                <p className="text-xs text-[#94a3b8] max-w-[65ch]">
                   Travel time elapsed between Station 1 optical camera and Station 2 mechanical rejector.
                 </p>
               </div>
 
               {/* Presets */}
               <div className="pt-2 space-y-2">
-                <div className="text-xs font-mono text-[#8b949e]">CALIBRATION PRESETS:</div>
+                <div className="text-xs font-mono text-[#94a3b8]">CALIBRATION PRESETS:</div>
                 <div className="grid grid-cols-3 gap-2">
                   <button
                     onClick={() => applyPreset(0.35, 2.8)}
-                    className="interactive-target p-2 bg-[#21262d] border border-[#30363d] rounded text-xs font-mono font-bold text-[#8b949e] hover:text-[#f0f6fc]"
+                    className="interactive-target p-2.5 bg-white/5 border border-white/10 rounded-xl text-xs font-mono font-bold text-[#94a3b8] hover:text-[#f8fafc] hover:bg-white/10"
                   >
                     High Sensitivity
                   </button>
                   <button
                     onClick={() => applyPreset(0.45, 2.8)}
-                    className="interactive-target p-2 bg-[#21262d] border border-[#30363d] rounded text-xs font-mono font-bold text-[#8b949e] hover:text-[#f0f6fc]"
+                    className="interactive-target p-2.5 bg-white/5 border border-white/10 rounded-xl text-xs font-mono font-bold text-[#94a3b8] hover:text-[#f8fafc] hover:bg-white/10"
                   >
                     Default Balanced
                   </button>
                   <button
                     onClick={() => applyPreset(0.60, 2.5)}
-                    className="interactive-target p-2 bg-[#21262d] border border-[#30363d] rounded text-xs font-mono font-bold text-[#8b949e] hover:text-[#f0f6fc]"
+                    className="interactive-target p-2.5 bg-white/5 border border-white/10 rounded-xl text-xs font-mono font-bold text-[#94a3b8] hover:text-[#f8fafc] hover:bg-white/10"
                   >
                     High Throughput
                   </button>
@@ -1175,22 +1182,22 @@ export default function App() {
               <button
                 onClick={handleSaveSettings}
                 disabled={isSavingSettings}
-                className="interactive-target w-full py-3 bg-[#3b82f6] text-white font-mono font-bold text-xs rounded hover:bg-[#2563eb]"
+                className="interactive-target w-full py-3 bg-[#2563eb] text-white font-mono font-bold text-xs rounded-xl hover:bg-[#1d4ed8]"
               >
                 {isSavingSettings ? '[SAVING PARAMETERS...]' : 'APPLY & SAVE PARAMETERS'}
               </button>
 
               {settingsSavedAlert && (
-                <div className="p-3 bg-[#21262d] border border-[#238636] text-[#3fb950] text-xs font-mono text-center rounded">
+                <div className="p-3 bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs font-mono text-center rounded-xl">
                   [SUCCESS] Pipeline parameters saved and active.
                 </div>
               )}
             </div>
 
             {/* Actuator Override Panel */}
-            <div className="p-4 bg-[#161b22] border border-[#30363d] rounded flex flex-col justify-between space-y-6">
-              <div className="border-b border-[#30363d] pb-3">
-                <h3 className="text-xs font-mono font-bold text-[#f0f6fc]">
+            <div className="apple-glass-card rounded-2xl p-6 border border-white/10 flex flex-col justify-between space-y-6">
+              <div className="border-b border-white/10 pb-3">
+                <h3 className="text-xs font-mono font-bold text-[#f8fafc]">
                   MECHANICAL ACTUATOR OVERRIDE
                 </h3>
               </div>
@@ -1199,38 +1206,38 @@ export default function App() {
                 <button
                   onClick={handleTestPusher}
                   disabled={isPusherTriggering}
-                  className={`interactive-target px-8 py-4 rounded text-sm font-mono font-bold border transition-colors ${
+                  className={`interactive-target px-8 py-4 rounded-2xl text-sm font-mono font-bold border transition-colors ${
                     isPusherTriggering
-                      ? 'bg-[#b62324] text-white border-[#f85149]'
-                      : 'bg-[#21262d] text-[#f85149] border-[#da3633] hover:bg-[#30363d]'
+                      ? 'bg-red-500/25 text-red-200 border-red-500/40 shadow-sm'
+                      : 'bg-white/5 text-red-400 border-red-500/30 hover:bg-red-500/10'
                   }`}
                 >
                   {isPusherTriggering ? '[PUSHER ACTUATING...]' : 'TRIGGER SG90 PUSHER NOW'}
                 </button>
 
-                <p className="text-xs font-mono text-[#8b949e] text-center max-w-[65ch]">
-                  Manually sends a 95° sweep pulse to Arduino Pin D9 to test reject chute mechanics.
+                <p className="text-xs font-mono text-[#94a3b8] text-center max-w-[65ch]">
+                  Manually sends a 95&deg; sweep pulse to Arduino Pin D9 to test reject chute mechanics.
                 </p>
               </div>
 
-              <div className="p-4 bg-[#0d1117] border border-[#30363d] rounded space-y-2 font-mono text-xs">
+              <div className="p-4 bg-black/40 border border-white/10 rounded-xl space-y-2 font-mono text-xs">
                 <div className="flex justify-between">
-                  <span className="text-[#8b949e]">Microcontroller:</span>
-                  <span className="text-[#f0f6fc]">Arduino Uno / Nano</span>
+                  <span className="text-[#94a3b8]">Microcontroller:</span>
+                  <span className="text-[#f8fafc]">Arduino Uno / Nano</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-[#8b949e]">Serial Protocol:</span>
-                  <span className="text-[#3b82f6] font-bold tabular-nums">115200 Baud • COM3</span>
+                  <span className="text-[#94a3b8]">Serial Protocol:</span>
+                  <span className="text-[#3b82f6] font-bold tabular-nums">115200 Baud &bull; COM3</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-[#8b949e]">PWM Servo Output:</span>
-                  <span className="text-[#f0f6fc]">Digital Pin D9</span>
+                  <span className="text-[#94a3b8]">PWM Servo Output:</span>
+                  <span className="text-[#f8fafc]">Digital Pin D9</span>
                 </div>
               </div>
 
               <button
                 onClick={handleReset}
-                className="interactive-target w-full py-3 bg-[#21262d] border border-[#30363d] rounded text-xs font-mono font-bold text-[#f85149] hover:bg-[#30363d]"
+                className="interactive-target w-full py-3 bg-white/5 border border-white/10 rounded-xl text-xs font-mono font-bold text-red-400 hover:bg-red-500/10"
               >
                 RESET SESSION COUNTERS
               </button>
@@ -1242,7 +1249,7 @@ export default function App() {
       </main>
 
       {/* =========================================================================
-          FULLSCREEN INSPECTION MODAL (FLAT, 1px BORDER, TABULAR FIGURES)
+          FULLSCREEN INSPECTION MODAL (APPLE GLASS PANEL)
       ========================================================================= */}
       {selectedSnapshot && (
         <div
@@ -1250,17 +1257,17 @@ export default function App() {
             setSelectedSnapshot(null);
             setSelectedLogRecord(null);
           }}
-          className="fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4"
+          className="fixed inset-0 bg-black/80 backdrop-blur-md z-50 flex items-center justify-center p-4"
         >
           <div
             onClick={(e) => e.stopPropagation()}
-            className="max-w-3xl w-full bg-[#161b22] border border-[#30363d] rounded p-4 sm:p-6 space-y-4"
+            className="max-w-3xl w-full apple-glass-panel rounded-2xl border border-white/15 p-5 sm:p-6 space-y-4 shadow-2xl"
           >
-            <div className="flex items-center justify-between border-b border-[#30363d] pb-3">
+            <div className="flex items-center justify-between border-b border-white/10 pb-3">
               <div className="flex items-center gap-2 text-xs font-mono font-bold truncate">
-                <span className="text-[#f0f6fc]">INSPECTION TELEMETRY</span>
+                <span className="text-[#f8fafc]">INSPECTION TELEMETRY</span>
                 {selectedLogRecord && (
-                  <span className="px-2 py-1 bg-[#21262d] text-[#3b82f6] border border-[#30363d] rounded truncate max-w-[160px]">
+                  <span className="px-2.5 py-1 bg-white/5 text-[#3b82f6] border border-white/10 rounded-lg truncate max-w-[160px]">
                     {selectedLogRecord.item_id}
                   </span>
                 )}
@@ -1270,13 +1277,13 @@ export default function App() {
                   setSelectedSnapshot(null);
                   setSelectedLogRecord(null);
                 }}
-                className="interactive-target px-3 py-1 bg-[#21262d] text-[#8b949e] hover:text-[#f0f6fc] text-xs font-mono font-bold rounded border border-[#30363d]"
+                className="interactive-target px-3 py-1 bg-white/5 text-[#94a3b8] hover:text-[#f8fafc] text-xs font-mono font-bold rounded-lg border border-white/10 hover:bg-white/10"
               >
                 [CLOSE ESC]
               </button>
             </div>
 
-            <div className="aspect-video w-full rounded bg-[#0d1117] border border-[#30363d] overflow-hidden flex items-center justify-center">
+            <div className="aspect-video w-full rounded-xl bg-[#080b12] border border-white/10 overflow-hidden flex items-center justify-center">
               <img
                 src={selectedSnapshot}
                 alt="Defect Snapshot"
@@ -1286,35 +1293,35 @@ export default function App() {
 
             {selectedLogRecord && (
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 font-mono text-xs">
-                <div className="p-3 bg-[#0d1117] border border-[#30363d] rounded">
-                  <div className="text-xs text-[#8b949e]">DEFECT TYPE</div>
-                  <div className="text-[#f85149] font-bold mt-1 uppercase truncate">
+                <div className="p-3 bg-black/40 border border-white/10 rounded-xl">
+                  <div className="text-xs text-[#94a3b8]">DEFECT TYPE</div>
+                  <div className="text-red-400 font-bold mt-1 uppercase truncate">
                     [{selectedLogRecord.defect_type}]
                   </div>
                 </div>
-                <div className="p-3 bg-[#0d1117] border border-[#30363d] rounded">
-                  <div className="text-xs text-[#8b949e]">CONFIDENCE</div>
+                <div className="p-3 bg-black/40 border border-white/10 rounded-xl">
+                  <div className="text-xs text-[#94a3b8]">CONFIDENCE</div>
                   <div className="text-[#3b82f6] font-bold mt-1 tabular-nums">
                     {(selectedLogRecord.confidence * 100).toFixed(1)}%
                   </div>
                 </div>
-                <div className="p-3 bg-[#0d1117] border border-[#30363d] rounded">
-                  <div className="text-xs text-[#8b949e]">TIMESTAMP</div>
-                  <div className="text-[#f0f6fc] font-bold mt-1 tabular-nums whitespace-nowrap">
+                <div className="p-3 bg-black/40 border border-white/10 rounded-xl">
+                  <div className="text-xs text-[#94a3b8]">TIMESTAMP</div>
+                  <div className="text-[#f8fafc] font-bold mt-1 tabular-nums whitespace-nowrap">
                     {selectedLogRecord.timestamp}
                   </div>
                 </div>
-                <div className="p-3 bg-[#0d1117] border border-[#30363d] rounded">
-                  <div className="text-xs text-[#8b949e]">DISPOSITION</div>
-                  <div className="text-[#3fb950] font-bold mt-1">
+                <div className="p-3 bg-black/40 border border-white/10 rounded-xl">
+                  <div className="text-xs text-[#94a3b8]">DISPOSITION</div>
+                  <div className="text-emerald-400 font-bold mt-1">
                     [EJECT CHUTE]
                   </div>
                 </div>
               </div>
             )}
 
-            <div className="flex items-center justify-between pt-3 border-t border-[#30363d]">
-              <span className="text-xs font-mono text-[#8b949e]">
+            <div className="flex items-center justify-between pt-3 border-t border-white/10">
+              <span className="text-xs font-mono text-[#94a3b8]">
                 Stored in logs/defect_log.csv
               </span>
               <a
@@ -1322,7 +1329,7 @@ export default function App() {
                 download
                 target="_blank"
                 rel="noreferrer"
-                className="interactive-target px-4 py-2 bg-[#3b82f6] text-white font-mono font-bold text-xs rounded hover:bg-[#2563eb]"
+                className="interactive-target px-4 py-2 bg-[#2563eb] text-white font-mono font-bold text-xs rounded-xl hover:bg-[#1d4ed8]"
               >
                 DOWNLOAD SNAPSHOT
               </a>
@@ -1332,18 +1339,34 @@ export default function App() {
       )}
 
       {/* =========================================================================
-          FLAT FOOTER BAR (STRICT 4PX GRID, TABULAR NUMBERS)
+          APPLE GLASS FOOTER (AUTHENTIC TRUST & OPEN SOURCE TRANSPARENCY)
       ========================================================================= */}
-      <footer className="w-full border-t border-[#30363d] py-4 px-6 bg-[#161b22] text-xs font-mono text-[#8b949e] flex flex-wrap items-center justify-between gap-4">
-        <div className="flex items-center gap-3">
-          <span className="text-[#f0f6fc] font-bold">SORTEX INDUSTRIAL AI OS</span>
-          <span>|</span>
-          <span>CUDA 12.1 INFERENCE</span>
-          <span>|</span>
-          <span>ARDUINO D9 DIVERTER</span>
+      <footer className="apple-glass-panel border-t border-b-0 border-x-0 w-full py-5 px-6 text-xs font-mono text-[#94a3b8] flex flex-wrap items-center justify-between gap-4 mt-12 z-20">
+        <div className="flex flex-wrap items-center gap-3">
+          <span className="text-[#f8fafc] font-bold">SORTEX INDUSTRIAL AI OS</span>
+          <span>&bull;</span>
+          <a
+            href="https://github.com/Arsh15-R/ai-driven-packaging-defect-sorter"
+            target="_blank"
+            rel="noreferrer"
+            className="text-[#94a3b8] hover:text-[#f8fafc] transition-colors"
+          >
+            GitHub Repository
+          </a>
+          <span>&bull;</span>
+          <a
+            href="/logs/defect_log.csv"
+            download="defect_log.csv"
+            className="text-[#94a3b8] hover:text-[#f8fafc] transition-colors"
+          >
+            Raw CSV Ledger
+          </a>
+          <span>&bull;</span>
+          <span>MIT License &bull; 2026</span>
         </div>
         <div className="flex items-center gap-3">
           <span className="tabular-nums">THROUGHPUT: {stats.fps.toFixed(1)} FPS</span>
+          <span>&bull;</span>
           <span className="text-[#3b82f6] font-bold tabular-nums">YIELD: {yieldPercentage}%</span>
         </div>
       </footer>

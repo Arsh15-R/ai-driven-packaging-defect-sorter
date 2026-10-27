@@ -1,5 +1,6 @@
 # AI-Driven Packaging Line Defect Sorter 🚀📦
 
+[![Live Vercel Demo](https://img.shields.io/badge/Vercel-Live%20Demo-000000?style=for-the-badge&logo=vercel&logoColor=white)](https://sortex-vision-os.vercel.app)
 [![GitHub Repository](https://img.shields.io/badge/GitHub-Arsh15--R%2Fai--driven--packaging--defect--sorter-181717?style=for-the-badge&logo=github&logoColor=white)](https://github.com/Arsh15-R/ai-driven-packaging-defect-sorter)
 [![Python 3.11](https://img.shields.io/badge/Python-3.11%20CUDA%2012.1-3776AB?style=for-the-badge&logo=python&logoColor=white)](https://www.python.org/)
 [![YOLOv8](https://img.shields.io/badge/Model-YOLOv8s%20Ultralytics-00ffff?style=for-the-badge&logo=yolo&logoColor=black)](https://github.com/ultralytics/ultralytics)

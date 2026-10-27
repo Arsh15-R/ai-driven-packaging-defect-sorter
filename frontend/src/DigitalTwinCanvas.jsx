@@ -48,6 +48,8 @@ export default function DigitalTwinCanvas({
 
     let lastTime = performance.now();
 
+    const isReducedMotion = typeof window !== 'undefined' && window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
     const render = (now) => {
       const dt = (now - lastTime) / 1000;
       lastTime = now;
@@ -341,19 +343,21 @@ export default function DigitalTwinCanvas({
       ctx.fillText(`YOLOv8s • Gate: ${(confThreshold * 100).toFixed(0)}%`, 16, 36);
       ctx.restore();
 
-      animationId = requestAnimationFrame(render);
+      if (!isReducedMotion) {
+        animationId = requestAnimationFrame(render);
+      }
     };
 
-    animationId = requestAnimationFrame(render);
+    render(performance.now());
 
     return () => {
-      cancelAnimationFrame(animationId);
+      if (animationId) cancelAnimationFrame(animationId);
       window.removeEventListener('resize', updateSize);
     };
   }, [isPusherActive, confThreshold, conveyorDelay, onDefectDetected, onPusherFired]);
 
   return (
-    <div className="relative w-full h-full min-h-[300px] overflow-hidden bg-[#0d1117] rounded-lg border border-[#30363d] flex items-center justify-center">
+    <div className="relative w-full h-full min-h-[300px] overflow-hidden bg-[#080b12] rounded-xl border border-white/10 flex items-center justify-center">
       <canvas ref={canvasRef} className="w-full h-full block" />
     </div>
   );
