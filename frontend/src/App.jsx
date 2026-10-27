@@ -311,12 +311,6 @@ export default function App() {
 
   return (
     <div className="min-h-screen w-full bg-[#080b12] text-[#f8fafc] flex flex-col font-sans selection:bg-[#2563eb]/30 selection:text-white relative">
-      
-      {/* Subtle Apple visionOS ambient light cone (provides genuine optical refraction without AI-gradient tropes) */}
-      <div 
-        aria-hidden="true" 
-        className="pointer-events-none fixed inset-0 z-0 bg-[radial-gradient(circle_at_50%_0%,rgba(37,99,235,0.07),transparent_55%)]" 
-      />
 
       {/* =========================================================================
           APPLE VISIONOS / MACOS TINTED GLASS HEADER WITH DYNAMIC ISLAND
@@ -329,30 +323,30 @@ export default function App() {
             <span className="font-bold text-base tracking-tight text-[#f8fafc] truncate">
               SORTEX PRO
             </span>
-            <span className="text-[11px] font-mono font-bold px-2.5 py-0.5 bg-white/5 text-[#94a3b8] border border-white/10 rounded-full shrink-0">
+            <span className="text-[11px] font-mono font-bold px-2.5 py-0.5 apple-subsurface rounded-full text-[#94a3b8] shrink-0">
               STATION 1 & 2
             </span>
             <span className="hidden sm:inline text-xs font-mono text-[#94a3b8] truncate">
-              visionOS Telemetry
+              visionOS 2.0 Telemetry
             </span>
           </div>
 
-          {/* Cupertino Dynamic Island Capsule (Tactile target, tabular figures) */}
+          {/* Cupertino Dynamic Island Capsule (Floating centered status) */}
           <button
             onClick={() => setShowIslandDetail(!showIslandDetail)}
             className="apple-dynamic-island interactive-target px-4 py-2 rounded-full text-xs font-mono font-bold hover:border-white/25 focus-visible:outline-none"
             aria-label="Toggle telemetry diagnostics drawer"
           >
             <span className="flex items-center gap-2.5">
-              <span className={`h-2 w-2 rounded-full shrink-0 ${isConnected ? 'bg-emerald-400' : 'bg-amber-400'}`} />
+              <span className={`h-2 w-2 rounded-full shrink-0 ${isConnected ? 'bg-[#34d399]' : 'bg-[#fbbf24]'}`} />
               <span className="truncate">{isConnected ? '[CONVEYOR ACTIVE]' : '[CONNECTING]'}</span>
               <span className="text-white/20">|</span>
               <span className="text-[#94a3b8] tabular-nums whitespace-nowrap">
                 {currentTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
               </span>
               <span className="hidden md:inline text-white/20">|</span>
-              <span className="hidden md:inline text-[#3b82f6] tabular-nums whitespace-nowrap font-bold">
-                RTX 3050 • {stats.fps.toFixed(1)} FPS
+              <span className="hidden md:inline text-[#2563eb] tabular-nums whitespace-nowrap font-bold">
+                RTX 3050 &bull; {stats.fps.toFixed(1)} FPS
               </span>
             </span>
           </button>
@@ -362,10 +356,10 @@ export default function App() {
             <button
               onClick={handleTestPusher}
               disabled={isPusherTriggering}
-              className={`interactive-target px-3.5 py-2 rounded-xl text-xs font-mono font-bold border transition-colors ${
+              className={`interactive-target px-3.5 py-2 rounded-xl text-xs font-mono font-bold transition-all ${
                 isPusherTriggering
-                  ? 'bg-red-500/25 text-red-200 border-red-500/40 shadow-sm'
-                  : 'bg-white/5 text-red-400 border-white/10 hover:bg-red-500/10'
+                  ? 'apple-badge-defect font-extrabold'
+                  : 'apple-btn-secondary text-[#f87171] hover:border-red-400/40'
               }`}
             >
               {isPusherTriggering ? '[PUSHER FIRED]' : 'TEST PUSHER'}
@@ -374,7 +368,7 @@ export default function App() {
             <button
               onClick={handleReset}
               title="Reset inspection counters"
-              className="interactive-target px-3.5 py-2 bg-white/5 text-[#94a3b8] border border-white/10 rounded-xl text-xs font-mono font-bold hover:text-[#f8fafc] hover:bg-white/10"
+              className="interactive-target apple-btn-secondary px-3.5 py-2 rounded-xl text-xs font-mono font-bold text-[#94a3b8] hover:text-[#f8fafc]"
             >
               RESET
             </button>
@@ -383,25 +377,25 @@ export default function App() {
 
         {/* Dynamic Island Expanded Diagnostics Drawer */}
         {showIslandDetail && (
-          <div className="max-w-7xl mx-auto mt-3.5 p-4 apple-glass-card rounded-2xl border border-white/10">
+          <div className="max-w-7xl mx-auto mt-3.5 p-4 apple-glass-card rounded-2xl">
             <div className="flex items-center justify-between border-b border-white/10 pb-2 mb-3 text-xs font-mono">
               <span className="font-bold text-[#f8fafc]">SYSTEM TELEMETRY & HARDWARE LEDGER</span>
-              <span className="text-[#94a3b8]">Firmware v2.4 • CUDA 12.1</span>
+              <span className="text-[#94a3b8]">Firmware v2.4 &bull; CUDA 12.1</span>
             </div>
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs font-mono">
-              <div className="p-3 bg-black/30 border border-white/5 rounded-xl">
+              <div className="p-3 apple-subsurface rounded-xl">
                 <div className="text-[#94a3b8]">FEED SOURCE</div>
                 <div className="font-bold text-[#f8fafc] mt-1 truncate">{stats.source.toUpperCase()}</div>
               </div>
-              <div className="p-3 bg-black/30 border border-white/5 rounded-xl">
+              <div className="p-3 apple-subsurface rounded-xl">
                 <div className="text-[#94a3b8]">INFERENCE TIME</div>
-                <div className="font-bold text-emerald-400 mt-1 tabular-nums">14.8 ms</div>
+                <div className="font-bold text-[#34d399] mt-1 tabular-nums">14.8 ms</div>
               </div>
-              <div className="p-3 bg-black/30 border border-white/5 rounded-xl">
+              <div className="p-3 apple-subsurface rounded-xl">
                 <div className="text-[#94a3b8]">TRANSIT DELAY</div>
-                <div className="font-bold text-[#3b82f6] mt-1 tabular-nums">{stats.conveyor_delay.toFixed(1)}s</div>
+                <div className="font-bold text-[#2563eb] mt-1 tabular-nums">{stats.conveyor_delay.toFixed(1)}s</div>
               </div>
-              <div className="p-3 bg-black/30 border border-white/5 rounded-xl">
+              <div className="p-3 apple-subsurface rounded-xl">
                 <div className="text-[#94a3b8]">CONFIDENCE GATE</div>
                 <div className="font-bold text-[#f8fafc] mt-1 tabular-nums">{(stats.conf_threshold * 100).toFixed(0)}%</div>
               </div>
@@ -437,7 +431,7 @@ export default function App() {
                 <span>{tab.label}</span>
                 {tab.badge && (
                   <span className={`ml-2 px-2 py-0.5 rounded-full text-[10px] tabular-nums font-bold ${
-                    isActive ? 'bg-white/20 text-white' : 'bg-white/10 text-[#94a3b8]'
+                    isActive ? 'bg-white/20 text-white' : 'apple-subsurface text-[#94a3b8]'
                   }`}>
                     {tab.badge}
                   </span>
@@ -459,9 +453,9 @@ export default function App() {
         {activeTab === 'overview' && (
           <div className="space-y-6">
 
-            {/* METRICS ROW (Apple Glass Cards with Specular Highlight) */}
+            {/* METRICS ROW (Strictly Apple Glass Cards with 1px Specular Catch Light) */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-              <div className="apple-glass-card rounded-2xl p-5 border border-white/10">
+              <div className="apple-glass-card rounded-2xl p-5">
                 <div className="text-xs font-mono font-bold text-[#94a3b8] truncate">TOTAL INSPECTED</div>
                 <div className="text-3xl font-extrabold font-mono text-[#f8fafc] mt-2 mb-1 tabular-nums truncate">
                   {stats.total_checked.toLocaleString()}
@@ -469,25 +463,25 @@ export default function App() {
                 <div className="text-xs font-mono text-[#94a3b8]">[100% INSPECTED]</div>
               </div>
 
-              <div className="apple-glass-card rounded-2xl p-5 border border-white/10">
+              <div className="apple-glass-card rounded-2xl p-5">
                 <div className="text-xs font-mono font-bold text-[#94a3b8] truncate">GOOD PACKAGES</div>
-                <div className="text-3xl font-extrabold font-mono text-emerald-400 mt-2 mb-1 tabular-nums truncate">
+                <div className="text-3xl font-extrabold font-mono text-[#34d399] mt-2 mb-1 tabular-nums truncate">
                   {stats.good_count.toLocaleString()}
                 </div>
-                <div className="text-xs font-mono text-emerald-400 tabular-nums">[PASS RATE: {yieldPercentage}%]</div>
+                <div className="text-xs font-mono text-[#34d399] tabular-nums">[PASS RATE: {yieldPercentage}%]</div>
               </div>
 
-              <div className="apple-glass-card rounded-2xl p-5 border border-white/10">
+              <div className="apple-glass-card rounded-2xl p-5">
                 <div className="text-xs font-mono font-bold text-[#94a3b8] truncate">DEFECTS DIVERTED</div>
-                <div className="text-3xl font-extrabold font-mono text-red-400 mt-2 mb-1 tabular-nums truncate">
+                <div className="text-3xl font-extrabold font-mono text-[#f87171] mt-2 mb-1 tabular-nums truncate">
                   {stats.defect_count.toLocaleString()}
                 </div>
-                <div className="text-xs font-mono text-red-400">[REJECT CHUTE]</div>
+                <div className="text-xs font-mono text-[#f87171]">[REJECT CHUTE]</div>
               </div>
 
-              <div className="apple-glass-card rounded-2xl p-5 border border-white/10">
+              <div className="apple-glass-card rounded-2xl p-5">
                 <div className="text-xs font-mono font-bold text-[#94a3b8] truncate">DEFECT RATE</div>
-                <div className="text-3xl font-extrabold font-mono text-amber-400 mt-2 mb-1 tabular-nums truncate">
+                <div className="text-3xl font-extrabold font-mono text-[#fbbf24] mt-2 mb-1 tabular-nums truncate">
                   {stats.defect_rate.toFixed(2)}%
                 </div>
                 <div className="text-xs font-mono text-[#94a3b8]">
@@ -500,10 +494,10 @@ export default function App() {
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
 
               {/* Primary Cinema Conveyor Viewport (2 Cols) */}
-              <div className="lg:col-span-2 apple-glass-panel rounded-2xl p-5 border border-white/10 flex flex-col justify-between space-y-4">
+              <div className="lg:col-span-2 apple-glass-panel rounded-2xl p-5 flex flex-col justify-between space-y-4">
                 <div className="flex flex-wrap items-center justify-between gap-2">
                   <div className="flex items-center gap-2.5">
-                    <span className="h-2 w-2 rounded-full bg-emerald-400 shrink-0" />
+                    <span className="h-2 w-2 rounded-full bg-[#34d399] shrink-0" />
                     <span className="text-xs font-mono font-bold text-[#f8fafc] truncate">
                       STATION 1 OPTICAL GATE &rarr; STATION 2 DIVERTER
                     </span>
@@ -511,13 +505,13 @@ export default function App() {
                   <div className="flex items-center gap-2">
                     <button
                       onClick={() => setUseDigitalTwin(!useDigitalTwin)}
-                      className="interactive-target px-3 py-1.5 bg-white/5 text-xs font-mono font-bold border border-white/10 rounded-xl hover:bg-white/10 text-[#f8fafc]"
+                      className="interactive-target apple-btn-secondary px-3.5 py-1.5 text-xs font-mono font-bold rounded-xl"
                     >
                       {useDigitalTwin ? 'MODE: DIGITAL TWIN' : 'MODE: CAMERA FEED'}
                     </button>
                     <button
                       onClick={() => setShowHudOverlay(!showHudOverlay)}
-                      className="interactive-target px-3 py-1.5 bg-white/5 text-xs font-mono font-bold border border-white/10 rounded-xl hover:bg-white/10 text-[#f8fafc]"
+                      className="interactive-target apple-btn-secondary px-3.5 py-1.5 text-xs font-mono font-bold rounded-xl"
                     >
                       {showHudOverlay ? 'HUD: ON' : 'HUD: OFF'}
                     </button>
@@ -550,7 +544,7 @@ export default function App() {
                   )}
 
                   {showHudOverlay && (
-                    <div className="apple-dynamic-island absolute top-3 left-3 px-3.5 py-2 rounded-xl text-xs font-mono pointer-events-none border border-white/15">
+                    <div className="apple-dynamic-island absolute top-3 left-3 px-3.5 py-2 rounded-xl text-xs font-mono pointer-events-none">
                       <div className="font-bold text-[#f8fafc]">STATION 1: INSPECTION</div>
                       <div className="text-[#94a3b8] tabular-nums">Gate: {(stats.conf_threshold * 100).toFixed(0)}%</div>
                     </div>
@@ -559,12 +553,12 @@ export default function App() {
 
                 <div className="flex flex-wrap items-center justify-between gap-2 text-xs font-mono text-[#94a3b8]">
                   <span className="tabular-nums">Resolution: 1280&times;600 &bull; 30.0 FPS</span>
-                  <span className="text-[#3b82f6] tabular-nums font-bold">YOLOv8s PyTorch CUDA (~14.8 ms)</span>
+                  <span className="text-[#2563eb] tabular-nums font-bold">YOLOv8s PyTorch CUDA (~14.8 ms)</span>
                 </div>
               </div>
 
               {/* Right Side: Defect Taxonomy Matrix (1 Col) */}
-              <div className="apple-glass-card rounded-2xl p-5 border border-white/10 flex flex-col justify-between space-y-4">
+              <div className="apple-glass-card rounded-2xl p-5 flex flex-col justify-between space-y-4">
                 <div>
                   <div className="flex items-center justify-between border-b border-white/10 pb-2 mb-4">
                     <span className="text-xs font-mono font-bold text-[#f8fafc]">DEFECT BREAKDOWN</span>
@@ -583,9 +577,9 @@ export default function App() {
                               {count} ({pct.toFixed(0)}%)
                             </span>
                           </div>
-                          <div className="h-1.5 w-full bg-white/10 rounded-full overflow-hidden">
+                          <div className="h-1.5 w-full apple-subsurface rounded-full overflow-hidden">
                             <div
-                              className="h-full bg-[#2563eb] rounded-full"
+                              className="h-full bg-[#2563eb] rounded-full transition-all duration-200"
                               style={{ width: `${Math.max(pct, count > 0 ? 5 : 0)}%` }}
                             />
                           </div>
@@ -597,17 +591,17 @@ export default function App() {
                 </div>
 
                 {/* Latest Defect Flagged */}
-                <div className="p-3.5 bg-black/40 border border-white/10 rounded-xl font-mono text-xs">
-                  <div className="text-xs text-red-400 font-bold">LATEST DEFECT DETECTED</div>
+                <div className="p-3.5 apple-subsurface rounded-xl font-mono text-xs">
+                  <div className="text-xs text-[#f87171] font-bold">LATEST DEFECT DETECTED</div>
                   {stats.last_defect ? (
                     <div className="mt-1.5 space-y-1">
                       <div className="flex justify-between font-bold text-[#f8fafc]">
                         <span className="truncate max-w-[140px]">{stats.last_defect.id}</span>
-                        <span className="text-red-400 shrink-0">[FAIL: {stats.last_defect.type.toUpperCase()}]</span>
+                        <span className="text-[#f87171] shrink-0">[FAIL: {stats.last_defect.type.toUpperCase()}]</span>
                       </div>
                       <div className="text-xs text-[#94a3b8] flex justify-between tabular-nums">
                         <span>Confidence: {((stats.last_defect.conf || 0.85) * 100).toFixed(0)}%</span>
-                        <span className="text-emerald-400 shrink-0 font-bold">[DIVERTED]</span>
+                        <span className="text-[#34d399] shrink-0 font-bold">[DIVERTED]</span>
                       </div>
                     </div>
                   ) : (
@@ -621,14 +615,14 @@ export default function App() {
             </div>
 
             {/* Traceability Table Preview */}
-            <div className="apple-glass-card rounded-2xl p-5 border border-white/10 space-y-3">
+            <div className="apple-glass-card rounded-2xl p-5 space-y-3">
               <div className="flex items-center justify-between border-b border-white/10 pb-2">
                 <span className="text-xs font-mono font-bold text-[#f8fafc]">
                   LIVE CONVEYOR TRACEABILITY AUDIT
                 </span>
                 <button
                   onClick={() => setActiveTab('audit')}
-                  className="interactive-target px-3.5 py-1.5 bg-white/5 text-xs font-mono font-bold border border-white/10 rounded-xl hover:bg-white/10 text-[#f8fafc]"
+                  className="interactive-target apple-btn-secondary px-3.5 py-1.5 text-xs font-mono font-bold rounded-xl"
                 >
                   FULL AUDIT TRAIL
                 </button>
@@ -654,14 +648,14 @@ export default function App() {
                         <td className="py-2.5 px-3 whitespace-nowrap">
                           <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold ${
                             r.decision === 'GOOD'
-                              ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/30'
-                              : 'bg-red-500/10 text-red-400 border border-red-500/30'
+                              ? 'apple-badge-good'
+                              : 'apple-badge-defect'
                           }`}>
                             [{r.decision}]
                           </span>
                         </td>
                         <td className="py-2.5 px-3 uppercase whitespace-nowrap truncate max-w-[120px]">{r.defect_type}</td>
-                        <td className="py-2.5 px-3 text-[#3b82f6] tabular-nums whitespace-nowrap font-bold">{(r.confidence * 100).toFixed(1)}%</td>
+                        <td className="py-2.5 px-3 text-[#2563eb] tabular-nums whitespace-nowrap font-bold">{(r.confidence * 100).toFixed(1)}%</td>
                         <td className="py-2.5 px-3 text-right whitespace-nowrap">
                           {r.image_url ? (
                             <button
@@ -669,7 +663,7 @@ export default function App() {
                                 setSelectedSnapshot(r.image_url);
                                 setSelectedLogRecord(r);
                               }}
-                              className="interactive-target px-3 py-1 bg-white/5 border border-white/10 rounded-lg text-xs font-mono text-[#3b82f6] hover:bg-white/10 font-bold"
+                              className="interactive-target apple-btn-secondary px-3 py-1 rounded-lg text-xs font-mono text-[#2563eb] font-bold"
                             >
                               INSPECT
                             </button>
@@ -699,7 +693,7 @@ export default function App() {
         ===================================================================== */}
         {activeTab === 'stream' && (
           <div className="space-y-6">
-            <div className="apple-glass-panel rounded-2xl p-6 border border-white/10 space-y-5">
+            <div className="apple-glass-panel rounded-2xl p-6 space-y-5">
               <div className="flex flex-wrap items-center justify-between gap-3 border-b border-white/10 pb-4">
                 <div>
                   <h2 className="text-sm font-mono font-bold text-[#f8fafc]">
@@ -713,20 +707,20 @@ export default function App() {
                 <div className="flex items-center gap-2.5">
                   <button
                     onClick={() => setUseDigitalTwin(!useDigitalTwin)}
-                    className="interactive-target px-3.5 py-2 bg-white/5 text-xs font-mono font-bold border border-white/10 rounded-xl hover:bg-white/10 text-[#f8fafc]"
+                    className="interactive-target apple-btn-secondary px-3.5 py-2 text-xs font-mono font-bold rounded-xl"
                   >
                     {useDigitalTwin ? 'MODE: DIGITAL TWIN' : 'MODE: CAMERA STREAM'}
                   </button>
                   <button
                     onClick={() => setIsStreamPaused(!isStreamPaused)}
-                    className="interactive-target px-3.5 py-2 bg-white/5 text-xs font-mono font-bold border border-white/10 rounded-xl hover:bg-white/10 text-[#f8fafc]"
+                    className="interactive-target apple-btn-secondary px-3.5 py-2 text-xs font-mono font-bold rounded-xl"
                   >
                     {isStreamPaused ? 'RESUME STREAM' : 'PAUSE STREAM'}
                   </button>
                   <button
                     onClick={handleTestPusher}
                     disabled={isPusherTriggering}
-                    className="interactive-target px-3.5 py-2 bg-white/5 text-red-400 text-xs font-mono font-bold border border-white/10 rounded-xl hover:bg-red-500/10"
+                    className="interactive-target apple-btn-secondary px-3.5 py-2 text-[#f87171] text-xs font-mono font-bold rounded-xl hover:border-red-400/40"
                   >
                     ACTUATE DIVERTER
                   </button>
@@ -758,7 +752,7 @@ export default function App() {
               </div>
 
               {/* Unified Linear Telemetry Strip */}
-              <div className="apple-glass-card rounded-xl border border-white/10 overflow-hidden">
+              <div className="apple-subsurface rounded-xl overflow-hidden">
                 <div className="grid grid-cols-1 md:grid-cols-3 divide-y md:divide-y-0 md:divide-x divide-white/10 text-xs font-mono">
                   <div className="p-4 space-y-1">
                     <div className="text-[#94a3b8] font-bold">STATION 1: OPTICAL CAMERA</div>
@@ -772,7 +766,7 @@ export default function App() {
                   </div>
                   <div className="p-4 space-y-1">
                     <div className="text-[#94a3b8] font-bold">CONVEYOR DRIVE MOTOR</div>
-                    <div className="text-[#3b82f6] font-bold">Closed-Loop Belt Drive</div>
+                    <div className="text-[#2563eb] font-bold">Closed-Loop Belt Drive</div>
                     <div className="text-[#94a3b8] text-xs tabular-nums">{stats.conveyor_delay.toFixed(1)}s Arrival Delay Window</div>
                   </div>
                 </div>
@@ -789,7 +783,7 @@ export default function App() {
           <div className="space-y-6">
 
             {/* Linear Production KPI Ledger */}
-            <div className="apple-glass-card rounded-2xl p-6 border border-white/10 space-y-4">
+            <div className="apple-glass-card rounded-2xl p-6 space-y-4">
               <div className="flex items-center justify-between border-b border-white/10 pb-2">
                 <span className="text-xs font-mono font-bold text-[#f8fafc]">
                   QUALITY ASSURANCE TELEMETRY SUMMARY
@@ -800,24 +794,24 @@ export default function App() {
               <div className="grid grid-cols-1 sm:grid-cols-3 divide-y sm:divide-y-0 sm:divide-x divide-white/10 text-xs font-mono">
                 <div className="p-4 space-y-1">
                   <div className="text-[#94a3b8]">FIRST PASS YIELD (FPY)</div>
-                  <div className="text-2xl font-extrabold text-emerald-400 tabular-nums">{yieldPercentage}%</div>
+                  <div className="text-2xl font-extrabold text-[#34d399] tabular-nums">{yieldPercentage}%</div>
                   <div className="text-xs text-[#94a3b8]">Good units passed downstream</div>
                 </div>
                 <div className="p-4 space-y-1">
                   <div className="text-[#94a3b8]">DEFECT OCCURRENCE RATIO</div>
-                  <div className="text-2xl font-extrabold text-amber-400 tabular-nums">{stats.defect_rate.toFixed(2)}%</div>
+                  <div className="text-2xl font-extrabold text-[#fbbf24] tabular-nums">{stats.defect_rate.toFixed(2)}%</div>
                   <div className="text-xs text-[#94a3b8]">Benchmark threshold &lt; 3.00%</div>
                 </div>
                 <div className="p-4 space-y-1">
                   <div className="text-[#94a3b8]">DIVERTER EFFICIENCY</div>
-                  <div className="text-2xl font-extrabold text-[#3b82f6] tabular-nums">100.0%</div>
+                  <div className="text-2xl font-extrabold text-[#2563eb] tabular-nums">100.0%</div>
                   <div className="text-xs text-[#94a3b8] tabular-nums">{stats.defect_count} confirmed rejections</div>
                 </div>
               </div>
             </div>
 
             {/* Defect Classification Matrix */}
-            <div className="apple-glass-card rounded-2xl p-6 border border-white/10 space-y-4">
+            <div className="apple-glass-card rounded-2xl p-6 space-y-4">
               <div className="border-b border-white/10 pb-2">
                 <h3 className="text-xs font-mono font-bold text-[#f8fafc]">
                   DEFECT CLASS DISTRIBUTION &amp; ROOT CAUSE MATRIX
@@ -832,14 +826,14 @@ export default function App() {
                   const count = (stats.defect_breakdown && stats.defect_breakdown[def.key]) || 0;
                   const pct = stats.defect_count > 0 ? (count / stats.defect_count) * 100 : 0;
                   return (
-                    <div key={def.key} className="p-4 bg-black/40 border border-white/10 rounded-xl space-y-2">
+                    <div key={def.key} className="p-4 apple-subsurface rounded-xl space-y-2">
                       <div className="flex justify-between text-xs font-mono font-bold">
                         <span className="text-[#f8fafc] truncate">{def.label}</span>
                         <span className="text-[#94a3b8] tabular-nums shrink-0">{count} ({pct.toFixed(0)}%)</span>
                       </div>
                       <div className="h-1.5 w-full bg-white/10 rounded-full overflow-hidden">
                         <div
-                          className="h-full bg-[#2563eb] rounded-full"
+                          className="h-full bg-[#2563eb] rounded-full transition-all duration-200"
                           style={{ width: `${Math.max(pct, count > 0 ? 5 : 0)}%` }}
                         />
                       </div>
@@ -854,7 +848,7 @@ export default function App() {
 
             {/* Latency Specifications */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="apple-glass-card rounded-2xl p-5 border border-white/10 space-y-3 font-mono text-xs">
+              <div className="apple-glass-card rounded-2xl p-5 space-y-3 font-mono text-xs">
                 <div className="font-bold text-[#f8fafc] border-b border-white/10 pb-2">
                   OPTICAL INFERENCE TIMING
                 </div>
@@ -864,7 +858,7 @@ export default function App() {
                 </div>
                 <div className="flex justify-between py-1 border-b border-white/5">
                   <span className="text-[#94a3b8]">YOLOv8s PyTorch CUDA</span>
-                  <span className="text-[#3b82f6] font-bold tabular-nums">11.4 ms</span>
+                  <span className="text-[#2563eb] font-bold tabular-nums">11.4 ms</span>
                 </div>
                 <div className="flex justify-between py-1 border-b border-white/5">
                   <span className="text-[#94a3b8]">Non-Maximum Suppression</span>
@@ -872,11 +866,11 @@ export default function App() {
                 </div>
                 <div className="flex justify-between py-1">
                   <span className="text-[#94a3b8]">Total Optical Latency</span>
-                  <span className="text-emerald-400 font-bold tabular-nums">14.8 ms (67+ FPS)</span>
+                  <span className="text-[#34d399] font-bold tabular-nums">14.8 ms (67+ FPS)</span>
                 </div>
               </div>
 
-              <div className="apple-glass-card rounded-2xl p-5 border border-white/10 space-y-3 font-mono text-xs">
+              <div className="apple-glass-card rounded-2xl p-5 space-y-3 font-mono text-xs">
                 <div className="font-bold text-[#f8fafc] border-b border-white/10 pb-2">
                   MECHANICAL ACTUATOR TIMING
                 </div>
@@ -886,7 +880,7 @@ export default function App() {
                 </div>
                 <div className="flex justify-between py-1 border-b border-white/5">
                   <span className="text-[#94a3b8]">Conveyor Transit Delay</span>
-                  <span className="text-[#3b82f6] font-bold tabular-nums">{stats.conveyor_delay.toFixed(1)}s Window</span>
+                  <span className="text-[#2563eb] font-bold tabular-nums">{stats.conveyor_delay.toFixed(1)}s Window</span>
                 </div>
                 <div className="flex justify-between py-1 border-b border-white/5">
                   <span className="text-[#94a3b8]">Servo Sweep Stroke</span>
@@ -894,7 +888,7 @@ export default function App() {
                 </div>
                 <div className="flex justify-between py-1">
                   <span className="text-[#94a3b8]">Chute Clearance Return</span>
-                  <span className="text-emerald-400 font-bold tabular-nums">120 ms</span>
+                  <span className="text-[#34d399] font-bold tabular-nums">120 ms</span>
                 </div>
               </div>
             </div>
@@ -922,10 +916,10 @@ export default function App() {
                   <button
                     key={cat}
                     onClick={() => setFilterCategory(cat)}
-                    className={`interactive-target px-3.5 py-1.5 rounded-full text-xs font-mono font-bold border transition-colors ${
+                    className={`interactive-target px-3.5 py-1.5 rounded-full text-xs font-mono font-bold transition-all ${
                       filterCategory === cat
                         ? 'apple-pill-active'
-                        : 'bg-white/5 text-[#94a3b8] border-white/10 hover:text-[#f8fafc] hover:bg-white/10'
+                        : 'apple-btn-secondary'
                     }`}
                   >
                     {cat.replace('_', ' ')}
@@ -942,7 +936,7 @@ export default function App() {
                     setSelectedSnapshot(item.image_url);
                     setSelectedLogRecord(item);
                   }}
-                  className="interactive-target w-full apple-glass-card rounded-2xl border border-white/10 p-2.5 flex flex-col items-stretch text-left cursor-pointer hover:border-white/25 transition-all"
+                  className="interactive-target w-full apple-glass-card rounded-2xl p-2.5 flex flex-col items-stretch text-left cursor-pointer hover:border-white/25 transition-all"
                 >
                   <div className="aspect-square bg-[#080b12] rounded-xl overflow-hidden relative">
                     <img
@@ -950,7 +944,7 @@ export default function App() {
                       alt={item.item_id}
                       className="w-full h-full object-cover"
                     />
-                    <span className="absolute top-2 right-2 px-2.5 py-0.5 rounded-full text-[10px] font-bold font-mono bg-red-500/80 text-white border border-red-400/40 truncate max-w-[120px] backdrop-blur-sm">
+                    <span className="absolute top-2 right-2 px-2.5 py-0.5 rounded-full text-[10px] font-bold font-mono apple-badge-defect truncate max-w-[120px] backdrop-blur-md">
                       [{item.defect_type.toUpperCase()}]
                     </span>
                   </div>
@@ -958,11 +952,11 @@ export default function App() {
                   <div className="p-2 font-mono text-xs">
                     <div className="flex justify-between font-bold text-[#f8fafc]">
                       <span className="truncate max-w-[120px]">{item.item_id}</span>
-                      <span className="text-[#3b82f6] tabular-nums shrink-0">{(item.confidence * 100).toFixed(0)}%</span>
+                      <span className="text-[#2563eb] tabular-nums shrink-0 font-bold">{(item.confidence * 100).toFixed(0)}%</span>
                     </div>
                     <div className="text-xs text-[#94a3b8] mt-1 flex justify-between">
                       <span className="tabular-nums truncate max-w-[120px]">{item.timestamp}</span>
-                      <span className="text-emerald-400 shrink-0 font-bold">[DIVERTED]</span>
+                      <span className="text-[#34d399] shrink-0 font-bold">[DIVERTED]</span>
                     </div>
                   </div>
                 </div>
@@ -970,7 +964,7 @@ export default function App() {
             </div>
 
             {filteredLogs.filter(l => l.image_url).length === 0 && (
-              <div className="p-12 apple-glass-card rounded-2xl border border-white/10 text-center text-xs font-mono text-[#94a3b8] max-w-[65ch] mx-auto">
+              <div className="p-12 apple-glass-card rounded-2xl text-center text-xs font-mono text-[#94a3b8] max-w-[65ch] mx-auto">
                 No defective packages found. No items currently match the selected filter category. Run packages through the inspection line or select a different filter above.
               </div>
             )}
@@ -981,7 +975,7 @@ export default function App() {
             TAB 5: REGULATORY AUDIT TRAIL TABLE
         ===================================================================== */}
         {activeTab === 'audit' && (
-          <div className="apple-glass-card rounded-2xl p-6 border border-white/10 space-y-4">
+          <div className="apple-glass-card rounded-2xl p-6 space-y-4">
             <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 border-b border-white/10 pb-4">
               <div>
                 <h2 className="text-sm font-mono font-bold text-[#f8fafc]">
@@ -998,13 +992,13 @@ export default function App() {
                   placeholder="Search package ID..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="px-3.5 py-2 bg-white/5 border border-white/10 rounded-xl text-xs font-mono text-[#f8fafc] placeholder-[#94a3b8] min-h-[44px] hover:border-white/20 focus-visible:outline-none"
+                  className="px-3.5 py-2 apple-subsurface rounded-xl text-xs font-mono text-[#f8fafc] placeholder-[#94a3b8] min-h-[44px] hover:border-white/20 focus-visible:outline-none"
                 />
 
                 <select
                   value={filterDecision}
                   onChange={(e) => setFilterDecision(e.target.value)}
-                  className="px-3.5 py-2 bg-[#0c101b] border border-white/10 rounded-xl text-xs font-mono text-[#f8fafc] min-h-[44px] hover:border-white/20 focus-visible:outline-none"
+                  className="px-3.5 py-2 bg-[#0c101a] border border-white/10 rounded-xl text-xs font-mono text-[#f8fafc] min-h-[44px] hover:border-white/20 focus-visible:outline-none"
                 >
                   <option value="ALL">All Decisions</option>
                   <option value="GOOD">Good Only</option>
@@ -1014,7 +1008,7 @@ export default function App() {
                 <a
                   href="/logs/defect_log.csv"
                   download="defect_log.csv"
-                  className="interactive-target px-4 py-2 bg-[#2563eb] text-white font-mono font-bold text-xs rounded-xl hover:bg-[#1d4ed8]"
+                  className="interactive-target apple-btn-primary px-4 py-2 font-mono font-bold text-xs rounded-xl"
                 >
                   EXPORT CSV
                 </a>
@@ -1050,14 +1044,14 @@ export default function App() {
                       <td className="py-2.5 px-3 whitespace-nowrap">
                         <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold ${
                           r.decision === 'GOOD'
-                            ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/30'
-                            : 'bg-red-500/10 text-red-400 border border-red-500/30'
+                            ? 'apple-badge-good'
+                            : 'apple-badge-defect'
                         }`}>
                           [{r.decision}]
                         </span>
                       </td>
                       <td className="py-2.5 px-3 uppercase whitespace-nowrap truncate max-w-[120px]">{r.defect_type}</td>
-                      <td className="py-2.5 px-3 text-[#3b82f6] tabular-nums whitespace-nowrap font-bold">{(r.confidence * 100).toFixed(1)}%</td>
+                      <td className="py-2.5 px-3 text-[#2563eb] tabular-nums whitespace-nowrap font-bold">{(r.confidence * 100).toFixed(1)}%</td>
                       <td className="py-2.5 px-3 text-right whitespace-nowrap">
                         {r.image_url ? (
                           <button
@@ -1065,7 +1059,7 @@ export default function App() {
                               setSelectedSnapshot(r.image_url);
                               setSelectedLogRecord(r);
                             }}
-                            className="interactive-target px-3 py-1 bg-white/5 border border-white/10 rounded-lg text-xs font-mono text-[#3b82f6] hover:bg-white/10 font-bold"
+                            className="interactive-target apple-btn-secondary px-3 py-1 rounded-lg text-xs font-mono text-[#2563eb] font-bold"
                           >
                             VIEW PHOTO
                           </button>
@@ -1095,7 +1089,7 @@ export default function App() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
 
             {/* Precision Calibration Sliders */}
-            <div className="apple-glass-card rounded-2xl p-6 border border-white/10 space-y-6">
+            <div className="apple-glass-card rounded-2xl p-6 space-y-6">
               <div className="border-b border-white/10 pb-3">
                 <h3 className="text-xs font-mono font-bold text-[#f8fafc]">
                   CONVEYOR &amp; MODEL CALIBRATION
@@ -1106,7 +1100,7 @@ export default function App() {
               <div className="space-y-3">
                 <div className="flex justify-between items-center text-xs font-mono">
                   <span className="font-bold text-[#f8fafc]">Confidence Threshold Gate</span>
-                  <span className="px-2.5 py-1 bg-white/5 text-[#3b82f6] border border-white/10 rounded-lg font-bold tabular-nums">
+                  <span className="px-2.5 py-1 apple-subsurface text-[#2563eb] rounded-lg font-bold tabular-nums">
                     {confSlider.toFixed(2)}
                   </span>
                 </div>
@@ -1132,7 +1126,7 @@ export default function App() {
               <div className="space-y-3 pt-2">
                 <div className="flex justify-between items-center text-xs font-mono">
                   <span className="font-bold text-[#f8fafc]">Conveyor Transit Delay</span>
-                  <span className="px-2.5 py-1 bg-white/5 text-[#3b82f6] border border-white/10 rounded-lg font-bold tabular-nums">
+                  <span className="px-2.5 py-1 apple-subsurface text-[#2563eb] rounded-lg font-bold tabular-nums">
                     {delaySlider.toFixed(1)}s
                   </span>
                 </div>
@@ -1160,19 +1154,19 @@ export default function App() {
                 <div className="grid grid-cols-3 gap-2">
                   <button
                     onClick={() => applyPreset(0.35, 2.8)}
-                    className="interactive-target p-2.5 bg-white/5 border border-white/10 rounded-xl text-xs font-mono font-bold text-[#94a3b8] hover:text-[#f8fafc] hover:bg-white/10"
+                    className="interactive-target apple-btn-secondary p-2.5 rounded-xl text-xs font-mono font-bold text-[#94a3b8] hover:text-[#f8fafc]"
                   >
                     High Sensitivity
                   </button>
                   <button
                     onClick={() => applyPreset(0.45, 2.8)}
-                    className="interactive-target p-2.5 bg-white/5 border border-white/10 rounded-xl text-xs font-mono font-bold text-[#94a3b8] hover:text-[#f8fafc] hover:bg-white/10"
+                    className="interactive-target apple-btn-secondary p-2.5 rounded-xl text-xs font-mono font-bold text-[#94a3b8] hover:text-[#f8fafc]"
                   >
                     Default Balanced
                   </button>
                   <button
                     onClick={() => applyPreset(0.60, 2.5)}
-                    className="interactive-target p-2.5 bg-white/5 border border-white/10 rounded-xl text-xs font-mono font-bold text-[#94a3b8] hover:text-[#f8fafc] hover:bg-white/10"
+                    className="interactive-target apple-btn-secondary p-2.5 rounded-xl text-xs font-mono font-bold text-[#94a3b8] hover:text-[#f8fafc]"
                   >
                     High Throughput
                   </button>
@@ -1182,20 +1176,20 @@ export default function App() {
               <button
                 onClick={handleSaveSettings}
                 disabled={isSavingSettings}
-                className="interactive-target w-full py-3 bg-[#2563eb] text-white font-mono font-bold text-xs rounded-xl hover:bg-[#1d4ed8]"
+                className="interactive-target apple-btn-primary w-full py-3 font-mono font-bold text-xs rounded-xl"
               >
                 {isSavingSettings ? '[SAVING PARAMETERS...]' : 'APPLY & SAVE PARAMETERS'}
               </button>
 
               {settingsSavedAlert && (
-                <div className="p-3 bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs font-mono text-center rounded-xl">
+                <div className="p-3 apple-badge-good text-xs font-mono text-center rounded-xl font-bold">
                   [SUCCESS] Pipeline parameters saved and active.
                 </div>
               )}
             </div>
 
             {/* Actuator Override Panel */}
-            <div className="apple-glass-card rounded-2xl p-6 border border-white/10 flex flex-col justify-between space-y-6">
+            <div className="apple-glass-card rounded-2xl p-6 flex flex-col justify-between space-y-6">
               <div className="border-b border-white/10 pb-3">
                 <h3 className="text-xs font-mono font-bold text-[#f8fafc]">
                   MECHANICAL ACTUATOR OVERRIDE
@@ -1208,8 +1202,8 @@ export default function App() {
                   disabled={isPusherTriggering}
                   className={`interactive-target px-8 py-4 rounded-2xl text-sm font-mono font-bold border transition-colors ${
                     isPusherTriggering
-                      ? 'bg-red-500/25 text-red-200 border-red-500/40 shadow-sm'
-                      : 'bg-white/5 text-red-400 border-red-500/30 hover:bg-red-500/10'
+                      ? 'apple-badge-defect font-extrabold'
+                      : 'apple-btn-secondary text-[#f87171] hover:border-red-400/40'
                   }`}
                 >
                   {isPusherTriggering ? '[PUSHER ACTUATING...]' : 'TRIGGER SG90 PUSHER NOW'}
@@ -1220,14 +1214,14 @@ export default function App() {
                 </p>
               </div>
 
-              <div className="p-4 bg-black/40 border border-white/10 rounded-xl space-y-2 font-mono text-xs">
+              <div className="p-4 apple-subsurface rounded-xl space-y-2 font-mono text-xs">
                 <div className="flex justify-between">
                   <span className="text-[#94a3b8]">Microcontroller:</span>
                   <span className="text-[#f8fafc]">Arduino Uno / Nano</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-[#94a3b8]">Serial Protocol:</span>
-                  <span className="text-[#3b82f6] font-bold tabular-nums">115200 Baud &bull; COM3</span>
+                  <span className="text-[#2563eb] font-bold tabular-nums">115200 Baud &bull; COM3</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-[#94a3b8]">PWM Servo Output:</span>
@@ -1237,7 +1231,7 @@ export default function App() {
 
               <button
                 onClick={handleReset}
-                className="interactive-target w-full py-3 bg-white/5 border border-white/10 rounded-xl text-xs font-mono font-bold text-red-400 hover:bg-red-500/10"
+                className="interactive-target apple-btn-secondary w-full py-3 rounded-xl text-xs font-mono font-bold text-[#f87171] hover:border-red-400/40"
               >
                 RESET SESSION COUNTERS
               </button>
@@ -1261,13 +1255,13 @@ export default function App() {
         >
           <div
             onClick={(e) => e.stopPropagation()}
-            className="max-w-3xl w-full apple-glass-panel rounded-2xl border border-white/15 p-5 sm:p-6 space-y-4 shadow-2xl"
+            className="max-w-3xl w-full apple-glass-panel rounded-2xl p-5 sm:p-6 space-y-4 shadow-2xl"
           >
             <div className="flex items-center justify-between border-b border-white/10 pb-3">
               <div className="flex items-center gap-2 text-xs font-mono font-bold truncate">
                 <span className="text-[#f8fafc]">INSPECTION TELEMETRY</span>
                 {selectedLogRecord && (
-                  <span className="px-2.5 py-1 bg-white/5 text-[#3b82f6] border border-white/10 rounded-lg truncate max-w-[160px]">
+                  <span className="px-2.5 py-1 apple-subsurface text-[#2563eb] rounded-lg truncate max-w-[160px]">
                     {selectedLogRecord.item_id}
                   </span>
                 )}
@@ -1277,7 +1271,7 @@ export default function App() {
                   setSelectedSnapshot(null);
                   setSelectedLogRecord(null);
                 }}
-                className="interactive-target px-3 py-1 bg-white/5 text-[#94a3b8] hover:text-[#f8fafc] text-xs font-mono font-bold rounded-lg border border-white/10 hover:bg-white/10"
+                className="interactive-target apple-btn-secondary px-3 py-1 rounded-lg text-xs font-mono text-[#94a3b8] hover:text-[#f8fafc]"
               >
                 [CLOSE ESC]
               </button>
@@ -1293,27 +1287,27 @@ export default function App() {
 
             {selectedLogRecord && (
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 font-mono text-xs">
-                <div className="p-3 bg-black/40 border border-white/10 rounded-xl">
+                <div className="p-3 apple-subsurface rounded-xl">
                   <div className="text-xs text-[#94a3b8]">DEFECT TYPE</div>
-                  <div className="text-red-400 font-bold mt-1 uppercase truncate">
+                  <div className="text-[#f87171] font-bold mt-1 uppercase truncate">
                     [{selectedLogRecord.defect_type}]
                   </div>
                 </div>
-                <div className="p-3 bg-black/40 border border-white/10 rounded-xl">
+                <div className="p-3 apple-subsurface rounded-xl">
                   <div className="text-xs text-[#94a3b8]">CONFIDENCE</div>
-                  <div className="text-[#3b82f6] font-bold mt-1 tabular-nums">
+                  <div className="text-[#2563eb] font-bold mt-1 tabular-nums">
                     {(selectedLogRecord.confidence * 100).toFixed(1)}%
                   </div>
                 </div>
-                <div className="p-3 bg-black/40 border border-white/10 rounded-xl">
+                <div className="p-3 apple-subsurface rounded-xl">
                   <div className="text-xs text-[#94a3b8]">TIMESTAMP</div>
                   <div className="text-[#f8fafc] font-bold mt-1 tabular-nums whitespace-nowrap">
                     {selectedLogRecord.timestamp}
                   </div>
                 </div>
-                <div className="p-3 bg-black/40 border border-white/10 rounded-xl">
+                <div className="p-3 apple-subsurface rounded-xl">
                   <div className="text-xs text-[#94a3b8]">DISPOSITION</div>
-                  <div className="text-emerald-400 font-bold mt-1">
+                  <div className="text-[#34d399] font-bold mt-1">
                     [EJECT CHUTE]
                   </div>
                 </div>
@@ -1329,7 +1323,7 @@ export default function App() {
                 download
                 target="_blank"
                 rel="noreferrer"
-                className="interactive-target px-4 py-2 bg-[#2563eb] text-white font-mono font-bold text-xs rounded-xl hover:bg-[#1d4ed8]"
+                className="interactive-target apple-btn-primary px-4 py-2 font-mono font-bold text-xs rounded-xl"
               >
                 DOWNLOAD SNAPSHOT
               </a>
@@ -1367,7 +1361,7 @@ export default function App() {
         <div className="flex items-center gap-3">
           <span className="tabular-nums">THROUGHPUT: {stats.fps.toFixed(1)} FPS</span>
           <span>&bull;</span>
-          <span className="text-[#3b82f6] font-bold tabular-nums">YIELD: {yieldPercentage}%</span>
+          <span className="text-[#2563eb] font-bold tabular-nums">YIELD: {yieldPercentage}%</span>
         </div>
       </footer>
 

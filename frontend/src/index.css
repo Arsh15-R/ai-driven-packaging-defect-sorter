@@ -21,7 +21,7 @@
   }
 }
 
-/* Reduced Motion Compliance */
+/* Reduced Motion Compliance: strict zeroing under prefers-reduced-motion */
 @media (prefers-reduced-motion: reduce) {
   *, ::before, ::after {
     animation-duration: 0.01ms !important;
@@ -32,8 +32,9 @@
 }
 
 /* =========================================================================
-   AUTHENTIC APPLE VISIONOS / macOS GLASS MATERIAL SYSTEM
-   (Tinted acrylic base + 28px optical blur + 1px top specular catch light)
+   AUTHENTIC APPLE VISIONOS & macOS SONOMA GLASS MATERIAL SYSTEM
+   (Strictly based on: dense tinted acrylic, 28px optical blur, 190% saturation,
+    1px top specular rim lighting, and soft directional elevation shadow)
    ========================================================================= */
 
 /* Primary Floating Glass Panel (Headers, Main Viewports, Drawers) */
@@ -47,55 +48,62 @@
     0 16px 36px -8px rgba(0, 0, 0, 0.65);
 }
 
-/* Secondary Glass Card (Data Tiles, Spec Ledgers) */
+/* Secondary Glass Card (Data Tiles, KPI Ledgers, Grid Items) */
 .apple-glass-card {
-  background: rgba(14, 18, 29, 0.68);
-  backdrop-filter: blur(24px) saturate(180%);
-  -webkit-backdrop-filter: blur(24px) saturate(180%);
-  border: 1px solid rgba(255, 255, 255, 0.07);
+  background: rgba(16, 21, 33, 0.72);
+  backdrop-filter: blur(28px) saturate(190%);
+  -webkit-backdrop-filter: blur(28px) saturate(190%);
+  border: 1px solid rgba(255, 255, 255, 0.08);
   box-shadow: 
-    inset 0 1px 1px 0 rgba(255, 255, 255, 0.12),
-    0 12px 28px -6px rgba(0, 0, 0, 0.55);
+    inset 0 1px 1px 0 rgba(255, 255, 255, 0.18),
+    0 16px 36px -8px rgba(0, 0, 0, 0.65);
 }
 
-/* Cupertino Dynamic Island Capsule */
+/* Cupertino Dynamic Island Capsule (Floating centered status) */
 .apple-dynamic-island {
-  background: rgba(10, 13, 20, 0.82);
-  backdrop-filter: blur(32px) saturate(200%);
-  -webkit-backdrop-filter: blur(32px) saturate(200%);
+  background: rgba(12, 16, 26, 0.85);
+  backdrop-filter: blur(28px) saturate(190%);
+  -webkit-backdrop-filter: blur(28px) saturate(190%);
   border: 1px solid rgba(255, 255, 255, 0.12);
   box-shadow: 
-    inset 0 1px 1.5px 0 rgba(255, 255, 255, 0.22),
+    inset 0 1px 1px 0 rgba(255, 255, 255, 0.22),
     0 14px 32px -6px rgba(0, 0, 0, 0.75);
 }
 
 /* Floating Segmented Pill Bar */
 .apple-pill-bar {
-  background: rgba(12, 15, 24, 0.76);
-  backdrop-filter: blur(28px) saturate(180%);
-  -webkit-backdrop-filter: blur(28px) saturate(180%);
-  border: 1px solid rgba(255, 255, 255, 0.09);
+  background: rgba(12, 16, 26, 0.80);
+  backdrop-filter: blur(28px) saturate(190%);
+  -webkit-backdrop-filter: blur(28px) saturate(190%);
+  border: 1px solid rgba(255, 255, 255, 0.10);
   box-shadow: 
-    inset 0 1px 1px 0 rgba(255, 255, 255, 0.14),
-    0 12px 28px -6px rgba(0, 0, 0, 0.5);
+    inset 0 1px 1px 0 rgba(255, 255, 255, 0.18),
+    0 14px 32px -6px rgba(0, 0, 0, 0.60);
 }
 
-/* Active Segmented Pill */
+/* Active Segmented Pill (Electric Cobalt Accent) */
 .apple-pill-active {
-  background: rgba(37, 99, 235, 0.24);
-  border: 1px solid rgba(59, 130, 246, 0.45);
-  box-shadow: inset 0 1px 1.5px 0 rgba(255, 255, 255, 0.22);
+  background: rgba(37, 99, 235, 0.28);
+  border: 1px solid rgba(59, 130, 246, 0.50);
+  box-shadow: inset 0 1px 1.5px 0 rgba(255, 255, 255, 0.24);
   color: #ffffff;
 }
 
-/* Tactile Control Target (44px min hit area, 0.97 press feedback, visible focus) */
+/* Nested Subsurface Well (Inset containers, secondary data boxes) */
+.apple-subsurface {
+  background: rgba(10, 14, 22, 0.65);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  box-shadow: inset 0 1px 2px 0 rgba(0, 0, 0, 0.45);
+}
+
+/* Tactile Control Target (44px min hit area, 0.97 press feedback, visible focus ring) */
 .interactive-target {
   min-height: 44px;
   min-width: 44px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  transition: opacity 150ms ease-out, transform 150ms ease-out;
+  transition: opacity 150ms ease-out, transform 150ms ease-out, background-color 150ms ease-out, border-color 150ms ease-out;
 }
 
 .interactive-target:hover {
@@ -118,7 +126,51 @@
   pointer-events: none;
 }
 
-/* Precision Glass Range Slider */
+/* Primary Action Button (Electric Cobalt) */
+.apple-btn-primary {
+  background: #2563eb;
+  color: #ffffff;
+  border: 1px solid rgba(255, 255, 255, 0.20);
+  box-shadow: 
+    inset 0 1px 1px 0 rgba(255, 255, 255, 0.30),
+    0 4px 12px rgba(37, 99, 235, 0.35);
+}
+.apple-btn-primary:hover {
+  background: #1d4ed8;
+}
+
+/* Secondary Action Button (Frosted Acrylic) */
+.apple-btn-secondary {
+  background: rgba(255, 255, 255, 0.05);
+  color: #f8fafc;
+  border: 1px solid rgba(255, 255, 255, 0.10);
+  box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.14);
+}
+.apple-btn-secondary:hover {
+  background: rgba(255, 255, 255, 0.09);
+  border-color: rgba(255, 255, 255, 0.20);
+}
+
+/* Semantic Badges with High Contrast & Explicit Bracketed Labels */
+.apple-badge-good {
+  background: rgba(16, 185, 129, 0.12);
+  color: #34d399;
+  border: 1px solid rgba(52, 211, 153, 0.32);
+}
+
+.apple-badge-defect {
+  background: rgba(239, 68, 68, 0.14);
+  color: #f87171;
+  border: 1px solid rgba(248, 113, 113, 0.35);
+}
+
+.apple-badge-alert {
+  background: rgba(245, 158, 11, 0.14);
+  color: #fbbf24;
+  border: 1px solid rgba(251, 191, 36, 0.35);
+}
+
+/* Precision Glass Range Slider (Cupertino Hardware feel) */
 input[type="range"] {
   -webkit-appearance: none;
   appearance: none;
