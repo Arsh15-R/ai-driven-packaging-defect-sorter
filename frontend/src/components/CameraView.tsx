@@ -1,5 +1,5 @@
 import React, { useRef, useState, useEffect } from 'react';
-import { Camera, CameraOff, AlertTriangle, AlertCircle, RefreshCw, CheckCircle2, Sliders, Shield } from 'lucide-react';
+import { Camera, CameraOff, AlertTriangle, AlertCircle, RefreshCw, CheckCircle2, Shield, Eye, Sparkles } from 'lucide-react';
 import { CameraErrorType } from '../types';
 
 interface CameraViewProps {
@@ -46,7 +46,7 @@ export const CameraView: React.FC<CameraViewProps> = ({ onFrameCaptured, isCaptu
               width: videoRef.current.videoWidth,
               height: videoRef.current.videoHeight,
             });
-            videoRef.current.play().catch(e => console.warn('Video play error:', e));
+            videoRef.current.play().catch((e) => console.warn('Video play error:', e));
           }
         };
       }
@@ -55,7 +55,7 @@ export const CameraView: React.FC<CameraViewProps> = ({ onFrameCaptured, isCaptu
       console.error('Camera acquisition error:', err);
       if (err.name === 'NotAllowedError' || err.name === 'PermissionDeniedError') {
         setCameraError('NotAllowedError');
-        setErrorMessage('Camera access was denied. Please allow camera permissions in your browser.');
+        setErrorMessage('Camera access was denied. Please allow camera permissions in your browser URL bar.');
       } else if (err.name === 'NotFoundError' || err.name === 'DevicesNotFoundError') {
         setCameraError('NotFoundError');
         setErrorMessage('No webcam device was found on this system. Please connect an external camera.');
@@ -99,77 +99,63 @@ export const CameraView: React.FC<CameraViewProps> = ({ onFrameCaptured, isCaptu
 
     const video = videoRef.current;
     const canvas = document.createElement('canvas');
-    const w = video.videoWidth || 1280;
-    const h = video.videoHeight || 720;
-    canvas.width = w;
-    canvas.height = h;
-
+    canvas.width = video.videoWidth || 1280;
+    canvas.height = video.videoHeight || 720;
     const ctx = canvas.getContext('2d');
+
     if (!ctx) return;
 
-    // Draw video frame to offscreen canvas
-    ctx.drawImage(video, 0, 0, w, h);
+    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+    const dataUrl = canvas.toDataURL('image/jpeg', 0.92);
 
-    // Visual shutter flash effect
+    // Tactile Shutter Flash Feedback
     setFlashActive(true);
     setTimeout(() => setFlashActive(false), 120);
 
-    // Convert to high-quality JPEG data URL (0.92 quality)
-    const dataUrl = canvas.toDataURL('image/jpeg', 0.92);
     onFrameCaptured(dataUrl);
   };
 
   return (
-    <div className="w-full flat-panel bg-[#0d121f] border border-[#1e2638] flex flex-col">
-      {/* Viewport Header Bar */}
-      <div className="px-4 py-3 border-b border-[#1e2638] bg-[#0a0e19] flex flex-wrap items-center justify-between gap-3">
-        <div className="flex items-center gap-3">
-          <div className="flex items-center gap-2">
-            <span
-              className={`w-2.5 h-2.5 rounded-full ${
-                isCameraActive ? 'bg-[#10b981] animate-pulse' : 'bg-slate-500'
-              }`}
-            />
-            <span className="font-mono text-xs font-bold uppercase tracking-wider text-slate-200">
-              {isCameraActive ? 'LIVE OPTICAL FEED' : 'OPTICAL GATE OFFLINE'}
+    <div className="apple-glass overflow-hidden rounded-3xl shadow-[0_20px_50px_rgba(0,0,0,0.6)] flex flex-col relative">
+      {/* Top Telemetry Header */}
+      <div className="px-5 py-3 border-b border-white/10 bg-white/[0.02] backdrop-blur-md flex items-center justify-between">
+        <div className="flex items-center gap-2.5">
+          <div className="w-2.5 h-2.5 rounded-full bg-cyan-400 shadow-[0_0_8px_rgba(34,211,238,0.8)] animate-pulse" />
+          <span className="text-xs font-semibold tracking-tight text-white flex items-center gap-1.5">
+            Optical Sensor
+            <span className="text-[10px] text-slate-400 font-mono font-normal">
+              {videoResolution ? `${videoResolution.width}×${videoResolution.height}` : 'HD 720p'}
             </span>
-          </div>
-
-          {videoResolution && isCameraActive && (
-            <span className="text-[11px] font-mono text-slate-400 bg-[#162035] px-2 py-0.5 border border-[#1e2638]">
-              {videoResolution.width} × {videoResolution.height} • 30 FPS
-            </span>
-          )}
+          </span>
         </div>
 
-        {/* Start / Stop Toggle */}
         <div className="flex items-center gap-2">
           {isCameraActive ? (
             <button
               onClick={stopCamera}
-              className="interactive-target h-8 px-3 text-xs font-mono font-bold uppercase tracking-wider bg-[#2a1318] hover:bg-[#3b1820] text-[#fca5a5] border border-[#ef4444]/60 flex items-center gap-1.5 transition-colors"
+              className="apple-btn-secondary px-3 py-1 text-xs font-medium text-rose-300 hover:text-rose-200 border-rose-500/30 flex items-center gap-1.5"
             >
               <CameraOff className="w-3.5 h-3.5" />
-              <span>STOP CAMERA</span>
+              <span>Pause</span>
             </button>
           ) : (
             <button
               onClick={startCamera}
               disabled={isInitializing}
-              className="interactive-target h-8 px-3 text-xs font-mono font-bold uppercase tracking-wider bg-[#132238] hover:bg-[#1a3152] text-[#93c5fd] border border-[#3b82f6]/60 flex items-center gap-1.5 transition-colors disabled:opacity-50"
+              className="apple-btn-primary px-3 py-1 text-xs font-medium flex items-center gap-1.5"
             >
               <Camera className="w-3.5 h-3.5" />
-              <span>{isInitializing ? 'INITIALIZING...' : 'START CAMERA'}</span>
+              <span>{isInitializing ? 'Connecting...' : 'Start Camera'}</span>
             </button>
           )}
         </div>
       </div>
 
       {/* Video Viewport Area */}
-      <div className="relative w-full aspect-video bg-[#03060d] flex items-center justify-center overflow-hidden border-b border-[#1e2638]">
+      <div className="relative w-full aspect-video bg-[#03060f] flex items-center justify-center overflow-hidden">
         {/* Shutter Flash Animation */}
         {flashActive && (
-          <div className="absolute inset-0 bg-white/40 z-30 pointer-events-none transition-opacity duration-100" />
+          <div className="absolute inset-0 bg-white/50 z-30 pointer-events-none transition-opacity duration-100" />
         )}
 
         {/* Video Element */}
@@ -186,17 +172,13 @@ export const CameraView: React.FC<CameraViewProps> = ({ onFrameCaptured, isCaptu
         {/* Optical Targeting Reticle & HUD Overlays */}
         {isCameraActive && (
           <div className="absolute inset-0 pointer-events-none z-20 flex items-center justify-center">
-            {/* Viewfinder Bounding Box (Central Inspection Region of Interest) */}
-            <div className="relative w-[70%] h-[72%] border border-cyan-500/30">
-              {/* Apple VisionOS / Industrial Corner Brackets */}
-              {/* Top-Left */}
-              <div className="absolute -top-1 -left-1 w-7 h-7 border-t-2 border-l-2 border-cyan-400" />
-              {/* Top-Right */}
-              <div className="absolute -top-1 -right-1 w-7 h-7 border-t-2 border-r-2 border-cyan-400" />
-              {/* Bottom-Left */}
-              <div className="absolute -bottom-1 -left-1 w-7 h-7 border-b-2 border-l-2 border-cyan-400" />
-              {/* Bottom-Right */}
-              <div className="absolute -bottom-1 -right-1 w-7 h-7 border-b-2 border-r-2 border-cyan-400" />
+            {/* Viewfinder Bounding Box */}
+            <div className="relative w-[72%] h-[74%] border border-cyan-400/25 rounded-2xl">
+              {/* Apple VisionOS Corner Brackets */}
+              <div className="absolute -top-1 -left-1 w-6 h-6 border-t-2 border-l-2 border-cyan-400 rounded-tl-lg shadow-[0_0_8px_rgba(34,211,238,0.5)]" />
+              <div className="absolute -top-1 -right-1 w-6 h-6 border-t-2 border-r-2 border-cyan-400 rounded-tr-lg shadow-[0_0_8px_rgba(34,211,238,0.5)]" />
+              <div className="absolute -bottom-1 -left-1 w-6 h-6 border-b-2 border-l-2 border-cyan-400 rounded-bl-lg shadow-[0_0_8px_rgba(34,211,238,0.5)]" />
+              <div className="absolute -bottom-1 -right-1 w-6 h-6 border-b-2 border-r-2 border-cyan-400 rounded-br-lg shadow-[0_0_8px_rgba(34,211,238,0.5)]" />
 
               {/* Center Crosshair */}
               <div className="absolute inset-0 flex items-center justify-center opacity-40">
@@ -204,132 +186,102 @@ export const CameraView: React.FC<CameraViewProps> = ({ onFrameCaptured, isCaptu
                 <div className="h-8 w-[1px] bg-cyan-400 absolute" />
               </div>
 
-              {/* Sub-alignment Grid ticks */}
-              <div className="absolute top-1/2 left-0 -translate-y-1/2 w-2 h-[1px] bg-cyan-400" />
-              <div className="absolute top-1/2 right-0 -translate-y-1/2 w-2 h-[1px] bg-cyan-400" />
-              <div className="absolute top-0 left-1/2 -translate-x-1/2 h-2 w-[1px] bg-cyan-400" />
-              <div className="absolute bottom-0 left-1/2 -translate-x-1/2 h-2 w-[1px] bg-cyan-400" />
-
               {/* Optical Laser Scanning Line */}
               <div className="absolute left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-cyan-400 to-transparent opacity-75 animate-scanCurtain" />
 
               {/* Telemetry Tag */}
-              <div className="absolute top-2 left-3 font-mono text-[10px] tracking-widest text-cyan-400/90 font-bold bg-[#0d121f]/80 px-1.5 py-0.5 border border-cyan-500/20">
-                OPTICAL GATE 1 • TARGETING ACTIVE
+              <div className="absolute top-2.5 left-3 text-[10px] tracking-wide text-cyan-300 font-medium bg-black/50 backdrop-blur-md px-2.5 py-0.5 rounded-full border border-cyan-400/30 flex items-center gap-1.5 shadow-sm">
+                <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-ping" />
+                <span>INSPECTION GATE ACTIVE</span>
               </div>
+            </div>
+          </div>
+        )}
+
+        {/* Floating VisionOS Shutter Action Dock */}
+        {isCameraActive && (
+          <div className="absolute bottom-4 left-1/2 -translate-x-1/2 z-30 pointer-events-auto">
+            <div className="apple-glass-pill px-5 py-2.5 flex items-center gap-4 bg-slate-950/70 backdrop-blur-2xl border border-white/20 shadow-[0_12px_32px_rgba(0,0,0,0.6)]">
+              <span className="text-[11px] font-medium text-slate-300 hidden sm:inline">
+                Align Product
+              </span>
+
+              {/* Apple Camera Shutter Button */}
+              <button
+                onClick={handleCapture}
+                disabled={isCapturing}
+                className="w-12 h-12 rounded-full border-2 border-white/40 bg-white hover:bg-slate-100 active:scale-90 transition-all flex items-center justify-center shadow-[0_0_20px_rgba(255,255,255,0.4)] disabled:opacity-50"
+                title="Capture Current Frame"
+                aria-label="Capture Current Frame"
+              >
+                <div className="w-9 h-9 rounded-full border border-slate-300 bg-gradient-to-b from-white to-slate-200" />
+              </button>
+
+              <span className="text-[11px] font-medium text-slate-300 hidden sm:inline">
+                Tap to Inspect
+              </span>
             </div>
           </div>
         )}
 
         {/* Inactive Standby Screen */}
         {!isCameraActive && !cameraError && (
-          <div className="text-center p-6 space-y-3 z-10">
-            <div className="w-14 h-14 mx-auto rounded-full bg-[#162035] border border-[#1e2638] flex items-center justify-center text-slate-400">
-              <Camera className="w-7 h-7 text-slate-300" />
+          <div className="text-center p-8 space-y-4 z-10 max-w-sm">
+            <div className="w-16 h-16 mx-auto rounded-3xl bg-white/[0.05] border border-white/10 backdrop-blur-md flex items-center justify-center text-slate-300 shadow-inner">
+              <Camera className="w-8 h-8 text-cyan-400" />
             </div>
             <div>
-              <div className="font-mono text-sm font-bold text-slate-200 uppercase tracking-wider">
-                WEBCAM DISCONNECTED / STANDBY
+              <div className="text-base font-semibold text-white tracking-tight">
+                Camera Standby
               </div>
-              <div className="text-xs text-slate-400 mt-1 max-w-sm mx-auto">
-                Click &ldquo;Start Camera&rdquo; above to enable your laptop webcam for real-time defect classification.
-              </div>
+              <p className="text-xs text-slate-400 mt-1 leading-relaxed">
+                Start your webcam to begin real-time product defect detection with YOLOv8.
+              </p>
             </div>
             <button
               onClick={startCamera}
-              className="mt-2 interactive-target h-10 px-5 text-xs font-mono font-bold uppercase tracking-wider bg-[#2563eb] hover:bg-[#1d4ed8] text-white border border-[#3b82f6] transition-colors"
+              className="apple-btn-primary px-5 py-2 text-xs font-semibold inline-flex items-center gap-2"
             >
-              ACTIVATE CAMERA
+              <Camera className="w-4 h-4" />
+              <span>Enable Camera</span>
             </button>
           </div>
         )}
 
         {/* Error State Overlays */}
         {cameraError === 'NotAllowedError' && (
-          <div className="absolute inset-0 z-20 bg-[#14080a]/95 flex flex-col items-center justify-center p-6 text-center">
-            <div className="w-12 h-12 bg-[#2d0f12] border border-[#ef4444] rounded-full flex items-center justify-center mb-3">
-              <AlertTriangle className="w-6 h-6 text-[#ef4444]" />
+          <div className="absolute inset-0 z-20 bg-slate-950/90 backdrop-blur-xl flex flex-col items-center justify-center p-6 text-center">
+            <div className="w-14 h-14 bg-rose-500/15 border border-rose-500/30 rounded-2xl flex items-center justify-center mb-3 shadow-[0_0_20px_rgba(244,63,94,0.2)]">
+              <AlertCircle className="w-7 h-7 text-rose-400" />
             </div>
-            <h3 className="font-mono text-sm font-bold text-red-200 uppercase tracking-wider">
-              Camera Permission Denied
-            </h3>
-            <p className="text-xs text-slate-300 max-w-md mt-2 leading-relaxed">
-              Your browser blocked access to the webcam. To inspect products, please allow camera permissions:
-            </p>
-            <div className="mt-3 bg-[#0d121f] border border-[#2d0f12] text-left p-3.5 max-w-md text-xs font-mono space-y-2 text-slate-300">
-              <div className="flex items-start gap-2">
-                <span className="text-[#3b82f6] font-bold">1.</span>
-                <span>Click the tune / lock icon on the left side of your browser URL bar.</span>
-              </div>
-              <div className="flex items-start gap-2">
-                <span className="text-[#3b82f6] font-bold">2.</span>
-                <span>Toggle the <strong>Camera</strong> permission to <strong>Allow</strong>.</span>
-              </div>
-              <div className="flex items-start gap-2">
-                <span className="text-[#3b82f6] font-bold">3.</span>
-                <span>Click the button below to re-request camera initialization.</span>
-              </div>
-            </div>
-            <button
-              onClick={startCamera}
-              className="mt-4 interactive-target h-9 px-4 text-xs font-mono font-bold uppercase bg-[#ef4444] hover:bg-[#dc2626] text-white transition-colors"
-            >
-              RETRY CAMERA PERMISSION
-            </button>
-          </div>
-        )}
-
-        {cameraError === 'NotFoundError' && (
-          <div className="absolute inset-0 z-20 bg-[#14080a]/95 flex flex-col items-center justify-center p-6 text-center">
-            <div className="w-12 h-12 bg-[#2d0f12] border border-[#ef4444] rounded-full flex items-center justify-center mb-3">
-              <AlertCircle className="w-6 h-6 text-[#ef4444]" />
-            </div>
-            <h3 className="font-mono text-sm font-bold text-red-200 uppercase tracking-wider">
-              No Webcam Hardware Detected
-            </h3>
-            <p className="text-xs text-slate-300 max-w-md mt-2 leading-relaxed">
-              No integrated webcam or USB video capture device was detected on your operating system.
-              Please connect a USB camera or verify device drivers.
+            <h3 className="text-sm font-semibold text-white">Camera Access Denied</h3>
+            <p className="text-xs text-slate-300 mt-1.5 max-w-sm leading-relaxed">
+              Browser blocked camera access. Please click the lock icon in your address bar and allow camera permissions.
             </p>
             <button
               onClick={startCamera}
-              className="mt-4 interactive-target h-9 px-4 text-xs font-mono font-bold uppercase bg-[#ef4444] hover:bg-[#dc2626] text-white transition-colors"
+              className="mt-4 apple-btn-primary px-4 py-2 text-xs font-medium"
             >
-              RE-SCAN DEVICES
+              Try Again
             </button>
           </div>
         )}
 
-        {(cameraError === 'NotReadableError' || cameraError === 'GeneralError') && (
-          <div className="absolute inset-0 z-20 bg-[#14080a]/95 flex flex-col items-center justify-center p-6 text-center">
-            <AlertCircle className="w-8 h-8 text-[#ef4444] mb-2" />
-            <div className="font-mono text-xs font-bold text-red-300 uppercase">
-              {errorMessage || 'Camera Stream Error'}
+        {cameraError && cameraError !== 'NotAllowedError' && (
+          <div className="absolute inset-0 z-20 bg-slate-950/90 backdrop-blur-xl flex flex-col items-center justify-center p-6 text-center">
+            <div className="w-14 h-14 bg-amber-500/15 border border-amber-500/30 rounded-2xl flex items-center justify-center mb-3 shadow-[0_0_20px_rgba(245,158,11,0.2)]">
+              <AlertTriangle className="w-7 h-7 text-amber-400" />
             </div>
+            <h3 className="text-sm font-semibold text-white">Camera Unavailable</h3>
+            <p className="text-xs text-slate-300 mt-1 max-w-sm">{errorMessage}</p>
             <button
               onClick={startCamera}
-              className="mt-3 interactive-target h-8 px-3 text-xs font-mono font-bold uppercase bg-[#ef4444] text-white"
+              className="mt-4 apple-btn-secondary px-4 py-2 text-xs font-medium"
             >
-              RETRY INITIALIZATION
+              Retry
             </button>
           </div>
         )}
-      </div>
-
-      {/* Action Footer: Frame Capture Trigger */}
-      <div className="p-4 bg-[#0a0e19] flex flex-wrap items-center justify-between gap-3">
-        <div className="text-xs font-mono text-slate-400">
-          Position product package inside reticle and click capture.
-        </div>
-
-        <button
-          onClick={handleCapture}
-          disabled={!isCameraActive || isCapturing}
-          className="interactive-target h-11 px-6 text-xs font-mono font-bold uppercase tracking-wider bg-[#2563eb] hover:bg-[#1d4ed8] text-white border border-[#3b82f6] shadow-lg flex items-center gap-2 transition-all disabled:opacity-40 disabled:cursor-not-allowed"
-        >
-          <Camera className="w-4 h-4" />
-          <span>CAPTURE CURRENT FRAME</span>
-        </button>
       </div>
     </div>
   );

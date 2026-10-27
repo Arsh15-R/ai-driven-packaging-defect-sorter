@@ -482,7 +482,12 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen bg-[#080b12] text-slate-100 flex flex-col font-sans selection:bg-[#2563eb] selection:text-white">
+    <div className="min-h-screen bg-[#05070f] text-slate-100 flex flex-col font-sans selection:bg-blue-500/30 selection:text-white relative overflow-x-hidden">
+      {/* VisionOS Atmospheric Ambient Lights for Glassmorphic Depth */}
+      <div className="pointer-events-none fixed -top-40 -left-40 w-96 h-96 bg-blue-600/15 rounded-full blur-[128px] -z-10" />
+      <div className="pointer-events-none fixed top-1/3 -right-40 w-96 h-96 bg-indigo-600/15 rounded-full blur-[128px] -z-10" />
+      <div className="pointer-events-none fixed -bottom-40 left-1/3 w-96 h-96 bg-cyan-600/10 rounded-full blur-[128px] -z-10" />
+
       {/* Backend Offline Banner */}
       <BackendOfflineBanner
         isOffline={!isConnected}
@@ -490,7 +495,7 @@ export default function App() {
         isRetrying={isRetryingBackend}
       />
 
-      {/* Main Industrial Navigation */}
+      {/* Main VisionOS Navigation */}
       <Navbar
         activeTab={activeTab}
         onSelectTab={setActiveTab}
@@ -507,38 +512,38 @@ export default function App() {
         {/* VIEW 1: LIVE INSPECTION (WebRTC Webcam + Capture + Classify + Save) */}
         {activeTab === 'inspection' && (
           <div className="space-y-6 animate-fadeIn">
-            {/* Top Telemetry Metric Strip */}
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 font-mono text-xs">
-              <div className="flat-card p-3 border border-[#1e2638]">
-                <div className="text-slate-400 text-[10px] uppercase font-semibold">Total Inspected</div>
-                <div className="text-xl font-bold text-slate-100 mt-1">
+            {/* Top Telemetry Metric Strip (Apple Glass Cards) */}
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4 text-xs">
+              <div className="apple-glass-card p-4 rounded-3xl border border-white/10 shadow-[0_8px_25px_rgba(0,0,0,0.3)]">
+                <div className="text-slate-400 text-[10px] uppercase font-medium tracking-wide">Total Inspected</div>
+                <div className="text-2xl font-bold font-mono text-white mt-1">
                   {stats.total_checked.toLocaleString()}
                 </div>
-                <div className="text-[10px] text-slate-500 mt-0.5">UNITS SCANNED</div>
+                <div className="text-[10px] text-slate-400 mt-0.5">Units Processed</div>
               </div>
 
-              <div className="flat-card p-3 border border-[#1e2638]">
-                <div className="text-slate-400 text-[10px] uppercase font-semibold">Passed Units</div>
-                <div className="text-xl font-bold text-[#10b981] mt-1">
+              <div className="apple-glass-card p-4 rounded-3xl border border-white/10 shadow-[0_8px_25px_rgba(0,0,0,0.3)]">
+                <div className="text-slate-400 text-[10px] uppercase font-medium tracking-wide">Passed Units</div>
+                <div className="text-2xl font-bold font-mono text-emerald-400 mt-1">
                   {stats.good_count.toLocaleString()}
                 </div>
-                <div className="text-[10px] text-[#10b981]/70 mt-0.5">NON-DEFECTIVE</div>
+                <div className="text-[10px] text-emerald-400/80 mt-0.5">Non-Defective</div>
               </div>
 
-              <div className="flat-card p-3 border border-[#1e2638]">
-                <div className="text-slate-400 text-[10px] uppercase font-semibold">Defective Units</div>
-                <div className="text-xl font-bold text-[#ef4444] mt-1">
+              <div className="apple-glass-card p-4 rounded-3xl border border-white/10 shadow-[0_8px_25px_rgba(0,0,0,0.3)]">
+                <div className="text-slate-400 text-[10px] uppercase font-medium tracking-wide">Defective Units</div>
+                <div className="text-2xl font-bold font-mono text-rose-400 mt-1">
                   {stats.defect_count.toLocaleString()}
                 </div>
-                <div className="text-[10px] text-[#ef4444]/70 mt-0.5">REJECTED BY GATE</div>
+                <div className="text-[10px] text-rose-400/80 mt-0.5">Rejected by Gate</div>
               </div>
 
-              <div className="flat-card p-3 border border-[#1e2638]">
-                <div className="text-slate-400 text-[10px] uppercase font-semibold">Defect Rate</div>
-                <div className="text-xl font-bold text-amber-300 mt-1">
+              <div className="apple-glass-card p-4 rounded-3xl border border-white/10 shadow-[0_8px_25px_rgba(0,0,0,0.3)]">
+                <div className="text-slate-400 text-[10px] uppercase font-medium tracking-wide">Defect Rate</div>
+                <div className="text-2xl font-bold font-mono text-amber-300 mt-1">
                   {stats.defect_rate.toFixed(2)}%
                 </div>
-                <div className="text-[10px] text-amber-400/70 mt-0.5">TOLERANCE &lt; 5.0%</div>
+                <div className="text-[10px] text-amber-300/80 mt-0.5">Tolerance &lt; 5.0%</div>
               </div>
             </div>
 

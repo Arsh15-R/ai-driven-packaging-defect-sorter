@@ -1,5 +1,5 @@
 import React from 'react';
-import { AlertCircle, RefreshCw, ExternalLink, Terminal } from 'lucide-react';
+import { AlertCircle, RefreshCw, ExternalLink } from 'lucide-react';
 
 interface BackendOfflineBannerProps {
   isOffline: boolean;
@@ -19,46 +19,50 @@ export const BackendOfflineBanner: React.FC<BackendOfflineBannerProps> = ({
   return (
     <div
       role="alert"
-      className="w-full bg-[#180a0c] border-b border-[#ef4444] text-[#fca5a5] px-4 py-3 flex flex-wrap items-center justify-between gap-3 text-xs sm:text-sm font-mono z-50 animate-fadeIn"
+      className="w-full max-w-7xl mx-auto px-4 sm:px-6 pt-3 animate-fadeIn z-50"
     >
-      <div className="flex items-center gap-3">
-        <AlertCircle className="w-5 h-5 text-[#ef4444] shrink-0" />
-        <div>
-          <div className="flex items-center gap-2">
-            <strong className="text-white font-semibold">Backend Offline:</strong>
-            <span>FastAPI server at <code className="bg-[#240c0f] text-[#f87171] px-1.5 py-0.5 border border-[#ef4444]/40 font-mono">http://127.0.0.1:8000</code> is unreachable.</span>
+      <div className="apple-glass bg-rose-950/40 border border-rose-500/30 text-rose-200 px-4 sm:px-5 py-3 rounded-2xl flex flex-wrap items-center justify-between gap-3 text-xs shadow-[0_10px_30px_rgba(244,63,94,0.15)] backdrop-blur-xl">
+        <div className="flex items-center gap-3">
+          <div className="w-8 h-8 rounded-full bg-rose-500/20 border border-rose-500/30 flex items-center justify-center shrink-0">
+            <AlertCircle className="w-4 h-4 text-rose-400" />
           </div>
-          {isHttps ? (
-            <p className="text-[11px] text-[#fca5a5]/80 mt-1">
-              Browsers block HTTPS pages from calling local HTTP servers. For full YOLOv8 inference & physical webcam control, open the local dashboard directly:
-            </p>
-          ) : (
-            <p className="text-[11px] text-[#fca5a5]/80 mt-1">
-              Run <code className="bg-[#240c0f] text-white px-1 py-0.5 border border-[#ef4444]/30">python backend/api_server.py</code> in your project directory to activate YOLOv8.
-            </p>
-          )}
+          <div>
+            <div className="flex items-center gap-2">
+              <strong className="text-white font-semibold">Backend Offline:</strong>
+              <span>FastAPI server at <code className="bg-black/40 text-rose-300 px-1.5 py-0.5 rounded-md border border-rose-500/30 font-mono text-[11px]">http://127.0.0.1:8000</code> is unreachable.</span>
+            </div>
+            {isHttps ? (
+              <p className="text-[11px] text-rose-200/80 mt-0.5">
+                Browsers block HTTPS web pages from calling local HTTP servers. For full YOLOv8 inference & physical camera controls, open your local dashboard directly:
+              </p>
+            ) : (
+              <p className="text-[11px] text-rose-200/80 mt-0.5">
+                Run <code className="bg-black/40 text-white px-1.5 py-0.5 rounded border border-rose-500/20 font-mono">python backend/api_server.py</code> in your project directory.
+              </p>
+            )}
+          </div>
         </div>
-      </div>
 
-      <div className="flex items-center gap-2 shrink-0">
-        <a
-          href="http://127.0.0.1:8000"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="interactive-target h-8 px-3 text-xs font-semibold bg-[#2563eb] hover:bg-[#1d4ed8] text-white border border-[#3b82f6] flex items-center gap-1.5 transition-colors"
-        >
-          <ExternalLink className="w-3.5 h-3.5" />
-          <span>Open http://127.0.0.1:8000</span>
-        </a>
+        <div className="flex items-center gap-2 shrink-0 ml-auto sm:ml-0">
+          <a
+            href="http://127.0.0.1:8000"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="apple-btn-primary px-3.5 py-1.5 text-xs font-semibold flex items-center gap-1.5"
+          >
+            <ExternalLink className="w-3.5 h-3.5" />
+            <span>Open http://127.0.0.1:8000</span>
+          </a>
 
-        <button
-          onClick={onRetry}
-          disabled={isRetrying}
-          className="interactive-target h-8 px-3 text-xs font-semibold bg-[#2b0d10] hover:bg-[#3d1317] text-[#fca5a5] border border-[#ef4444] flex items-center gap-1.5 transition-colors"
-        >
-          <RefreshCw className={`w-3.5 h-3.5 ${isRetrying ? 'animate-spin' : ''}`} />
-          <span>{isRetrying ? 'Retrying...' : 'Retry Connection'}</span>
-        </button>
+          <button
+            onClick={onRetry}
+            disabled={isRetrying}
+            className="apple-btn-secondary px-3 py-1.5 text-xs font-semibold text-rose-200 border-rose-500/30 flex items-center gap-1.5"
+          >
+            <RefreshCw className={`w-3.5 h-3.5 ${isRetrying ? 'animate-spin' : ''}`} />
+            <span>{isRetrying ? 'Retrying...' : 'Retry'}</span>
+          </button>
+        </div>
       </div>
     </div>
   );

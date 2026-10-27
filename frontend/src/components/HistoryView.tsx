@@ -13,6 +13,8 @@ import {
   LayoutGrid,
   List,
   RefreshCw,
+  Sparkles,
+  XCircle,
 } from 'lucide-react';
 import { InspectionItem } from '../types';
 
@@ -54,231 +56,197 @@ export const HistoryView: React.FC<HistoryViewProps> = ({
 
   return (
     <div className="w-full space-y-4">
-      {/* Controls Bar: Search & Filters */}
-      <div className="flat-panel bg-[#0d121f] border border-[#1e2638] p-4 flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3">
+      {/* Controls Bar: Search & Filters (Apple Glass Capsule) */}
+      <div className="apple-glass p-3 sm:p-4 rounded-3xl flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3 shadow-[0_16px_40px_rgba(0,0,0,0.5)]">
         {/* Search Input */}
         <div className="relative flex-1">
-          <Search className="w-4 h-4 text-slate-500 absolute left-3 top-3" />
+          <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-3" />
           <input
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Search inspections by Item ID, observations, defect type, or operator..."
-            className="w-full bg-[#080b12] border border-[#1e2638] focus:border-[#3b82f6] focus:outline-none pl-9 pr-3 py-2 text-xs font-mono text-slate-100 placeholder:text-slate-500 transition-colors"
+            className="apple-glass-input w-full pl-10 pr-9 py-2 text-xs text-slate-100 placeholder:text-slate-400 rounded-full"
           />
           {searchQuery && (
             <button
               onClick={() => setSearchQuery('')}
-              className="absolute right-2.5 top-2.5 text-slate-400 hover:text-white"
+              className="absolute right-3 top-2.5 text-slate-400 hover:text-white"
             >
               <X className="w-3.5 h-3.5" />
             </button>
           )}
         </div>
 
-        {/* Filter Pills (All, Defective, Non-defective) */}
-        <div className="flex items-center gap-1.5 overflow-x-auto">
-          <span className="text-xs font-mono text-slate-500 mr-1 flex items-center gap-1">
-            <Filter className="w-3.5 h-3.5" />
-            <span>FILTER:</span>
-          </span>
-
-          <button
-            onClick={() => setFilterResult('ALL')}
-            className={`interactive-target h-8 px-3 text-xs font-mono font-bold uppercase transition-colors border ${
-              filterResult === 'ALL'
-                ? 'bg-[#1e2638] text-white border-slate-500'
-                : 'bg-[#080b12] text-slate-400 hover:text-slate-200 border-[#1e2638]'
-            }`}
-          >
-            ALL ({inspections.length})
-          </button>
-
-          <button
-            onClick={() => setFilterResult('DEFECTIVE')}
-            className={`interactive-target h-8 px-3 text-xs font-mono font-bold uppercase transition-colors border ${
-              filterResult === 'DEFECTIVE'
-                ? 'bg-[#2b0d10] text-[#fca5a5] border-[#ef4444]'
-                : 'bg-[#080b12] text-slate-400 hover:text-[#fca5a5] border-[#1e2638]'
-            }`}
-          >
-            DEFECTIVE ({inspections.filter((i) => i.prediction === 'Defective').length})
-          </button>
-
-          <button
-            onClick={() => setFilterResult('NON-DEFECTIVE')}
-            className={`interactive-target h-8 px-3 text-xs font-mono font-bold uppercase transition-colors border ${
-              filterResult === 'NON-DEFECTIVE'
-                ? 'bg-[#062617] text-[#a7f3d0] border-[#10b981]'
-                : 'bg-[#080b12] text-slate-400 hover:text-[#a7f3d0] border-[#1e2638]'
-            }`}
-          >
-            NON-DEFECTIVE ({inspections.filter((i) => i.prediction === 'Non-defective').length})
-          </button>
-        </div>
-
-        {/* View Mode Toggle & Refresh */}
-        <div className="flex items-center gap-2 self-end md:self-auto">
-          <div className="flex border border-[#1e2638] bg-[#080b12]">
+        {/* Filter Pills (Segmented Control) */}
+        <div className="flex items-center gap-2 overflow-x-auto">
+          <div className="bg-black/40 backdrop-blur-xl p-1 rounded-full border border-white/10 flex items-center gap-1 shadow-inner">
             <button
-              onClick={() => setViewMode('table')}
-              className={`p-1.5 ${viewMode === 'table' ? 'bg-[#162035] text-cyan-300' : 'text-slate-500 hover:text-slate-300'}`}
-              title="Table View"
+              onClick={() => setFilterResult('ALL')}
+              className={`interactive-target px-3.5 py-1 text-xs font-medium rounded-full transition-all ${
+                filterResult === 'ALL'
+                  ? 'bg-white/20 text-white shadow-sm border border-white/20'
+                  : 'text-slate-400 hover:text-white'
+              }`}
             >
-              <List className="w-4 h-4" />
+              All ({inspections.length})
             </button>
+
             <button
-              onClick={() => setViewMode('cards')}
-              className={`p-1.5 ${viewMode === 'cards' ? 'bg-[#162035] text-cyan-300' : 'text-slate-500 hover:text-slate-300'}`}
-              title="Cards View"
+              onClick={() => setFilterResult('DEFECTIVE')}
+              className={`interactive-target px-3.5 py-1 text-xs font-medium rounded-full transition-all ${
+                filterResult === 'DEFECTIVE'
+                  ? 'bg-rose-500/25 text-rose-200 border border-rose-500/30'
+                  : 'text-slate-400 hover:text-rose-300'
+              }`}
             >
-              <LayoutGrid className="w-4 h-4" />
+              Defective
+            </button>
+
+            <button
+              onClick={() => setFilterResult('NON-DEFECTIVE')}
+              className={`interactive-target px-3.5 py-1 text-xs font-medium rounded-full transition-all ${
+                filterResult === 'NON-DEFECTIVE'
+                  ? 'bg-emerald-500/25 text-emerald-200 border border-emerald-500/30'
+                  : 'text-slate-400 hover:text-emerald-300'
+              }`}
+            >
+              Passed
             </button>
           </div>
 
-          <button
-            onClick={onRefresh}
-            disabled={isRefreshing}
-            className="interactive-target h-8 px-2.5 text-xs font-mono bg-[#111728] hover:bg-[#162035] text-slate-300 border border-[#1e2638] flex items-center gap-1.5 transition-colors"
-            title="Refresh Inspection History"
-          >
-            <RefreshCw className={`w-3.5 h-3.5 ${isRefreshing ? 'animate-spin' : ''}`} />
-            <span>SYNC</span>
-          </button>
+          {/* View Mode Toggle & Refresh */}
+          <div className="flex items-center gap-1.5 ml-auto">
+            <div className="bg-black/40 backdrop-blur-xl p-1 rounded-full border border-white/10 flex items-center gap-1">
+              <button
+                onClick={() => setViewMode('table')}
+                className={`p-1.5 rounded-full transition-all ${
+                  viewMode === 'table'
+                    ? 'bg-white/20 text-white shadow-sm'
+                    : 'text-slate-400 hover:text-white'
+                }`}
+                title="Table View"
+              >
+                <List className="w-3.5 h-3.5" />
+              </button>
+              <button
+                onClick={() => setViewMode('cards')}
+                className={`p-1.5 rounded-full transition-all ${
+                  viewMode === 'cards'
+                    ? 'bg-white/20 text-white shadow-sm'
+                    : 'text-slate-400 hover:text-white'
+                }`}
+                title="Cards View"
+              >
+                <LayoutGrid className="w-3.5 h-3.5" />
+              </button>
+            </div>
+
+            <button
+              onClick={onRefresh}
+              disabled={isRefreshing}
+              className="apple-btn-secondary w-8 h-8 rounded-full flex items-center justify-center text-slate-300 hover:text-white"
+              title="Refresh History"
+            >
+              <RefreshCw className={`w-3.5 h-3.5 ${isRefreshing ? 'animate-spin' : ''}`} />
+            </button>
+          </div>
         </div>
       </div>
 
-      {/* Empty State */}
-      {filteredList.length === 0 && (
-        <div className="flat-panel bg-[#0d121f] border border-[#1e2638] p-12 text-center space-y-3">
-          <FileText className="w-10 h-10 text-slate-600 mx-auto" />
-          <div className="font-mono text-sm font-bold uppercase text-slate-300">
-            NO INSPECTIONS MATCH CRITERIA
+      {/* Main Records Container */}
+      {filteredList.length === 0 ? (
+        <div className="apple-glass rounded-3xl p-12 text-center flex flex-col items-center justify-center space-y-3">
+          <div className="w-14 h-14 rounded-2xl bg-white/[0.05] border border-white/10 backdrop-blur-md flex items-center justify-center text-slate-400">
+            <FileText className="w-6 h-6" />
           </div>
-          <p className="text-xs text-slate-500 max-w-sm mx-auto">
+          <h3 className="text-sm font-semibold text-white tracking-tight">No Inspection Records Found</h3>
+          <p className="text-xs text-slate-400 max-w-sm">
             {searchQuery
-              ? `No records found matching query "${searchQuery}". Reset search or change filters.`
-              : 'No product inspections have been saved to this session or cloud archive yet.'}
+              ? `No inspections matched your filter: "${searchQuery}".`
+              : 'Perform your first product inspection from the Camera tab to archive inspection data.'}
           </p>
-          {searchQuery && (
-            <button
-              onClick={() => setSearchQuery('')}
-              className="text-xs font-mono text-[#3b82f6] hover:underline"
-            >
-              Clear search filter
-            </button>
-          )}
         </div>
-      )}
-
-      {/* TABLE VIEW */}
-      {viewMode === 'table' && filteredList.length > 0 && (
-        <div className="flat-panel bg-[#0d121f] border border-[#1e2638] overflow-x-auto">
-          <table className="w-full text-left border-collapse text-xs font-mono">
-            <thead>
-              <tr className="border-b border-[#1e2638] bg-[#0a0e19] text-slate-400 uppercase tracking-wider">
-                <th className="py-3 px-4">THUMBNAIL</th>
-                <th className="py-3 px-4">ITEM ID</th>
-                <th className="py-3 px-4">TIMESTAMP</th>
-                <th className="py-3 px-4">PREDICTION</th>
-                <th className="py-3 px-4">DEFECT TYPE</th>
-                <th className="py-3 px-4">CONFIDENCE</th>
-                <th className="py-3 px-4">OBSERVATIONS / NOTES</th>
-                <th className="py-3 px-4 text-right">ACTION</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-[#182030]">
-              {filteredList.map((item) => {
-                const isDef = item.prediction === 'Defective';
-                return (
-                  <tr
-                    key={item.id}
-                    className="hover:bg-[#111728] transition-colors cursor-pointer group"
-                    onClick={() => setSelectedItem(item)}
-                  >
-                    {/* Thumbnail */}
-                    <td className="py-2.5 px-4">
-                      {item.image_url ? (
-                        <div className="w-12 h-9 bg-black border border-[#1e2638] overflow-hidden shrink-0">
-                          <img
-                            src={item.image_url}
-                            alt={item.id}
-                            className="w-full h-full object-cover group-hover:scale-105 transition-transform"
-                          />
-                        </div>
-                      ) : (
-                        <div className="w-12 h-9 bg-[#080b12] border border-[#1e2638] flex items-center justify-center text-slate-600 text-[10px]">
-                          NO IMG
-                        </div>
-                      )}
-                    </td>
-
-                    {/* Item ID */}
-                    <td className="py-2.5 px-4 font-bold text-slate-200">
-                      {item.id}
-                    </td>
-
-                    {/* Timestamp */}
-                    <td className="py-2.5 px-4 text-slate-400 whitespace-nowrap">
-                      {item.timestamp}
-                    </td>
-
-                    {/* Prediction Badge */}
-                    <td className="py-2.5 px-4">
-                      <span
-                        className={`inline-flex items-center gap-1.5 px-2.5 py-1 text-[11px] font-bold uppercase border ${
-                          isDef
-                            ? 'bg-[#2b0d10] text-[#fca5a5] border-[#ef4444]'
-                            : 'bg-[#062617] text-[#a7f3d0] border-[#10b981]'
-                        }`}
-                      >
-                        {isDef ? (
-                          <AlertTriangle className="w-3 h-3 text-[#ef4444]" />
-                        ) : (
-                          <CheckCircle2 className="w-3 h-3 text-[#10b981]" />
-                        )}
-                        <span>{item.prediction}</span>
-                      </span>
-                    </td>
-
-                    {/* Defect Type */}
-                    <td className="py-2.5 px-4 text-slate-300 uppercase">
-                      {item.defect_type === 'none' ? '—' : item.defect_type.replace('_', ' ')}
-                    </td>
-
-                    {/* Confidence */}
-                    <td className="py-2.5 px-4 font-bold text-slate-200">
-                      {(item.confidence * 100).toFixed(1)}%
-                    </td>
-
-                    {/* Notes */}
-                    <td className="py-2.5 px-4 text-slate-400 max-w-xs truncate" title={item.notes}>
-                      {item.notes || <span className="text-slate-600 italic">No notes recorded</span>}
-                    </td>
-
-                    {/* Action */}
-                    <td className="py-2.5 px-4 text-right">
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setSelectedItem(item);
-                        }}
-                        className="interactive-target h-7 px-2.5 text-slate-400 hover:text-white bg-[#111728] border border-[#1e2638] flex items-center gap-1 ml-auto"
-                      >
-                        <Eye className="w-3 h-3 text-cyan-400" />
-                        <span className="text-[11px]">INSPECT</span>
-                      </button>
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
+      ) : viewMode === 'table' ? (
+        /* TABLE VIEW (Apple Glassmorphism Table) */
+        <div className="apple-glass rounded-3xl overflow-hidden shadow-2xl">
+          <div className="overflow-x-auto">
+            <table className="w-full text-left border-collapse text-xs">
+              <thead>
+                <tr className="border-b border-white/10 bg-white/[0.03] text-slate-400 font-medium">
+                  <th className="py-3 px-4">Item ID</th>
+                  <th className="py-3 px-4">Timestamp</th>
+                  <th className="py-3 px-4">Classification</th>
+                  <th className="py-3 px-4">Confidence</th>
+                  <th className="py-3 px-4">Defect Type</th>
+                  <th className="py-3 px-4">Observations / Notes</th>
+                  <th className="py-3 px-4 text-right">Actions</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-white/5">
+                {filteredList.map((item) => {
+                  const isDef = item.prediction === 'Defective';
+                  return (
+                    <tr
+                      key={item.id}
+                      onClick={() => setSelectedItem(item)}
+                      className="hover:bg-white/[0.04] transition-colors cursor-pointer group"
+                    >
+                      <td className="py-3 px-4 font-mono font-medium text-slate-200">
+                        {item.id.slice(0, 14)}
+                      </td>
+                      <td className="py-3 px-4 text-slate-400 font-mono text-[11px]">
+                        {new Date(item.timestamp).toLocaleString(undefined, {
+                          month: 'short',
+                          day: 'numeric',
+                          hour: '2-digit',
+                          minute: '2-digit',
+                          second: '2-digit',
+                        })}
+                      </td>
+                      <td className="py-3 px-4">
+                        <span
+                          className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-semibold ${
+                            isDef ? 'glass-badge-fail' : 'glass-badge-pass'
+                          }`}
+                        >
+                          {isDef ? (
+                            <XCircle className="w-3 h-3" />
+                          ) : (
+                            <CheckCircle2 className="w-3 h-3" />
+                          )}
+                          <span>{item.prediction}</span>
+                        </span>
+                      </td>
+                      <td className="py-3 px-4 font-mono font-semibold text-slate-200">
+                        {(item.confidence * 100).toFixed(1)}%
+                      </td>
+                      <td className="py-3 px-4 capitalize text-slate-300">
+                        {item.defect_type ? item.defect_type.replace('_', ' ') : '—'}
+                      </td>
+                      <td className="py-3 px-4 max-w-xs truncate text-slate-400">
+                        {item.notes || '—'}
+                      </td>
+                      <td className="py-3 px-4 text-right">
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setSelectedItem(item);
+                          }}
+                          className="apple-btn-secondary px-2.5 py-1 text-[11px] font-medium opacity-80 group-hover:opacity-100 transition-opacity"
+                        >
+                          View Detail
+                        </button>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
         </div>
-      )}
-
-      {/* CARDS VIEW */}
-      {viewMode === 'cards' && filteredList.length > 0 && (
+      ) : (
+        /* CARDS GRID VIEW */
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {filteredList.map((item) => {
             const isDef = item.prediction === 'Defective';
@@ -286,69 +254,59 @@ export const HistoryView: React.FC<HistoryViewProps> = ({
               <div
                 key={item.id}
                 onClick={() => setSelectedItem(item)}
-                className="flat-panel bg-[#0d121f] border border-[#1e2638] hover:border-[#3b82f6]/60 transition-colors p-4 flex flex-col justify-between cursor-pointer group"
+                className="apple-glass-card p-4 rounded-3xl cursor-pointer hover:scale-[1.02] transition-all duration-200 group flex flex-col justify-between"
               >
-                <div className="space-y-3">
-                  {/* Top Line: ID & Badge */}
-                  <div className="flex items-center justify-between">
-                    <span className="font-mono text-xs font-bold text-slate-200">
-                      {item.id}
-                    </span>
+                <div>
+                  <div className="flex items-center justify-between mb-3">
                     <span
-                      className={`inline-flex items-center gap-1 px-2 py-0.5 text-[10px] font-mono font-bold uppercase border ${
-                        isDef
-                          ? 'bg-[#2b0d10] text-[#fca5a5] border-[#ef4444]'
-                          : 'bg-[#062617] text-[#a7f3d0] border-[#10b981]'
+                      className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-semibold ${
+                        isDef ? 'glass-badge-fail' : 'glass-badge-pass'
                       }`}
                     >
-                      {item.prediction}
+                      {isDef ? (
+                        <XCircle className="w-3 h-3" />
+                      ) : (
+                        <CheckCircle2 className="w-3 h-3" />
+                      )}
+                      <span>{item.prediction}</span>
+                    </span>
+                    <span className="font-mono text-xs font-semibold text-slate-200">
+                      {(item.confidence * 100).toFixed(1)}%
                     </span>
                   </div>
 
-                  {/* Thumbnail / Image Preview */}
-                  <div className="relative aspect-video bg-black border border-[#1e2638] overflow-hidden">
-                    {item.image_url ? (
+                  {item.image_url && (
+                    <div className="w-full aspect-video rounded-2xl bg-black/60 overflow-hidden mb-3 border border-white/10">
                       <img
                         src={item.image_url}
-                        alt={item.id}
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform"
+                        alt="Inspection snapshot"
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                       />
-                    ) : (
-                      <div className="w-full h-full flex items-center justify-center text-slate-600 text-xs font-mono">
-                        IMAGE UNAVAILABLE
+                    </div>
+                  )}
+
+                  <div className="space-y-1 text-xs">
+                    <div className="font-mono text-slate-400 text-[11px] truncate">
+                      ID: {item.id}
+                    </div>
+                    {item.defect_type && item.defect_type !== 'none' && (
+                      <div className="text-rose-300 font-medium capitalize">
+                        Defect: {item.defect_type.replace('_', ' ')}
                       </div>
                     )}
-                    <div className="absolute bottom-1 right-1 bg-black/80 px-1.5 py-0.5 font-mono text-[10px] text-slate-300">
-                      CONF: {(item.confidence * 100).toFixed(1)}%
-                    </div>
-                  </div>
-
-                  {/* Metadata */}
-                  <div className="space-y-1 text-xs font-mono">
-                    <div className="flex justify-between text-slate-400">
-                      <span>TYPE:</span>
-                      <span className="text-slate-200 font-bold uppercase">
-                        {item.defect_type === 'none' ? 'PASS' : item.defect_type.replace('_', ' ')}
-                      </span>
-                    </div>
-
-                    <div className="flex justify-between text-slate-400">
-                      <span>TIME:</span>
-                      <span className="text-slate-300">{item.timestamp}</span>
-                    </div>
-
                     {item.notes && (
-                      <div className="mt-2 p-2 bg-[#080b12] border border-[#1e2638] text-[11px] text-slate-300 line-clamp-2">
-                        {item.notes}
-                      </div>
+                      <p className="text-slate-300 line-clamp-2 text-[11px] pt-1">
+                        &ldquo;{item.notes}&rdquo;
+                      </p>
                     )}
                   </div>
                 </div>
 
-                <div className="pt-3 border-t border-[#1e2638] mt-3 flex items-center justify-between text-[11px] font-mono text-slate-400">
-                  <span>{item.user_email || 'Local Inspector'}</span>
-                  <span className="text-[#3b82f6] group-hover:underline flex items-center gap-1">
-                    Details &rarr;
+                <div className="pt-3 mt-3 border-t border-white/10 flex items-center justify-between text-[11px] text-slate-400">
+                  <span>{new Date(item.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+                  <span className="text-blue-400 group-hover:underline flex items-center gap-1">
+                    <Eye className="w-3 h-3" />
+                    <span>Inspect</span>
                   </span>
                 </div>
               </div>
@@ -357,109 +315,80 @@ export const HistoryView: React.FC<HistoryViewProps> = ({
         </div>
       )}
 
-      {/* DETAIL INSPECTION MODAL */}
+      {/* Detail Inspection Modal (Apple VisionOS Glass Sheet) */}
       {selectedItem && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-fadeIn">
-          <div className="w-full max-w-2xl flat-panel bg-[#0d121f] border border-[#1e2638] shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
-            {/* Header */}
-            <div className="flex items-center justify-between px-6 py-4 border-b border-[#1e2638] bg-[#0a0e19]">
-              <div className="flex items-center gap-3">
-                <span className="font-mono text-base font-bold text-slate-100">
-                  {selectedItem.id}
-                </span>
-                <span
-                  className={`px-2.5 py-0.5 text-xs font-mono font-bold uppercase border ${
-                    selectedItem.prediction === 'Defective'
-                      ? 'bg-[#2b0d10] text-[#fca5a5] border-[#ef4444]'
-                      : 'bg-[#062617] text-[#a7f3d0] border-[#10b981]'
-                  }`}
-                >
-                  {selectedItem.prediction}
-                </span>
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-md animate-fadeIn">
+          <div className="w-full max-w-xl apple-glass rounded-3xl p-6 shadow-2xl relative border border-white/15 space-y-4">
+            <div className="flex items-center justify-between border-b border-white/10 pb-3">
+              <div className="flex items-center gap-2">
+                <Sparkles className="w-4 h-4 text-cyan-400" />
+                <h3 className="text-sm font-semibold text-white tracking-tight">
+                  Inspection Record Audit
+                </h3>
               </div>
               <button
                 onClick={() => setSelectedItem(null)}
-                className="text-slate-400 hover:text-white p-1"
+                className="w-7 h-7 rounded-full bg-white/10 hover:bg-white/20 text-slate-300 flex items-center justify-center transition-colors"
               >
-                <X className="w-5 h-5" />
+                <X className="w-4 h-4" />
               </button>
             </div>
 
-            {/* Modal Body */}
-            <div className="p-6 overflow-y-auto space-y-4">
-              {/* Full Inspection Image */}
-              {selectedItem.image_url ? (
-                <div className="relative aspect-video bg-black border border-[#1e2638] overflow-hidden flex items-center justify-center">
-                  <img
-                    src={selectedItem.image_url}
-                    alt={selectedItem.id}
-                    className="max-w-full max-h-full object-contain"
-                  />
-                </div>
-              ) : (
-                <div className="aspect-video bg-[#080b12] border border-[#1e2638] flex items-center justify-center text-slate-500 font-mono text-xs">
-                  NO FRAME IMAGE LOGGED
-                </div>
-              )}
+            {selectedItem.image_url && (
+              <div className="w-full aspect-video rounded-2xl bg-black/80 overflow-hidden border border-white/10">
+                <img
+                  src={selectedItem.image_url}
+                  alt="Full frame"
+                  className="w-full h-full object-contain"
+                />
+              </div>
+            )}
 
-              {/* Data Table */}
-              <div className="grid grid-cols-2 gap-3 text-xs font-mono">
-                <div className="flat-card p-3 border border-[#1e2638]">
-                  <div className="text-slate-400 text-[10px] uppercase">Timestamp</div>
-                  <div className="text-slate-100 font-bold mt-0.5">{selectedItem.timestamp}</div>
-                </div>
-
-                <div className="flat-card p-3 border border-[#1e2638]">
-                  <div className="text-slate-400 text-[10px] uppercase">Defect Classification</div>
-                  <div className="text-slate-100 font-bold mt-0.5 uppercase">
-                    {selectedItem.defect_type === 'none' ? 'None (Pass)' : selectedItem.defect_type.replace('_', ' ')}
-                  </div>
-                </div>
-
-                <div className="flat-card p-3 border border-[#1e2638]">
-                  <div className="text-slate-400 text-[10px] uppercase">Model Confidence</div>
-                  <div className="text-slate-100 font-bold mt-0.5">
-                    {(selectedItem.confidence * 100).toFixed(2)}%
-                  </div>
-                </div>
-
-                <div className="flat-card p-3 border border-[#1e2638]">
-                  <div className="text-slate-400 text-[10px] uppercase">Inspector / Operator</div>
-                  <div className="text-slate-100 font-bold mt-0.5 truncate">
-                    {selectedItem.user_email || 'Local Operator'}
-                  </div>
+            <div className="grid grid-cols-2 gap-3 text-xs">
+              <div className="apple-glass-card p-3 rounded-2xl">
+                <div className="text-slate-400 text-[10px] uppercase font-medium">Prediction</div>
+                <div className="text-sm font-bold text-white mt-0.5">
+                  {selectedItem.prediction}
                 </div>
               </div>
 
-              {/* Notes */}
-              <div className="flat-card p-4 border border-[#1e2638] space-y-1">
-                <div className="text-slate-400 text-[10px] font-mono uppercase font-bold">
-                  Observation Notes
+              <div className="apple-glass-card p-3 rounded-2xl">
+                <div className="text-slate-400 text-[10px] uppercase font-medium">Confidence</div>
+                <div className="text-sm font-bold font-mono text-white mt-0.5">
+                  {(selectedItem.confidence * 100).toFixed(1)}%
                 </div>
-                <div className="text-xs font-mono text-slate-200 whitespace-pre-wrap">
-                  {selectedItem.notes || 'No observation notes entered for this inspection record.'}
+              </div>
+
+              <div className="apple-glass-card p-3 rounded-2xl">
+                <div className="text-slate-400 text-[10px] uppercase font-medium">Defect Class</div>
+                <div className="text-sm font-medium capitalize text-slate-200 mt-0.5">
+                  {selectedItem.defect_type ? selectedItem.defect_type.replace('_', ' ') : 'None'}
+                </div>
+              </div>
+
+              <div className="apple-glass-card p-3 rounded-2xl">
+                <div className="text-slate-400 text-[10px] uppercase font-medium">Timestamp</div>
+                <div className="text-xs font-mono text-slate-300 mt-0.5">
+                  {new Date(selectedItem.timestamp).toLocaleString()}
                 </div>
               </div>
             </div>
 
-            {/* Footer */}
-            <div className="px-6 py-3 border-t border-[#1e2638] bg-[#0a0e19] flex justify-between items-center">
-              {selectedItem.image_url ? (
-                <a
-                  href={selectedItem.image_url}
-                  download={`${selectedItem.id}.jpg`}
-                  className="interactive-target h-8 px-3 text-xs font-mono bg-[#162035] hover:bg-[#1e2d4a] text-cyan-300 border border-cyan-500/40 flex items-center gap-1.5"
-                >
-                  <Download className="w-3.5 h-3.5" />
-                  <span>EXPORT FRAME</span>
-                </a>
-              ) : <div />}
+            {selectedItem.notes && (
+              <div className="apple-glass-card p-3 rounded-2xl">
+                <div className="text-slate-400 text-[10px] uppercase font-medium">Observations / Notes</div>
+                <p className="text-xs text-slate-200 mt-1 leading-relaxed">
+                  {selectedItem.notes}
+                </p>
+              </div>
+            )}
 
+            <div className="flex justify-end pt-2">
               <button
                 onClick={() => setSelectedItem(null)}
-                className="interactive-target h-8 px-4 text-xs font-mono font-bold uppercase bg-[#1e2638] hover:bg-[#28354d] text-white"
+                className="apple-btn-secondary px-5 py-2 text-xs font-medium"
               >
-                CLOSE
+                Close Audit
               </button>
             </div>
           </div>
