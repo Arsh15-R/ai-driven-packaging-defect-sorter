@@ -1,5 +1,5 @@
 # AI-Driven Packaging Line Defect Sorter
-# Core dependencies for YOLOv8, Computer Vision, Serial Communication, and Dashboard
+# Core dependencies for YOLOv8, Computer Vision, FastAPI Backend, Serial Communication, and Dashboard
 
 # 1. Install PyTorch with CUDA first using this dedicated command in PowerShell:
 # pip install torch torchvision --index-url https://download.pytorch.org/whl/cu124
@@ -7,12 +7,25 @@
 # 2. Then install the rest of the dependencies:
 # pip install -r requirements.txt
 
+# Computer Vision & Deep Learning
 ultralytics>=8.2.0
 opencv-python>=4.9.0
+pillow>=10.3.0
+pyyaml>=6.0.1
+
+# FastAPI Backend & Supabase Client
+fastapi>=0.111.0
+uvicorn[standard]>=0.29.0
+python-multipart>=0.0.9
+httpx>=0.27.0
+python-dotenv>=1.0.1
+pydantic>=2.7.0
+
+# Hardware & Conveyor Serial Communications
 pyserial>=3.5
+
+# Analytics & Dashboard Tools
 streamlit>=1.35.0
 pandas>=2.2.0
 matplotlib>=3.8.0
 seaborn>=0.13.0
-pillow>=10.3.0
-pyyaml>=6.0.1

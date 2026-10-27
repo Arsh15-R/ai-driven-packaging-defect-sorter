@@ -30,3 +30,6 @@ Thumbs.db
 .vscode/
 .idea/
 *.log
+logs/defect_images/
+logs/*.db
+logs/*.sqlite

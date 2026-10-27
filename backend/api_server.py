@@ -12,6 +12,8 @@ import os
 import sys
 import time
 import csv
+import json
+import base64
 import threading
 from pathlib import Path
 from typing import Optional, Dict, Any
@@ -541,6 +543,12 @@ def update_settings(payload: SettingsPayload):
         "conveyor_delay": system_state.conveyor_delay,
         "source": system_state.source
     }}
+
+
+
+# --- Mount Modular AI Product Inspection & Supabase Router ---
+from backend.routers.inspect import router as inspect_router
+app.include_router(inspect_router)
 
 
 def generate_mjpeg_stream():
