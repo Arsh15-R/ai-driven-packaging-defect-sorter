@@ -1,0 +1,32 @@
+# Python cache & artifacts
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+*.egg-info/
+dist/
+build/
+
+# Virtual Environments
+venv/
+ENV/
+env/
+.env
+
+# Ultralytics intermediate training runs & large base downloads
+runs/
+yolov8s.pt
+
+# Frontend dependencies & build artifacts
+node_modules/
+frontend/node_modules/
+frontend/.vercel/
+.vercel/
+
+# Operating System & IDE
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+*.log
