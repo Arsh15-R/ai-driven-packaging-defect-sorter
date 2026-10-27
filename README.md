@@ -1,6 +1,5 @@
 # AI-Driven Packaging Line Defect Sorter 🚀📦
 
-[![Live Demo on Vercel](https://img.shields.io/badge/Live%20Demo-Vercel%20Production-00f0ff?style=for-the-badge&logo=vercel&logoColor=white)](https://ai-driven-packaging-defect-sorter.vercel.app)
 [![GitHub Repository](https://img.shields.io/badge/GitHub-Arsh15--R%2Fai--driven--packaging--defect--sorter-181717?style=for-the-badge&logo=github&logoColor=white)](https://github.com/Arsh15-R/ai-driven-packaging-defect-sorter)
 [![Python 3.11](https://img.shields.io/badge/Python-3.11%20CUDA%2012.1-3776AB?style=for-the-badge&logo=python&logoColor=white)](https://www.python.org/)
 [![YOLOv8](https://img.shields.io/badge/Model-YOLOv8s%20Ultralytics-00ffff?style=for-the-badge&logo=yolo&logoColor=black)](https://github.com/ultralytics/ultralytics)
@@ -9,16 +8,23 @@
 [![React 18](https://img.shields.io/badge/Frontend-React%2018%20%2B%20Vite-61DAFB?style=for-the-badge&logo=react&logoColor=black)](https://react.dev/)
 [![Arduino](https://img.shields.io/badge/Hardware-Arduino%20PWM%20Servo-00979D?style=for-the-badge&logo=arduino&logoColor=white)](https://www.arduino.cc/)
 
-> **An industrial-grade automated packaging inspection and sorting platform combining YOLOv8s computer vision, NVIDIA RTX 3050 CUDA acceleration, Arduino microcontroller actuation, and an Apple Vision Pro / Arc UI glassmorphic dashboard.**
+> **An industrial-grade automated packaging inspection and sorting platform combining YOLOv8s computer vision, NVIDIA RTX 3050 CUDA acceleration, Arduino microcontroller actuation, and an accessible industrial React dashboard.**
 
 ---
 
-## 🌐 Live Cloud Demo
-Experience the full-featured, interactive **Digital Twin Simulation** directly in your browser without requiring local hardware:
+## 💻 Local Quick Start
+Run the full-featured, interactive **HMI Vision Dashboard and Digital Twin Simulation** directly on your machine:
 
-👉 **[Launch Live Vercel Production Dashboard](https://ai-driven-packaging-defect-sorter.vercel.app)**
+```powershell
+# 1. Double click the Windows Launcher:
+.\quick_start.bat
 
-*Featuring 60 FPS animated physics conveyor simulation, laser scan curtain, real-time YOLO bounding boxes, SG90 servo pusher deflection, defect breakdown analytics, and high-resolution audit snapshot zoom modal.*
+# Or run the FastAPI server directly:
+python backend/api_server.py
+```
+Open **[http://localhost:8000](http://localhost:8000)** in your browser!
+
+*Featuring 60 FPS simulated conveyor physics, laser scan curtain, real-time YOLO bounding boxes, SG90 servo pusher deflection, defect breakdown analytics, and high-resolution audit snapshot modal.*
 
 ---
 
