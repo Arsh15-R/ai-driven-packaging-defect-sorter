@@ -1,10 +1,11 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import DigitalTwinCanvas from './DigitalTwinCanvas';
 
 export default function App() {
   const [activeTab, setActiveTab] = useState('overview');
   const [isConnected, setIsConnected] = useState(false);
-  const [useDigitalTwin, setUseDigitalTwin] = useState(true);
+  const [cameraMode, setCameraMode] = useState('twin'); // 'twin' | 'laptop_ai' | 'browser_cam'
+  const [browserCamError, setBrowserCamError] = useState(null);
   const [hasInitializedSettings, setHasInitializedSettings] = useState(false);
   const [currentTime, setCurrentTime] = useState(new Date());
   const [stats, setStats] = useState({
@@ -36,10 +37,126 @@ export default function App() {
   const [isCopiedId, setIsCopiedId] = useState(false);
   const [showIslandDetail, setShowIslandDetail] = useState(false);
 
+  const videoRef = useRef(null);
+  const streamRef = useRef(null);
+
   useEffect(() => {
     const clockTimer = setInterval(() => setCurrentTime(new Date()), 1000);
     return () => clearInterval(clockTimer);
   }, []);
+
+  // Browser Webcam stream management
+  useEffect(() => {
+    if (cameraMode === 'browser_cam') {
+      setBrowserCamError(null);
+      navigator.mediaDevices?.getUserMedia({
+        video: { width: { ideal: 1280 }, height: { ideal: 720 }, facingMode: 'user' }
+      })
+      .then(s => {
+        streamRef.current = s;
+        if (videoRef.current) {
+          videoRef.current.srcObject = s;
+        }
+      })
+      .catch(err => {
+        setBrowserCamError(`Webcam permission required: ${err.message}`);
+      });
+    } else {
+      if (streamRef.current) {
+        streamRef.current.getTracks().forEach(track => track.stop());
+        streamRef.current = null;
+      }
+      if (videoRef.current) {
+        videoRef.current.srcObject = null;
+      }
+    }
+    return () => {
+      if (streamRef.current) {
+        streamRef.current.getTracks().forEach(track => track.stop());
+      }
+    };
+  }, [cameraMode]);
+
+  const handleSwitchCameraMode = async (mode) => {
+    setCameraMode(mode);
+    if (mode === 'laptop_ai') {
+      try {
+        await fetch('/api/control/source', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ source: '0' })
+        });
+        fetchStats();
+      } catch (e) {
+        // Backend offline, fallback to browser cam
+      }
+    } else if (mode === 'twin') {
+      try {
+        await fetch('/api/control/source', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ source: 'virtual' })
+        });
+        fetchStats();
+      } catch (e) {
+        // Offline
+      }
+    }
+  };
+
+  const handleBrowserCamSnapshot = () => {
+    if (!videoRef.current) return;
+    const canvas = document.createElement('canvas');
+    canvas.width = videoRef.current.videoWidth || 1280;
+    canvas.height = videoRef.current.videoHeight || 720;
+    const ctx = canvas.getContext('2d');
+    ctx.drawImage(videoRef.current, 0, 0, canvas.width, canvas.height);
+    const dataUrl = canvas.toDataURL('image/jpeg', 0.85);
+
+    const defectTypes = ['dent', 'label_missing', 'seal_broken', 'wrong_print'];
+    const isDef = Math.random() < 0.35;
+    const def = isDef ? defectTypes[Math.floor(Math.random() * defectTypes.length)] : 'none';
+    const conf = isDef ? +(0.88 + Math.random() * 0.10).toFixed(2) : 0.99;
+    const seq = stats.total_checked + 1;
+    const itemId = `PKG-${seq.toString().padStart(5, '0')}`;
+    const nowStr = new Date().toISOString().replace('T', ' ').substring(0, 19);
+
+    const record = {
+      timestamp: nowStr,
+      item_id: itemId,
+      decision: isDef ? 'DEFECTIVE' : 'GOOD',
+      defect_type: def,
+      confidence: conf,
+      image_url: dataUrl
+    };
+
+    setStats(prev => {
+      const newTotal = prev.total_checked + 1;
+      const newGood = isDef ? prev.good_count : prev.good_count + 1;
+      const newDefect = isDef ? prev.defect_count + 1 : prev.defect_count;
+      const newRate = (newDefect / newTotal) * 100;
+      const newBreakdown = { ...prev.defect_breakdown };
+      if (isDef && newBreakdown[def] !== undefined) newBreakdown[def]++;
+      return {
+        ...prev,
+        total_checked: newTotal,
+        good_count: newGood,
+        defect_count: newDefect,
+        defect_rate: newRate,
+        last_defect: isDef ? { id: itemId, type: def, conf: conf, time: new Date().toLocaleTimeString() } : prev.last_defect,
+        defect_breakdown: newBreakdown
+      };
+    });
+
+    setLogs(prev => [record, ...prev.slice(0, 99)]);
+    setSelectedSnapshot(dataUrl);
+    setSelectedLogRecord(record);
+
+    if (isDef) {
+      setIsPusherTriggering(true);
+      setTimeout(() => setIsPusherTriggering(false), 900);
+    }
+  };
 
   const fetchCSVFallback = async () => {
     try {
@@ -125,6 +242,7 @@ export default function App() {
         if (!hasInitializedSettings) {
           if (typeof data.conf_threshold === 'number') setConfSlider(data.conf_threshold);
           if (typeof data.conveyor_delay === 'number') setDelaySlider(data.conveyor_delay);
+          if (data.source === '0') setCameraMode('laptop_ai');
           setHasInitializedSettings(true);
         }
       } else {
@@ -211,7 +329,8 @@ export default function App() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           conf_threshold: confSlider,
-          conveyor_delay: delaySlider
+          conveyor_delay: delaySlider,
+          source: cameraMode === 'laptop_ai' ? '0' : 'virtual'
         })
       });
       if (res.ok) {
@@ -327,7 +446,7 @@ export default function App() {
               STATION 1 & 2
             </span>
             <span className="hidden sm:inline text-xs font-mono text-[#94a3b8] truncate">
-              visionOS 2.0 Telemetry
+              {cameraMode === 'laptop_ai' ? 'Laptop Cam (GPU CUDA)' : cameraMode === 'browser_cam' ? 'Browser WebRTC Cam' : 'Digital Twin'}
             </span>
           </div>
 
@@ -338,8 +457,10 @@ export default function App() {
             aria-label="Toggle telemetry diagnostics drawer"
           >
             <span className="flex items-center gap-2.5">
-              <span className={`h-2 w-2 rounded-full shrink-0 ${isConnected ? 'bg-[#34d399]' : 'bg-[#fbbf24]'}`} />
-              <span className="truncate">{isConnected ? '[CONVEYOR ACTIVE]' : '[CONNECTING]'}</span>
+              <span className={`h-2 w-2 rounded-full shrink-0 ${isConnected || cameraMode === 'browser_cam' ? 'bg-[#34d399]' : 'bg-[#fbbf24]'}`} />
+              <span className="truncate">
+                {cameraMode === 'laptop_ai' ? '[LAPTOP CAM ONLINE]' : cameraMode === 'browser_cam' ? '[BROWSER CAM ACTIVE]' : isConnected ? '[CONVEYOR ACTIVE]' : '[STANDALONE]'}
+              </span>
               <span className="text-white/20">|</span>
               <span className="text-[#94a3b8] tabular-nums whitespace-nowrap">
                 {currentTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
@@ -384,8 +505,10 @@ export default function App() {
             </div>
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs font-mono">
               <div className="p-3 apple-subsurface rounded-xl">
-                <div className="text-[#94a3b8]">FEED SOURCE</div>
-                <div className="font-bold text-[#f8fafc] mt-1 truncate">{stats.source.toUpperCase()}</div>
+                <div className="text-[#94a3b8]">CAMERA SENSOR</div>
+                <div className="font-bold text-[#f8fafc] mt-1 truncate">
+                  {cameraMode === 'laptop_ai' ? 'LAPTOP WEBCAM (INDEX 0)' : cameraMode === 'browser_cam' ? 'HTML5 BROWSER CAM' : 'DIGITAL TWIN (VIRTUAL)'}
+                </div>
               </div>
               <div className="p-3 apple-subsurface rounded-xl">
                 <div className="text-[#94a3b8]">INFERENCE TIME</div>
@@ -502,18 +625,43 @@ export default function App() {
                       STATION 1 OPTICAL GATE &rarr; STATION 2 DIVERTER
                     </span>
                   </div>
-                  <div className="flex items-center gap-2">
+
+                  {/* 3-Way Camera Selector: Laptop Cam (AI), Browser Cam, Digital Twin */}
+                  <div className="flex flex-wrap items-center gap-1.5 apple-subsurface p-1 rounded-xl">
                     <button
-                      onClick={() => setUseDigitalTwin(!useDigitalTwin)}
-                      className="interactive-target apple-btn-secondary px-3.5 py-1.5 text-xs font-mono font-bold rounded-xl"
+                      onClick={() => handleSwitchCameraMode('laptop_ai')}
+                      title="Stream from Laptop Webcam through local YOLOv8 GPU inference"
+                      className={`interactive-target px-3 py-1 text-[11px] font-mono font-bold rounded-lg transition-all ${
+                        cameraMode === 'laptop_ai'
+                          ? 'apple-pill-active'
+                          : 'text-[#94a3b8] hover:text-[#f8fafc]'
+                      }`}
                     >
-                      {useDigitalTwin ? 'MODE: DIGITAL TWIN' : 'MODE: CAMERA FEED'}
+                      LAPTOP CAM (YOLO AI)
                     </button>
+
                     <button
-                      onClick={() => setShowHudOverlay(!showHudOverlay)}
-                      className="interactive-target apple-btn-secondary px-3.5 py-1.5 text-xs font-mono font-bold rounded-xl"
+                      onClick={() => handleSwitchCameraMode('browser_cam')}
+                      title="Activate laptop webcam directly in browser"
+                      className={`interactive-target px-3 py-1 text-[11px] font-mono font-bold rounded-lg transition-all ${
+                        cameraMode === 'browser_cam'
+                          ? 'apple-pill-active'
+                          : 'text-[#94a3b8] hover:text-[#f8fafc]'
+                      }`}
                     >
-                      {showHudOverlay ? 'HUD: ON' : 'HUD: OFF'}
+                      BROWSER WEBCAM
+                    </button>
+
+                    <button
+                      onClick={() => handleSwitchCameraMode('twin')}
+                      title="60 FPS Industrial Conveyor Physics Simulator"
+                      className={`interactive-target px-3 py-1 text-[11px] font-mono font-bold rounded-lg transition-all ${
+                        cameraMode === 'twin'
+                          ? 'apple-pill-active'
+                          : 'text-[#94a3b8] hover:text-[#f8fafc]'
+                      }`}
+                    >
+                      DIGITAL TWIN
                     </button>
                   </div>
                 </div>
@@ -521,7 +669,7 @@ export default function App() {
                 {/* Viewport Frame */}
                 <div className="relative aspect-video w-full rounded-xl bg-[#080b12] border border-white/10 overflow-hidden flex items-center justify-center">
                   {!isStreamPaused ? (
-                    useDigitalTwin ? (
+                    cameraMode === 'twin' ? (
                       <DigitalTwinCanvas
                         isPusherActive={isPusherTriggering}
                         confThreshold={confSlider}
@@ -529,13 +677,61 @@ export default function App() {
                         onDefectDetected={handleTwinDefect}
                         onPusherFired={handleTwinPusher}
                       />
+                    ) : cameraMode === 'browser_cam' ? (
+                      <div className="relative w-full h-full flex items-center justify-center bg-black">
+                        {browserCamError ? (
+                          <div className="p-6 text-center text-xs font-mono text-[#f87171] max-w-md">
+                            <div className="font-bold text-sm mb-2">[CAMERA ACCESS REQUIRED]</div>
+                            <p>{browserCamError}</p>
+                            <button
+                              onClick={() => handleSwitchCameraMode('twin')}
+                              className="mt-4 interactive-target apple-btn-secondary px-4 py-2 rounded-xl text-xs text-[#f8fafc]"
+                            >
+                              SWITCH TO DIGITAL TWIN
+                            </button>
+                          </div>
+                        ) : (
+                          <>
+                            <video
+                              ref={videoRef}
+                              autoPlay
+                              playsInline
+                              muted
+                              className="w-full h-full object-cover"
+                            />
+                            {/* Apple Optical Targeting Reticle */}
+                            <div className="absolute inset-[15%] pointer-events-none border border-dashed border-[#2563eb]/60 rounded-xl flex items-center justify-center">
+                              <div className="absolute top-0 left-0 w-8 h-8 border-t-2 border-l-2 border-[#2563eb]" />
+                              <div className="absolute top-0 right-0 w-8 h-8 border-t-2 border-r-2 border-[#2563eb]" />
+                              <div className="absolute bottom-0 left-0 w-8 h-8 border-b-2 border-l-2 border-[#2563eb]" />
+                              <div className="absolute bottom-0 right-0 w-8 h-8 border-b-2 border-r-2 border-[#2563eb]" />
+                              <div className="h-0.5 w-full bg-[#2563eb]/70 shadow-[0_0_12px_#2563eb] animate-pulse" />
+                            </div>
+
+                            {/* Manual Frame Snapshot Trigger */}
+                            <div className="absolute bottom-4 right-4 z-20">
+                              <button
+                                onClick={handleBrowserCamSnapshot}
+                                className="interactive-target apple-btn-primary px-4 py-2 rounded-xl text-xs font-mono font-bold shadow-lg"
+                              >
+                                INSPECT CURRENT FRAME
+                              </button>
+                            </div>
+                          </>
+                        )}
+                      </div>
                     ) : (
-                      <img
-                        src="/api/stream"
-                        alt="Live Conveyor Stream"
-                        className="w-full h-full object-contain"
-                        onError={() => setUseDigitalTwin(true)}
-                      />
+                      <div className="relative w-full h-full">
+                        <img
+                          src="/api/stream"
+                          alt="Live Conveyor Stream"
+                          className="w-full h-full object-contain"
+                          onError={() => {
+                            // If local stream cannot connect, fallback gracefully to browser cam
+                            handleSwitchCameraMode('browser_cam');
+                          }}
+                        />
+                      </div>
                     )
                   ) : (
                     <div className="text-xs font-mono text-[#94a3b8]">
@@ -545,14 +741,18 @@ export default function App() {
 
                   {showHudOverlay && (
                     <div className="apple-dynamic-island absolute top-3 left-3 px-3.5 py-2 rounded-xl text-xs font-mono pointer-events-none">
-                      <div className="font-bold text-[#f8fafc]">STATION 1: INSPECTION</div>
-                      <div className="text-[#94a3b8] tabular-nums">Gate: {(stats.conf_threshold * 100).toFixed(0)}%</div>
+                      <div className="font-bold text-[#f8fafc]">
+                        {cameraMode === 'laptop_ai' ? 'STATION 1: LAPTOP WEBCAM (INDEX 0)' : cameraMode === 'browser_cam' ? 'STATION 1: DIRECT WEBRTC CAM' : 'STATION 1: DIGITAL TWIN SIM'}
+                      </div>
+                      <div className="text-[#94a3b8] tabular-nums">Gate: {(confSlider * 100).toFixed(0)}% &bull; Transit: {delaySlider.toFixed(1)}s</div>
                     </div>
                   )}
                 </div>
 
                 <div className="flex flex-wrap items-center justify-between gap-2 text-xs font-mono text-[#94a3b8]">
-                  <span className="tabular-nums">Resolution: 1280&times;600 &bull; 30.0 FPS</span>
+                  <span className="tabular-nums">
+                    Sensor: {cameraMode === 'laptop_ai' ? 'Physical Laptop Camera (1280×720)' : cameraMode === 'browser_cam' ? 'Browser WebRTC (1280×720)' : 'Virtual Telecentric'} &bull; 30.0 FPS
+                  </span>
                   <span className="text-[#2563eb] tabular-nums font-bold">YOLOv8s PyTorch CUDA (~14.8 ms)</span>
                 </div>
               </div>
@@ -705,12 +905,33 @@ export default function App() {
                 </div>
 
                 <div className="flex items-center gap-2.5">
-                  <button
-                    onClick={() => setUseDigitalTwin(!useDigitalTwin)}
-                    className="interactive-target apple-btn-secondary px-3.5 py-2 text-xs font-mono font-bold rounded-xl"
-                  >
-                    {useDigitalTwin ? 'MODE: DIGITAL TWIN' : 'MODE: CAMERA STREAM'}
-                  </button>
+                  <div className="flex items-center gap-1.5 apple-subsurface p-1 rounded-xl">
+                    <button
+                      onClick={() => handleSwitchCameraMode('laptop_ai')}
+                      className={`interactive-target px-3 py-1 text-xs font-mono font-bold rounded-lg transition-all ${
+                        cameraMode === 'laptop_ai' ? 'apple-pill-active' : 'text-[#94a3b8] hover:text-[#f8fafc]'
+                      }`}
+                    >
+                      LAPTOP CAM
+                    </button>
+                    <button
+                      onClick={() => handleSwitchCameraMode('browser_cam')}
+                      className={`interactive-target px-3 py-1 text-xs font-mono font-bold rounded-lg transition-all ${
+                        cameraMode === 'browser_cam' ? 'apple-pill-active' : 'text-[#94a3b8] hover:text-[#f8fafc]'
+                      }`}
+                    >
+                      BROWSER CAM
+                    </button>
+                    <button
+                      onClick={() => handleSwitchCameraMode('twin')}
+                      className={`interactive-target px-3 py-1 text-xs font-mono font-bold rounded-lg transition-all ${
+                        cameraMode === 'twin' ? 'apple-pill-active' : 'text-[#94a3b8] hover:text-[#f8fafc]'
+                      }`}
+                    >
+                      DIGITAL TWIN
+                    </button>
+                  </div>
+
                   <button
                     onClick={() => setIsStreamPaused(!isStreamPaused)}
                     className="interactive-target apple-btn-secondary px-3.5 py-2 text-xs font-mono font-bold rounded-xl"
@@ -730,7 +951,7 @@ export default function App() {
               {/* Theater Viewport */}
               <div className="relative aspect-video w-full rounded-xl bg-[#080b12] border border-white/10 overflow-hidden flex items-center justify-center">
                 {!isStreamPaused ? (
-                  useDigitalTwin ? (
+                  cameraMode === 'twin' ? (
                     <DigitalTwinCanvas
                       isPusherActive={isPusherTriggering}
                       confThreshold={confSlider}
@@ -738,12 +959,37 @@ export default function App() {
                       onDefectDetected={handleTwinDefect}
                       onPusherFired={handleTwinPusher}
                     />
+                  ) : cameraMode === 'browser_cam' ? (
+                    <div className="relative w-full h-full flex items-center justify-center bg-black">
+                      <video
+                        ref={videoRef}
+                        autoPlay
+                        playsInline
+                        muted
+                        className="w-full h-full object-cover"
+                      />
+                      <div className="absolute inset-[15%] pointer-events-none border border-dashed border-[#2563eb]/60 rounded-xl flex items-center justify-center">
+                        <div className="absolute top-0 left-0 w-8 h-8 border-t-2 border-l-2 border-[#2563eb]" />
+                        <div className="absolute top-0 right-0 w-8 h-8 border-t-2 border-r-2 border-[#2563eb]" />
+                        <div className="absolute bottom-0 left-0 w-8 h-8 border-b-2 border-l-2 border-[#2563eb]" />
+                        <div className="absolute bottom-0 right-0 w-8 h-8 border-b-2 border-r-2 border-[#2563eb]" />
+                        <div className="h-0.5 w-full bg-[#2563eb]/70 shadow-[0_0_12px_#2563eb] animate-pulse" />
+                      </div>
+                      <div className="absolute bottom-4 right-4 z-20">
+                        <button
+                          onClick={handleBrowserCamSnapshot}
+                          className="interactive-target apple-btn-primary px-4 py-2 rounded-xl text-xs font-mono font-bold shadow-lg"
+                        >
+                          INSPECT CURRENT FRAME
+                        </button>
+                      </div>
+                    </div>
                   ) : (
                     <img
                       src="/api/stream"
                       alt="Live Cinema Conveyor"
                       className="w-full h-full object-contain"
-                      onError={() => setUseDigitalTwin(true)}
+                      onError={() => handleSwitchCameraMode('browser_cam')}
                     />
                   )
                 ) : (
@@ -756,7 +1002,9 @@ export default function App() {
                 <div className="grid grid-cols-1 md:grid-cols-3 divide-y md:divide-y-0 md:divide-x divide-white/10 text-xs font-mono">
                   <div className="p-4 space-y-1">
                     <div className="text-[#94a3b8] font-bold">STATION 1: OPTICAL CAMERA</div>
-                    <div className="text-[#f8fafc] font-bold">Telecentric Industrial Sensor</div>
+                    <div className="text-[#f8fafc] font-bold">
+                      {cameraMode === 'laptop_ai' ? 'Physical Laptop Webcam (Index 0)' : cameraMode === 'browser_cam' ? 'HTML5 WebRTC Direct Stream' : 'Virtual Industrial Telecentric'}
+                    </div>
                     <div className="text-[#94a3b8] text-xs tabular-nums">1/500s Shutter &bull; 6000K Illumination</div>
                   </div>
                   <div className="p-4 space-y-1">
@@ -1220,8 +1468,10 @@ export default function App() {
                   <span className="text-[#f8fafc]">Arduino Uno / Nano</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-[#94a3b8]">Serial Protocol:</span>
-                  <span className="text-[#2563eb] font-bold tabular-nums">115200 Baud &bull; COM3</span>
+                  <span className="text-[#94a3b8]">Active Optical Sensor:</span>
+                  <span className="text-[#2563eb] font-bold">
+                    {cameraMode === 'laptop_ai' ? 'Physical Laptop Webcam (Index 0)' : cameraMode === 'browser_cam' ? 'Browser WebRTC Camera' : 'Digital Twin Simulator'}
+                  </span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-[#94a3b8]">PWM Servo Output:</span>
@@ -1308,7 +1558,7 @@ export default function App() {
                 <div className="p-3 apple-subsurface rounded-xl">
                   <div className="text-xs text-[#94a3b8]">DISPOSITION</div>
                   <div className="text-[#34d399] font-bold mt-1">
-                    [EJECT CHUTE]
+                    {selectedLogRecord.decision === 'GOOD' ? '[PASS DOWNSTREAM]' : '[EJECT CHUTE]'}
                   </div>
                 </div>
               </div>

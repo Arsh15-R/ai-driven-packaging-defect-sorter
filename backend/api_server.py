@@ -1,9 +1,10 @@
 """
 =============================================================================
 Project: AI-Driven Packaging Line Defect Sorter
-Script: api_server.py (FastAPI Backend for React + Arc UI Frontend)
-Purpose: Provides high-performance REST endpoints, live MJPEG conveyor
-         video streaming, real-time metrics, audit logs, and pusher controls.
+Script: api_server.py (FastAPI Backend for Apple VisionOS HMI Dashboard)
+Purpose: Provides high-performance REST endpoints, real-time MJPEG video
+         streaming from Physical Laptop Webcam (Index 0) OR Digital Twin,
+         live YOLOv8s CUDA inference, ISO 9001 audit logs, and pusher controls.
 =============================================================================
 """
 
@@ -13,7 +14,7 @@ import time
 import csv
 import threading
 from pathlib import Path
-from typing import Optional
+from typing import Optional, Dict, Any
 
 # Ensure project root is in sys.path
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
@@ -67,13 +68,23 @@ _init_csv_log()
 app.mount("/logs/defect_images", StaticFiles(directory=str(DEFECT_IMG_DIR)), name="defect_images")
 
 
+CLASS_COLORS = {
+    "good": (0, 200, 0),           # Green
+    "dent": (0, 140, 255),         # Orange
+    "label_missing": (0, 0, 255),  # Red
+    "seal_broken": (255, 0, 255),  # Magenta
+    "wrong_print": (255, 255, 0)   # Cyan
+}
+DEFECT_CLASSES = {"dent", "label_missing", "seal_broken", "wrong_print"}
+
+
 class SystemState:
     def __init__(self):
         self.lock = threading.Lock()
         self.total_checked = 0
         self.good_count = 0
         self.defect_count = 0
-        self.source = "virtual"  # "virtual" or "0"
+        self.source = "0"  # Default to Laptop Webcam ("0"), fallback to "virtual"
         self.conf_threshold = 0.45
         self.conveyor_delay = 2.8
         self.fps = 30.0
@@ -82,17 +93,82 @@ class SystemState:
         self.last_frame: Optional[np.ndarray] = None
         self.defect_breakdown = {"dent": 0, "label_missing": 0, "seal_broken": 0, "wrong_print": 0}
 
+        # Hardware & Webcam
+        self.cap: Optional[cv2.VideoCapture] = None
+        self.actuator: Optional[ConveyorActuator] = None
+        self.yolo_model = None
+        self.last_eval_time = 0.0
+        self.debounce_cooldown = 1.6
+
         # Digital Twin Simulator
         self.virtual_env = VirtualConveyorEnvironment(width=1280, height=600)
-        self.actuator: Optional[ConveyorActuator] = None
 
-        # Parse existing CSV stats on startup before starting thread
+        # Parse existing CSV stats on startup
         self._load_existing_stats()
+
+        # Load YOLOv8 Model (CUDA or CPU)
+        self._init_yolo_model()
+
+        # Open Laptop Webcam (Index 0)
+        self._init_camera()
 
         # Background stream thread
         self.is_running = True
         self.thread = threading.Thread(target=self._stream_loop, daemon=True)
         self.thread.start()
+
+    def _init_yolo_model(self):
+        try:
+            from ultralytics import YOLO
+            import torch
+            model_path = PROJECT_ROOT / "models" / "best.pt"
+            if not model_path.exists():
+                model_path = PROJECT_ROOT / "yolov8s.pt"
+            print(f"[INFO] Initializing YOLOv8 model from: {model_path}")
+            self.yolo_model = YOLO(str(model_path))
+            device = 0 if torch.cuda.is_available() else "cpu"
+            self.yolo_model.to(device)
+            dev_name = torch.cuda.get_device_name(0) if torch.cuda.is_available() else "CPU"
+            print(f"[INFO] YOLOv8 loaded successfully on {dev_name}")
+        except Exception as e:
+            print(f"[WARN] Failed loading YOLOv8 model: {e}")
+            self.yolo_model = None
+
+    def _init_camera(self):
+        if self.source == "0":
+            try:
+                print("[INFO] Attempting to open physical Laptop Webcam (Index 0)...")
+                cap = cv2.VideoCapture(0, cv2.CAP_DSHOW)
+                if not cap.isOpened():
+                    cap = cv2.VideoCapture(0)
+                if cap.isOpened():
+                    cap.set(cv2.CAP_PROP_FRAME_WIDTH, 1280)
+                    cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 720)
+                    self.cap = cap
+                    print("[INFO] Physical Laptop Webcam (Index 0) opened successfully.")
+                else:
+                    print("[WARN] Laptop camera index 0 could not be opened. Falling back to Digital Twin.")
+                    self.source = "virtual"
+            except Exception as e:
+                print(f"[WARN] Webcam error: {e}. Falling back to Digital Twin.")
+                self.source = "virtual"
+
+    def set_source(self, new_source: str):
+        with self.lock:
+            if new_source == self.source:
+                return
+            print(f"[INFO] Switching video source from {self.source} to {new_source}")
+            self.source = new_source
+            if self.source == "0":
+                if self.cap is None or not self.cap.isOpened():
+                    self._init_camera()
+            else:
+                if self.cap is not None:
+                    try:
+                        self.cap.release()
+                    except Exception:
+                        pass
+                    self.cap = None
 
     def _load_existing_stats(self):
         if CSV_LOG_PATH.exists():
@@ -113,7 +189,7 @@ class SystemState:
                 print(f"[WARN] Failed to load existing stats: {e}")
 
     def _stream_loop(self):
-        """Continuously updates conveyor physics and generates inspection frames."""
+        """Continuously acquires frames from Laptop Webcam OR Digital Twin."""
         prev_time = time.time()
         while self.is_running:
             now = time.time()
@@ -122,47 +198,118 @@ class SystemState:
             self.fps = 1.0 / dt
 
             with self.lock:
-                # Update virtual conveyor
-                self.virtual_env.update(dt)
-                rendered = self.virtual_env.render()
+                # -------------------------------------------------------------
+                # MODE A: PHYSICAL LAPTOP WEBCAM (OpenCV + YOLOv8 CUDA)
+                # -------------------------------------------------------------
+                if self.source == "0" and self.cap is not None and self.cap.isOpened():
+                    ret, frame = self.cap.read()
+                    if not ret or frame is None:
+                        time.sleep(0.05)
+                        continue
 
-                # Camera station coordinates
-                cam_x1 = self.virtual_env.cam_station_x - self.virtual_env.cam_zone_w // 2
-                cam_x2 = self.virtual_env.cam_station_x + self.virtual_env.cam_zone_w // 2
-                cam_y1 = self.virtual_env.belt_center_y - self.virtual_env.cam_zone_h // 2
-                cam_y2 = self.virtual_env.belt_center_y + self.virtual_env.cam_zone_h // 2
+                    h, w = frame.shape[:2]
+                    display_frame = frame.copy()
 
-                # Detect items in camera station
-                for item in self.virtual_env.items:
-                    if not item.inspected and (cam_x1 <= item.x <= cam_x2):
-                        item.inspected = True
+                    # Central Inspection Region of Interest (Optical Gate)
+                    roi_x1, roi_y1 = int(w * 0.22), int(h * 0.18)
+                    roi_x2, roi_y2 = int(w * 0.78), int(h * 0.82)
+
+                    # Optical Reticle (Apple visionOS style corner brackets)
+                    corner_len = 36
+                    # Top-Left
+                    cv2.line(display_frame, (roi_x1, roi_y1), (roi_x1 + corner_len, roi_y1), (235, 99, 37), 2)
+                    cv2.line(display_frame, (roi_x1, roi_y1), (roi_x1, roi_y1 + corner_len), (235, 99, 37), 2)
+                    # Top-Right
+                    cv2.line(display_frame, (roi_x2, roi_y1), (roi_x2 - corner_len, roi_y1), (235, 99, 37), 2)
+                    cv2.line(display_frame, (roi_x2, roi_y1), (roi_x2, roi_y1 + corner_len), (235, 99, 37), 2)
+                    # Bottom-Left
+                    cv2.line(display_frame, (roi_x1, roi_y2), (roi_x1 + corner_len, roi_y2), (235, 99, 37), 2)
+                    cv2.line(display_frame, (roi_x1, roi_y2), (roi_x1, roi_y2 - corner_len), (235, 99, 37), 2)
+                    # Bottom-Right
+                    cv2.line(display_frame, (roi_x2, roi_y2), (roi_x2 - corner_len, roi_y2), (235, 99, 37), 2)
+                    cv2.line(display_frame, (roi_x2, roi_y2), (roi_x2, roi_y2 - corner_len), (235, 99, 37), 2)
+
+                    # Optical Laser Scan Curtain
+                    laser_y = int(roi_y1 + (np.sin(now * 3.0) + 1.0) * 0.5 * (roi_y2 - roi_y1))
+                    cv2.line(display_frame, (roi_x1, laser_y), (roi_x2, laser_y), (235, 99, 37), 1)
+
+                    detected_defects = []
+                    active_box_in_roi = False
+
+                    # Run YOLOv8 Inference
+                    if self.yolo_model is not None:
+                        try:
+                            import torch
+                            device = 0 if torch.cuda.is_available() else "cpu"
+                            results = self.yolo_model.predict(
+                                source=frame,
+                                conf=self.conf_threshold,
+                                verbose=False,
+                                device=device
+                            )[0]
+
+                            for box in results.boxes:
+                                cls_id = int(box.cls[0])
+                                conf = float(box.conf[0])
+                                label = self.yolo_model.names.get(cls_id, str(cls_id)).lower()
+                                x1, y1, x2, y2 = map(int, box.xyxy[0])
+                                cx, cy = (x1 + x2) // 2, (y1 + y2) // 2
+
+                                color = (0, 200, 0) if label == "good" else (0, 0, 255)
+                                cv2.rectangle(display_frame, (x1, y1), (x2, y2), color, 2)
+                                cv2.putText(
+                                    display_frame,
+                                    f"[{label.upper()}] {conf*100:.0f}%",
+                                    (x1, max(y1 - 8, 18)),
+                                    cv2.FONT_HERSHEY_SIMPLEX,
+                                    0.55,
+                                    color,
+                                    2
+                                )
+
+                                if (roi_x1 <= cx <= roi_x2) and (roi_y1 <= cy <= roi_y2):
+                                    active_box_in_roi = True
+                                    if label in DEFECT_CLASSES:
+                                        detected_defects.append((label, conf, frame[max(0, y1):min(h, y2), max(0, x1):min(w, x2)]))
+
+                        except Exception as infer_err:
+                            cv2.putText(display_frame, f"INFERENCE: {infer_err}", (30, 60), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 0, 255), 2)
+
+                    # Telemetry Watermark
+                    cv2.putText(
+                        display_frame,
+                        "LAPTOP WEBCAM (INDEX 0) • OPTICAL GATE 1",
+                        (24, 36),
+                        cv2.FONT_HERSHEY_SIMPLEX,
+                        0.6,
+                        (240, 246, 252),
+                        2
+                    )
+
+                    # Debounce and Evaluation Trigger
+                    can_eval = (now - self.last_eval_time) > self.debounce_cooldown
+                    if active_box_in_roi and can_eval:
                         self.total_checked += 1
-                        item_id = item.item_id
-                        defect = item.defect_type
-
-                        crop = rendered[cam_y1:cam_y2, cam_x1:cam_x2].copy()
+                        self.last_eval_time = now
+                        item_id = f"PKG-{self.total_checked:05d}"
                         ts_str = time.strftime("%Y-%m-%d %H:%M:%S")
                         file_ts = time.strftime("%Y%m%d_%H%M%S")
 
-                        if defect in ["dent", "label_missing", "seal_broken", "wrong_print"]:
+                        if len(detected_defects) > 0:
                             self.defect_count += 1
+                            defect, conf, crop_img = max(detected_defects, key=lambda d: d[1])
                             if defect in self.defect_breakdown:
                                 self.defect_breakdown[defect] += 1
-                            conf = float(np.random.uniform(0.86, 0.98))
                             self.last_defect = {"id": item_id, "type": defect, "conf": conf, "time": ts_str}
 
                             img_filename = f"{file_ts}_{item_id}_{defect}.jpg"
                             img_path = DEFECT_IMG_DIR / img_filename
+                            if crop_img is not None and crop_img.size > 0:
+                                cv2.imwrite(str(img_path), crop_img)
+                            else:
+                                cv2.imwrite(str(img_path), display_frame)
 
-                            # Draw annotation
-                            ch, cw = crop.shape[:2]
-                            cv2.rectangle(crop, (cw // 4, ch // 5), (3 * cw // 4, 4 * ch // 5), (0, 0, 255), 2)
-                            cv2.putText(crop, f"{defect.upper()} {conf*100:.0f}%", (cw // 4, ch // 5 - 8),
-                                        cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 0, 255), 2)
-                            cv2.imwrite(str(img_path), crop)
-
-                            # Schedule pusher (both virtual and hardware actuator if connected)
-                            threading.Timer(self.conveyor_delay, self.virtual_env.trigger_pusher).start()
+                            # Trigger physical Arduino rejector if available
                             if self.actuator:
                                 self.actuator.trigger_reject(defect, custom_delay=self.conveyor_delay)
 
@@ -182,15 +329,75 @@ class SystemState:
                             except Exception as e:
                                 print(f"[WARN] Failed writing good log: {e}")
 
-                self.last_frame = rendered
+                    self.last_frame = display_frame
 
-            time.sleep(0.028)  # ~35 FPS loop
+                # -------------------------------------------------------------
+                # MODE B: 100% SOFTWARE DIGITAL TWIN CONVEYOR SIMULATION
+                # -------------------------------------------------------------
+                else:
+                    self.virtual_env.update(dt)
+                    rendered = self.virtual_env.render()
+
+                    cam_x1 = self.virtual_env.cam_station_x - self.virtual_env.cam_zone_w // 2
+                    cam_x2 = self.virtual_env.cam_station_x + self.virtual_env.cam_zone_w // 2
+                    cam_y1 = self.virtual_env.belt_center_y - self.virtual_env.cam_zone_h // 2
+                    cam_y2 = self.virtual_env.belt_center_y + self.virtual_env.cam_zone_h // 2
+
+                    for item in self.virtual_env.items:
+                        if not item.inspected and (cam_x1 <= item.x <= cam_x2):
+                            item.inspected = True
+                            self.total_checked += 1
+                            item_id = item.item_id
+                            defect = item.defect_type
+
+                            crop = rendered[cam_y1:cam_y2, cam_x1:cam_x2].copy()
+                            ts_str = time.strftime("%Y-%m-%d %H:%M:%S")
+                            file_ts = time.strftime("%Y%m%d_%H%M%S")
+
+                            if defect in ["dent", "label_missing", "seal_broken", "wrong_print"]:
+                                self.defect_count += 1
+                                if defect in self.defect_breakdown:
+                                    self.defect_breakdown[defect] += 1
+                                conf = float(np.random.uniform(0.86, 0.98))
+                                self.last_defect = {"id": item_id, "type": defect, "conf": conf, "time": ts_str}
+
+                                img_filename = f"{file_ts}_{item_id}_{defect}.jpg"
+                                img_path = DEFECT_IMG_DIR / img_filename
+
+                                ch, cw = crop.shape[:2]
+                                cv2.rectangle(crop, (cw // 4, ch // 5), (3 * cw // 4, 4 * ch // 5), (0, 0, 255), 2)
+                                cv2.putText(crop, f"{defect.upper()} {conf*100:.0f}%", (cw // 4, ch // 5 - 8),
+                                            cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 0, 255), 2)
+                                cv2.imwrite(str(img_path), crop)
+
+                                threading.Timer(self.conveyor_delay, self.virtual_env.trigger_pusher).start()
+                                if self.actuator:
+                                    self.actuator.trigger_reject(defect, custom_delay=self.conveyor_delay)
+
+                                try:
+                                    with open(CSV_LOG_PATH, "a", newline="", encoding="utf-8") as f:
+                                        csv.writer(f).writerow([ts_str, item_id, "DEFECTIVE", defect, f"{conf:.2f}", f"logs/defect_images/{img_filename}"])
+                                except Exception as e:
+                                    print(f"[WARN] Failed writing defect log: {e}")
+                            else:
+                                self.good_count += 1
+                                if self.actuator:
+                                    self.actuator.indicate_good()
+                                try:
+                                    with open(CSV_LOG_PATH, "a", newline="", encoding="utf-8") as f:
+                                        csv.writer(f).writerow([ts_str, item_id, "GOOD", "none", "1.00", ""])
+                                except Exception as e:
+                                    print(f"[WARN] Failed writing good log: {e}")
+
+                    self.last_frame = rendered
+
+            time.sleep(0.025)
 
     def get_jpeg(self) -> bytes:
         with self.lock:
             if self.last_frame is None:
                 dummy = np.zeros((600, 1280, 3), dtype=np.uint8)
-                cv2.putText(dummy, "INITIALIZING CONVEYOR...", (400, 300), cv2.FONT_HERSHEY_SIMPLEX, 1.0, (255, 255, 255), 2)
+                cv2.putText(dummy, "INITIALIZING CAMERA FEED...", (420, 300), cv2.FONT_HERSHEY_SIMPLEX, 1.0, (255, 255, 255), 2)
                 _, buffer = cv2.imencode(".jpg", dummy)
                 return buffer.tobytes()
             _, buffer = cv2.imencode(".jpg", self.last_frame, [cv2.IMWRITE_JPEG_QUALITY, 80])
@@ -207,9 +414,13 @@ class SettingsPayload(BaseModel):
     source: Optional[str] = None
 
 
+class SourcePayload(BaseModel):
+    source: str
+
+
 @app.get("/api/health")
 def health_check():
-    return {"status": "ok", "service": "packaging-sorter-api", "timestamp": time.time()}
+    return {"status": "ok", "service": "packaging-sorter-api", "source": system_state.source, "timestamp": time.time()}
 
 
 @app.get("/api/stats")
@@ -251,7 +462,6 @@ def get_logs(limit: int = 50):
                 reader = csv.DictReader(f)
                 for r in reader:
                     img_p = r.get("Image_Path", "")
-                    # Format web-accessible URL
                     if img_p:
                         filename = Path(img_p).name
                         web_url = f"/logs/defect_images/{filename}"
@@ -274,13 +484,11 @@ def get_logs(limit: int = 50):
         except Exception as e:
             print(f"[ERROR] Failed reading CSV: {e}")
 
-    # Return latest first
     return entries[::-1][:limit]
 
 
 @app.get("/logs/defect_log.csv")
 def download_defect_log():
-    """Serves the defect log CSV file directly for audit compliance."""
     if CSV_LOG_PATH.exists():
         return FileResponse(
             path=str(CSV_LOG_PATH),
@@ -296,7 +504,6 @@ def download_defect_log():
 
 @app.post("/api/control/test-pusher")
 def test_pusher():
-    """Manual override command to test the reject pusher arm."""
     system_state.virtual_env.trigger_pusher()
     if system_state.actuator:
         system_state.actuator.trigger_reject("manual_test", custom_delay=0.1)
@@ -305,7 +512,6 @@ def test_pusher():
 
 @app.post("/api/control/reset")
 def reset_counters():
-    """Resets session counters."""
     with system_state.lock:
         system_state.total_checked = 0
         system_state.good_count = 0
@@ -313,6 +519,12 @@ def reset_counters():
         system_state.defect_breakdown = {"dent": 0, "label_missing": 0, "seal_broken": 0, "wrong_print": 0}
         system_state.last_defect = None
     return {"success": True, "message": "Counters reset to 0"}
+
+
+@app.post("/api/control/source")
+def switch_source(payload: SourcePayload):
+    system_state.set_source(payload.source)
+    return {"success": True, "source": system_state.source}
 
 
 @app.post("/api/control/settings")
@@ -323,7 +535,7 @@ def update_settings(payload: SettingsPayload):
         if payload.conveyor_delay is not None:
             system_state.conveyor_delay = payload.conveyor_delay
         if payload.source is not None:
-            system_state.source = payload.source
+            system_state.set_source(payload.source)
     return {"success": True, "settings": {
         "conf_threshold": system_state.conf_threshold,
         "conveyor_delay": system_state.conveyor_delay,
@@ -345,7 +557,6 @@ def generate_mjpeg_stream():
 
 @app.get("/api/stream")
 def video_feed():
-    """Live Video Stream endpoint (embedded via <img src='/api/stream' />)."""
     return StreamingResponse(
         generate_mjpeg_stream(),
         media_type="multipart/x-mixed-replace; boundary=frame"
@@ -364,6 +575,7 @@ def start_server():
     print("=" * 65)
     print(" API Base URL   : http://127.0.0.1:8000")
     print(" Live Stream    : http://127.0.0.1:8000/api/stream")
+    print(" Source Mode    : " + system_state.source)
     print(" Swagger Docs   : http://127.0.0.1:8000/docs")
     print("=" * 65 + "\n")
     uvicorn.run(app, host="0.0.0.0", port=8000, log_level="info")
