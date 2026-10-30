@@ -552,6 +552,7 @@ export default function App() {
               {/* Left Column: Live Camera View & Frame Capture (7 columns) */}
               <div className="lg:col-span-7 space-y-4">
                 <CameraView
+                  apiBase={API_BASE}
                   onFrameCaptured={handleFrameCaptured}
                   isCapturing={isClassifying}
                 />

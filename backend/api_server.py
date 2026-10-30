@@ -98,11 +98,11 @@ DEFECT_CLASSES = {"dent", "label_missing", "seal_broken", "wrong_print"}
 
 class SystemState:
     def __init__(self):
-        self.lock = threading.Lock()
+        self.lock = threading.RLock()
         self.total_checked = 0
         self.good_count = 0
         self.defect_count = 0
-        self.source = "0"  # Default to Laptop Webcam ("0"), fallback to "virtual"
+        self.source = "virtual"  # Default to Virtual conveyor twin so physical webcam 0 is 100% free for browser WebRTC!
         self.conf_threshold = 0.45
         self.conveyor_delay = 2.8
         self.fps = 30.0
@@ -127,8 +127,9 @@ class SystemState:
         # Load YOLOv9 Model (CUDA or CPU)
         self._init_yolo_model()
 
-        # Open Laptop Webcam (Index 0)
-        self._init_camera()
+        # Conditionally init camera only if source is "0" (skipped for "virtual" to prevent Windows camera locks)
+        if self.source == "0":
+            self._init_camera()
 
         # Background stream thread
         self.is_running = True
@@ -168,9 +169,16 @@ class SystemState:
                     print("[INFO] Physical Laptop Webcam (Index 0) opened successfully.")
                 else:
                     print("[WARN] Laptop camera index 0 could not be opened. Falling back to Digital Twin.")
+                    if cap is not None:
+                        try:
+                            cap.release()
+                        except Exception:
+                            pass
+                    self.cap = None
                     self.source = "virtual"
             except Exception as e:
                 print(f"[WARN] Webcam error: {e}. Falling back to Digital Twin.")
+                self.cap = None
                 self.source = "virtual"
 
     def set_source(self, new_source: str):
@@ -189,6 +197,24 @@ class SystemState:
                     except Exception:
                         pass
                     self.cap = None
+
+    def release_camera(self):
+        with self.lock:
+            if self.cap is not None:
+                try:
+                    self.cap.release()
+                except Exception:
+                    pass
+                self.cap = None
+            self.source = "virtual"
+            return True
+
+    def claim_camera(self):
+        with self.lock:
+            self.source = "0"
+            if self.cap is None or not self.cap.isOpened():
+                self._init_camera()
+            return self.cap is not None and self.cap.isOpened()
 
     def _load_existing_stats(self):
         if CSV_LOG_PATH.exists():
@@ -216,6 +242,7 @@ class SystemState:
             dt = max(now - prev_time, 0.001)
             prev_time = now
             self.fps = 1.0 / dt
+            sleep_time = 0.025
 
             with self.lock:
                 # -------------------------------------------------------------
@@ -224,132 +251,131 @@ class SystemState:
                 if self.source == "0" and self.cap is not None and self.cap.isOpened():
                     ret, frame = self.cap.read()
                     if not ret or frame is None:
-                        time.sleep(0.05)
-                        continue
+                        sleep_time = 0.05
+                    else:
+                        h, w = frame.shape[:2]
+                        display_frame = frame.copy()
 
-                    h, w = frame.shape[:2]
-                    display_frame = frame.copy()
+                        # Central Inspection Region of Interest (Optical Gate)
+                        roi_x1, roi_y1 = int(w * 0.22), int(h * 0.18)
+                        roi_x2, roi_y2 = int(w * 0.78), int(h * 0.82)
 
-                    # Central Inspection Region of Interest (Optical Gate)
-                    roi_x1, roi_y1 = int(w * 0.22), int(h * 0.18)
-                    roi_x2, roi_y2 = int(w * 0.78), int(h * 0.82)
+                        # Optical Reticle (Apple visionOS style corner brackets)
+                        corner_len = 36
+                        # Top-Left
+                        cv2.line(display_frame, (roi_x1, roi_y1), (roi_x1 + corner_len, roi_y1), (235, 99, 37), 2)
+                        cv2.line(display_frame, (roi_x1, roi_y1), (roi_x1, roi_y1 + corner_len), (235, 99, 37), 2)
+                        # Top-Right
+                        cv2.line(display_frame, (roi_x2, roi_y1), (roi_x2 - corner_len, roi_y1), (235, 99, 37), 2)
+                        cv2.line(display_frame, (roi_x2, roi_y1), (roi_x2, roi_y1 + corner_len), (235, 99, 37), 2)
+                        # Bottom-Left
+                        cv2.line(display_frame, (roi_x1, roi_y2), (roi_x1 + corner_len, roi_y2), (235, 99, 37), 2)
+                        cv2.line(display_frame, (roi_x1, roi_y2), (roi_x1, roi_y2 - corner_len), (235, 99, 37), 2)
+                        # Bottom-Right
+                        cv2.line(display_frame, (roi_x2, roi_y2), (roi_x2 - corner_len, roi_y2), (235, 99, 37), 2)
+                        cv2.line(display_frame, (roi_x2, roi_y2), (roi_x2, roi_y2 - corner_len), (235, 99, 37), 2)
 
-                    # Optical Reticle (Apple visionOS style corner brackets)
-                    corner_len = 36
-                    # Top-Left
-                    cv2.line(display_frame, (roi_x1, roi_y1), (roi_x1 + corner_len, roi_y1), (235, 99, 37), 2)
-                    cv2.line(display_frame, (roi_x1, roi_y1), (roi_x1, roi_y1 + corner_len), (235, 99, 37), 2)
-                    # Top-Right
-                    cv2.line(display_frame, (roi_x2, roi_y1), (roi_x2 - corner_len, roi_y1), (235, 99, 37), 2)
-                    cv2.line(display_frame, (roi_x2, roi_y1), (roi_x2, roi_y1 + corner_len), (235, 99, 37), 2)
-                    # Bottom-Left
-                    cv2.line(display_frame, (roi_x1, roi_y2), (roi_x1 + corner_len, roi_y2), (235, 99, 37), 2)
-                    cv2.line(display_frame, (roi_x1, roi_y2), (roi_x1, roi_y2 - corner_len), (235, 99, 37), 2)
-                    # Bottom-Right
-                    cv2.line(display_frame, (roi_x2, roi_y2), (roi_x2 - corner_len, roi_y2), (235, 99, 37), 2)
-                    cv2.line(display_frame, (roi_x2, roi_y2), (roi_x2, roi_y2 - corner_len), (235, 99, 37), 2)
+                        # Optical Laser Scan Curtain
+                        laser_y = int(roi_y1 + (np.sin(now * 3.0) + 1.0) * 0.5 * (roi_y2 - roi_y1))
+                        cv2.line(display_frame, (roi_x1, laser_y), (roi_x2, laser_y), (235, 99, 37), 1)
 
-                    # Optical Laser Scan Curtain
-                    laser_y = int(roi_y1 + (np.sin(now * 3.0) + 1.0) * 0.5 * (roi_y2 - roi_y1))
-                    cv2.line(display_frame, (roi_x1, laser_y), (roi_x2, laser_y), (235, 99, 37), 1)
+                        detected_defects = []
+                        active_box_in_roi = False
 
-                    detected_defects = []
-                    active_box_in_roi = False
+                        # Run YOLOv9 Inference
+                        if self.yolo_model is not None:
+                            try:
+                                import torch
+                                device = 0 if torch.cuda.is_available() else "cpu"
+                                results = self.yolo_model.predict(
+                                    source=frame,
+                                    conf=self.conf_threshold,
+                                    verbose=False,
+                                    device=device
+                                )[0]
 
-                    # Run YOLOv9 Inference
-                    if self.yolo_model is not None:
-                        try:
-                            import torch
-                            device = 0 if torch.cuda.is_available() else "cpu"
-                            results = self.yolo_model.predict(
-                                source=frame,
-                                conf=self.conf_threshold,
-                                verbose=False,
-                                device=device
-                            )[0]
+                                for box in results.boxes:
+                                    cls_id = int(box.cls[0])
+                                    conf = float(box.conf[0])
+                                    label = self.yolo_model.names.get(cls_id, str(cls_id)).lower()
+                                    x1, y1, x2, y2 = map(int, box.xyxy[0])
+                                    cx, cy = (x1 + x2) // 2, (y1 + y2) // 2
 
-                            for box in results.boxes:
-                                cls_id = int(box.cls[0])
-                                conf = float(box.conf[0])
-                                label = self.yolo_model.names.get(cls_id, str(cls_id)).lower()
-                                x1, y1, x2, y2 = map(int, box.xyxy[0])
-                                cx, cy = (x1 + x2) // 2, (y1 + y2) // 2
+                                    color = (0, 200, 0) if label == "good" else (0, 0, 255)
+                                    cv2.rectangle(display_frame, (x1, y1), (x2, y2), color, 2)
+                                    cv2.putText(
+                                        display_frame,
+                                        f"[{label.upper()}] {conf*100:.0f}%",
+                                        (x1, max(y1 - 8, 18)),
+                                        cv2.FONT_HERSHEY_SIMPLEX,
+                                        0.55,
+                                        color,
+                                        2
+                                    )
 
-                                color = (0, 200, 0) if label == "good" else (0, 0, 255)
-                                cv2.rectangle(display_frame, (x1, y1), (x2, y2), color, 2)
-                                cv2.putText(
-                                    display_frame,
-                                    f"[{label.upper()}] {conf*100:.0f}%",
-                                    (x1, max(y1 - 8, 18)),
-                                    cv2.FONT_HERSHEY_SIMPLEX,
-                                    0.55,
-                                    color,
-                                    2
-                                )
+                                    if (roi_x1 <= cx <= roi_x2) and (roi_y1 <= cy <= roi_y2):
+                                        active_box_in_roi = True
+                                        if label in DEFECT_CLASSES:
+                                            detected_defects.append((label, conf, frame[max(0, y1):min(h, y2), max(0, x1):min(w, x2)]))
 
-                                if (roi_x1 <= cx <= roi_x2) and (roi_y1 <= cy <= roi_y2):
-                                    active_box_in_roi = True
-                                    if label in DEFECT_CLASSES:
-                                        detected_defects.append((label, conf, frame[max(0, y1):min(h, y2), max(0, x1):min(w, x2)]))
+                            except Exception as infer_err:
+                                cv2.putText(display_frame, f"INFERENCE: {infer_err}", (30, 60), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 0, 255), 2)
 
-                        except Exception as infer_err:
-                            cv2.putText(display_frame, f"INFERENCE: {infer_err}", (30, 60), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 0, 255), 2)
+                        # Telemetry Watermark
+                        cv2.putText(
+                            display_frame,
+                            "LAPTOP WEBCAM (INDEX 0) • OPTICAL GATE 1",
+                            (24, 36),
+                            cv2.FONT_HERSHEY_SIMPLEX,
+                            0.6,
+                            (240, 246, 252),
+                            2
+                        )
 
-                    # Telemetry Watermark
-                    cv2.putText(
-                        display_frame,
-                        "LAPTOP WEBCAM (INDEX 0) • OPTICAL GATE 1",
-                        (24, 36),
-                        cv2.FONT_HERSHEY_SIMPLEX,
-                        0.6,
-                        (240, 246, 252),
-                        2
-                    )
+                        # Debounce and Evaluation Trigger
+                        can_eval = (now - self.last_eval_time) > self.debounce_cooldown
+                        if active_box_in_roi and can_eval:
+                            self.total_checked += 1
+                            self.last_eval_time = now
+                            item_id = f"PKG-{self.total_checked:05d}"
+                            ts_str = time.strftime("%Y-%m-%d %H:%M:%S")
+                            file_ts = time.strftime("%Y%m%d_%H%M%S")
 
-                    # Debounce and Evaluation Trigger
-                    can_eval = (now - self.last_eval_time) > self.debounce_cooldown
-                    if active_box_in_roi and can_eval:
-                        self.total_checked += 1
-                        self.last_eval_time = now
-                        item_id = f"PKG-{self.total_checked:05d}"
-                        ts_str = time.strftime("%Y-%m-%d %H:%M:%S")
-                        file_ts = time.strftime("%Y%m%d_%H%M%S")
+                            if len(detected_defects) > 0:
+                                self.defect_count += 1
+                                defect, conf, crop_img = max(detected_defects, key=lambda d: d[1])
+                                if defect in self.defect_breakdown:
+                                    self.defect_breakdown[defect] += 1
+                                self.last_defect = {"id": item_id, "type": defect, "conf": conf, "time": ts_str}
 
-                        if len(detected_defects) > 0:
-                            self.defect_count += 1
-                            defect, conf, crop_img = max(detected_defects, key=lambda d: d[1])
-                            if defect in self.defect_breakdown:
-                                self.defect_breakdown[defect] += 1
-                            self.last_defect = {"id": item_id, "type": defect, "conf": conf, "time": ts_str}
+                                img_filename = f"{file_ts}_{item_id}_{defect}.jpg"
+                                img_path = DEFECT_IMG_DIR / img_filename
+                                if crop_img is not None and crop_img.size > 0:
+                                    cv2.imwrite(str(img_path), crop_img)
+                                else:
+                                    cv2.imwrite(str(img_path), display_frame)
 
-                            img_filename = f"{file_ts}_{item_id}_{defect}.jpg"
-                            img_path = DEFECT_IMG_DIR / img_filename
-                            if crop_img is not None and crop_img.size > 0:
-                                cv2.imwrite(str(img_path), crop_img)
+                                # Trigger physical Arduino rejector if available
+                                if self.actuator:
+                                    self.actuator.trigger_reject(defect, custom_delay=self.conveyor_delay)
+
+                                # Append to CSV
+                                try:
+                                    with open(CSV_LOG_PATH, "a", newline="", encoding="utf-8") as f:
+                                        csv.writer(f).writerow([ts_str, item_id, "DEFECTIVE", defect, f"{conf:.2f}", f"logs/defect_images/{img_filename}"])
+                                except Exception as e:
+                                    print(f"[WARN] Failed writing defect log: {e}")
                             else:
-                                cv2.imwrite(str(img_path), display_frame)
+                                self.good_count += 1
+                                if self.actuator:
+                                    self.actuator.indicate_good()
+                                try:
+                                    with open(CSV_LOG_PATH, "a", newline="", encoding="utf-8") as f:
+                                        csv.writer(f).writerow([ts_str, item_id, "GOOD", "none", "1.00", ""])
+                                except Exception as e:
+                                    print(f"[WARN] Failed writing good log: {e}")
 
-                            # Trigger physical Arduino rejector if available
-                            if self.actuator:
-                                self.actuator.trigger_reject(defect, custom_delay=self.conveyor_delay)
-
-                            # Append to CSV
-                            try:
-                                with open(CSV_LOG_PATH, "a", newline="", encoding="utf-8") as f:
-                                    csv.writer(f).writerow([ts_str, item_id, "DEFECTIVE", defect, f"{conf:.2f}", f"logs/defect_images/{img_filename}"])
-                            except Exception as e:
-                                print(f"[WARN] Failed writing defect log: {e}")
-                        else:
-                            self.good_count += 1
-                            if self.actuator:
-                                self.actuator.indicate_good()
-                            try:
-                                with open(CSV_LOG_PATH, "a", newline="", encoding="utf-8") as f:
-                                    csv.writer(f).writerow([ts_str, item_id, "GOOD", "none", "1.00", ""])
-                            except Exception as e:
-                                print(f"[WARN] Failed writing good log: {e}")
-
-                    self.last_frame = display_frame
+                        self.last_frame = display_frame
 
                 # -------------------------------------------------------------
                 # MODE B: 100% SOFTWARE DIGITAL TWIN CONVEYOR SIMULATION
@@ -411,17 +437,20 @@ class SystemState:
 
                     self.last_frame = rendered
 
-            time.sleep(0.025)
+            time.sleep(sleep_time)
 
     def get_jpeg(self) -> bytes:
         with self.lock:
-            if self.last_frame is None:
-                dummy = np.zeros((600, 1280, 3), dtype=np.uint8)
-                cv2.putText(dummy, "INITIALIZING CAMERA FEED...", (420, 300), cv2.FONT_HERSHEY_SIMPLEX, 1.0, (255, 255, 255), 2)
-                _, buffer = cv2.imencode(".jpg", dummy)
-                return buffer.tobytes()
-            _, buffer = cv2.imencode(".jpg", self.last_frame, [cv2.IMWRITE_JPEG_QUALITY, 80])
+            frame = self.last_frame.copy() if self.last_frame is not None else None
+
+        if frame is None:
+            dummy = np.zeros((600, 1280, 3), dtype=np.uint8)
+            cv2.putText(dummy, "INITIALIZING CAMERA FEED...", (420, 300), cv2.FONT_HERSHEY_SIMPLEX, 1.0, (255, 255, 255), 2)
+            _, buffer = cv2.imencode(".jpg", dummy)
             return buffer.tobytes()
+
+        _, buffer = cv2.imencode(".jpg", frame, [cv2.IMWRITE_JPEG_QUALITY, 80])
+        return buffer.tobytes()
 
 
 system_state = SystemState()
@@ -587,6 +616,48 @@ def video_feed():
         generate_mjpeg_stream(),
         media_type="multipart/x-mixed-replace; boundary=frame"
     )
+
+
+@app.post("/api/camera/release")
+@app.get("/api/camera/release")
+def release_camera():
+    system_state.release_camera()
+    return {"status": "released", "source": "virtual"}
+
+
+@app.post("/api/camera/claim")
+@app.get("/api/camera/claim")
+def claim_camera():
+    opened = system_state.claim_camera()
+    return {"status": "claimed", "source": system_state.source, "is_opened": opened}
+
+
+@app.get("/api/camera/status")
+def get_camera_status():
+    is_opened = bool(system_state.cap is not None and system_state.cap.isOpened())
+    return {
+        "source": system_state.source,
+        "is_opened": is_opened,
+        "status": system_state.status
+    }
+
+
+@app.get("/api/stream/snapshot")
+def get_stream_snapshot():
+    return Response(
+        content=system_state.get_jpeg(),
+        media_type="image/jpeg",
+        headers={"Cache-Control": "no-cache, no-store, must-revalidate"}
+    )
+
+
+@app.get("/api/stream/snapshot/base64")
+def get_stream_snapshot_base64():
+    b64 = base64.b64encode(system_state.get_jpeg()).decode("utf-8")
+    return {
+        "image_base64": f"data:image/jpeg;base64,{b64}",
+        "timestamp": time.time()
+    }
 
 
 # Serve built React frontend if frontend/dist exists
