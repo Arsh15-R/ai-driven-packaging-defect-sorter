@@ -1,6 +1,10 @@
 @echo off
 title AI-Driven Packaging Line Defect Sorter (React + Arc UI)
 color 0B
+
+set PYTHON_EXE=python
+if exist ".venv\Scripts\python.exe" set PYTHON_EXE=".venv\Scripts\python.exe"
+
 :menu
 cls
 echo =====================================================================
@@ -44,7 +48,7 @@ echo Starting FastAPI Backend + React Arc UI Dashboard...
 echo Open your browser at: http://localhost:8000
 echo Live Stream URL: http://localhost:8000/api/stream
 start "" "http://localhost:8000"
-python backend\api_server.py
+%PYTHON_EXE% backend\api_server.py
 pause
 goto menu
 
@@ -62,48 +66,48 @@ goto menu
 cls
 echo Starting OpenCV Conveyor Sorter...
 echo Press 'T' to manually test pusher, 'R' to reset counts, 'Q' to exit.
-python scripts\04_realtime_detect.py --source virtual --conf 0.45 --delay 2.8
+%PYTHON_EXE% scripts\04_realtime_detect.py --source virtual --conf 0.45 --delay 2.8
 pause
 goto menu
 
 :synth
 cls
 echo Generating Synthetic Dataset...
-python scripts\generate_sample_boxes.py
+%PYTHON_EXE% scripts\generate_sample_boxes.py
 pause
 goto menu
 
 :train
 cls
 echo Starting YOLOv9 Training...
-python scripts\02_train.py --epochs 30 --batch 16
+%PYTHON_EXE% scripts\02_train.py --epochs 30 --batch 16
 pause
 goto menu
 
 :eval
 cls
 echo Evaluating Model...
-python scripts\03_evaluate.py --split val
+%PYTHON_EXE% scripts\03_evaluate.py --split val
 pause
 goto menu
 
 :webcam
 cls
 echo Starting Physical Webcam & Arduino Sorter...
-python scripts\04_realtime_detect.py --source 0 --conf 0.50 --delay 1.2
+%PYTHON_EXE% scripts\04_realtime_detect.py --source 0 --conf 0.50 --delay 1.2
 pause
 goto menu
 
 :capture
 cls
 echo Starting Webcam Image Collector...
-python scripts\01_capture_dataset.py --camera 0
+%PYTHON_EXE% scripts\01_capture_dataset.py --camera 0
 pause
 goto menu
 
 :diag
 cls
 echo Running Diagnostics...
-python scripts\test_env.py
+%PYTHON_EXE% scripts\test_env.py
 pause
 goto menu

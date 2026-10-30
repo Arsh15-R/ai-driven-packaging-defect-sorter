@@ -13,6 +13,9 @@ echo.
 echo  Starting server with YOLOv9 weights and physical laptop webcam...
 echo ====================================================================
 echo.
+set PYTHON_EXE=python
+if exist ".venv\Scripts\python.exe" set PYTHON_EXE=".venv\Scripts\python.exe"
+
 start "" "http://127.0.0.1:8000"
-python backend\api_server.py
+%PYTHON_EXE% backend\api_server.py
 pause
