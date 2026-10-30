@@ -4,7 +4,7 @@ Project: SORTEX PRO - AI-Driven Packaging Line Defect Sorter
 Script: gate_detector.py (Complete End-to-End Production Pipeline)
 Features:
   1. Auto-discover camera feed with OpenCV CAP_DSHOW (handles busy/permission errors)
-  2. YOLOv8s neural inference with custom trained weights (best.pt)
+  2. YOLOv9 neural inference with custom trained weights (best.pt)
   3. ByteTrack multi-object tracking (unique ID per package)
   4. Virtual optical gate line (decides every package EXACTLY ONCE)
   5. Arduino serial reject mechanism with transit delay scheduling
@@ -45,7 +45,7 @@ def parse_arguments():
     parser.add_argument("--source", type=str, default="0",
                         help="Video source: '0' for webcam, or path to recorded video file (e.g. 'conveyor.mp4')")
     parser.add_argument("--weights", type=str, default="models/best.pt",
-                        help="Path to YOLOv8 weights file (default: models/best.pt)")
+                        help="Path to YOLOv9 weights file (default: models/best.pt)")
     parser.add_argument("--conf", type=float, default=0.50,
                         help="Confidence threshold for defect classification (default: 0.50)")
     parser.add_argument("--delay", type=float, default=2.8,
@@ -129,15 +129,17 @@ def main():
     # 1. Initialize Video Source
     cap, is_live_cam = open_video_source(args.source)
 
-    # 2. Initialize YOLOv8 Model
+    # 2. Initialize YOLOv9 Model
     weights_path = Path(args.weights)
     if not weights_path.exists():
         weights_path = PROJECT_ROOT / "models" / "best.pt"
         if not weights_path.exists():
-            weights_path = PROJECT_ROOT / "yolov8s.pt"
+            weights_path = PROJECT_ROOT / "yolov9s.pt"
+            if not weights_path.exists():
+                weights_path = PROJECT_ROOT / "yolov9t.pt"
 
     device = 0 if torch.cuda.is_available() else "cpu"
-    print(f"[MODEL] Loading YOLOv8 weights from: {weights_path} [Device: {device}]")
+    print(f"[MODEL] Loading YOLOv9 weights from: {weights_path} [Device: {device}]")
     model = YOLO(str(weights_path))
     model.to(device)
 
@@ -191,7 +193,7 @@ def main():
             prev_time = curr_time
 
             # -----------------------------------------------------------------
-            # YOLOv8 Tracking with ByteTrack
+            # YOLOv9 Tracking with ByteTrack
             # -----------------------------------------------------------------
             results = model.track(
                 source=frame,

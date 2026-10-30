@@ -33,7 +33,7 @@ export const BackendOfflineBanner: React.FC<BackendOfflineBannerProps> = ({
             </div>
             {isHttps ? (
               <p className="text-[11px] text-rose-200/80 mt-0.5">
-                Browsers block HTTPS web pages from calling local HTTP servers. For full YOLOv8 inference & physical camera controls, open your local dashboard directly:
+                Browsers block HTTPS web pages from calling local HTTP servers. For full YOLOv9 inference & physical camera controls, open your local dashboard directly:
               </p>
             ) : (
               <p className="text-[11px] text-rose-200/80 mt-0.5">

@@ -245,7 +245,7 @@ export function subscribeToInspections(onNewInspection) {
 
 ---
 
-### 6.2 Backend Automated Pipeline (Python FastAPI / YOLOv8)
+### 6.2 Backend Automated Pipeline (Python FastAPI / YOLOv9)
 
 For server-side conveyor ingestion using the `service_role` key:
 

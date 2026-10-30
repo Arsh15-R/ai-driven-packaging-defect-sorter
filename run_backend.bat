@@ -10,7 +10,7 @@ echo  FastAPI Server : http://127.0.0.1:8000
 echo  Swagger Docs   : http://127.0.0.1:8000/docs
 echo  Dashboard UI   : http://127.0.0.1:8000
 echo.
-echo  Starting server with YOLOv8 weights and physical laptop webcam...
+echo  Starting server with YOLOv9 weights and physical laptop webcam...
 echo ====================================================================
 echo.
 start "" "http://127.0.0.1:8000"

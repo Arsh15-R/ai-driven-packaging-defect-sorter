@@ -4,7 +4,7 @@ Project: AI-Driven Packaging Line Defect Sorter
 Script: api_server.py (FastAPI Backend for Apple VisionOS HMI Dashboard)
 Purpose: Provides high-performance REST endpoints, real-time MJPEG video
          streaming from Physical Laptop Webcam (Index 0) OR Digital Twin,
-         live YOLOv8s CUDA inference, ISO 9001 audit logs, and pusher controls.
+         live YOLOv9 CUDA inference, ISO 9001 audit logs, and pusher controls.
 =============================================================================
 """
 
@@ -124,7 +124,7 @@ class SystemState:
         # Parse existing CSV stats on startup
         self._load_existing_stats()
 
-        # Load YOLOv8 Model (CUDA or CPU)
+        # Load YOLOv9 Model (CUDA or CPU)
         self._init_yolo_model()
 
         # Open Laptop Webcam (Index 0)
@@ -141,15 +141,17 @@ class SystemState:
             import torch
             model_path = PROJECT_ROOT / "models" / "best.pt"
             if not model_path.exists():
-                model_path = PROJECT_ROOT / "yolov8s.pt"
-            print(f"[INFO] Initializing YOLOv8 model from: {model_path}")
+                model_path = PROJECT_ROOT / "yolov9s.pt"
+                if not model_path.exists():
+                    model_path = PROJECT_ROOT / "yolov9t.pt"
+            print(f"[INFO] Initializing YOLOv9 model from: {model_path}")
             self.yolo_model = YOLO(str(model_path))
             device = 0 if torch.cuda.is_available() else "cpu"
             self.yolo_model.to(device)
             dev_name = torch.cuda.get_device_name(0) if torch.cuda.is_available() else "CPU"
-            print(f"[INFO] YOLOv8 loaded successfully on {dev_name}")
+            print(f"[INFO] YOLOv9 loaded successfully on {dev_name}")
         except Exception as e:
-            print(f"[WARN] Failed loading YOLOv8 model: {e}")
+            print(f"[WARN] Failed loading YOLOv9 model: {e}")
             self.yolo_model = None
 
     def _init_camera(self):
@@ -217,7 +219,7 @@ class SystemState:
 
             with self.lock:
                 # -------------------------------------------------------------
-                # MODE A: PHYSICAL LAPTOP WEBCAM (OpenCV + YOLOv8 CUDA)
+                # MODE A: PHYSICAL LAPTOP WEBCAM (OpenCV + YOLOv9 Inference)
                 # -------------------------------------------------------------
                 if self.source == "0" and self.cap is not None and self.cap.isOpened():
                     ret, frame = self.cap.read()
@@ -254,7 +256,7 @@ class SystemState:
                     detected_defects = []
                     active_box_in_roi = False
 
-                    # Run YOLOv8 Inference
+                    # Run YOLOv9 Inference
                     if self.yolo_model is not None:
                         try:
                             import torch

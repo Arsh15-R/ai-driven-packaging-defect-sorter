@@ -340,7 +340,7 @@ export default function DigitalTwinCanvas({
 
       ctx.fillStyle = '#8b949e';
       ctx.font = '9px monospace';
-      ctx.fillText(`YOLOv8s • Gate: ${(confThreshold * 100).toFixed(0)}%`, 16, 36);
+      ctx.fillText(`YOLOv9 • Gate: ${(confThreshold * 100).toFixed(0)}%`, 16, 36);
       ctx.restore();
 
       if (!isReducedMotion) {

@@ -2,9 +2,9 @@
 =============================================================================
 Project: AI-Driven Packaging Line Defect Sorter
 Script: 02_train.py
-Purpose: Train YOLOv8s model with hardware-tailored settings for
-         NVIDIA RTX 3050 (6 GB VRAM) on Windows, including conveyor-line
-         augmentations and automatic checkpoint management.
+Purpose: Train YOLOv9 model with hardware-tailored settings for
+         GPU/CPU environments, including conveyor-line augmentations
+         and automatic checkpoint management.
 =============================================================================
 """
 
@@ -58,7 +58,7 @@ def check_cuda_environment():
 
 def train_defect_detector(
     data_yaml: str = "data.yaml",
-    model_name: str = "yolov8s.pt",
+    model_name: str = "yolov9t.pt",
     epochs: int = 60,
     batch_size: int = 16,
     imgsz: int = 640,
@@ -66,7 +66,7 @@ def train_defect_detector(
     run_name: str = "packaging_defect_model"
 ):
     """
-    Trains YOLOv8s with hyperparameters optimized for 6GB VRAM and conveyor datasets.
+    Trains YOLOv9 with hyperparameters optimized for conveyor packaging datasets.
     """
     device = check_cuda_environment()
     data_path = Path(data_yaml).resolve()
@@ -154,9 +154,9 @@ def train_defect_detector(
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Train YOLOv8 on Packaging Line Defect Dataset")
+    parser = argparse.ArgumentParser(description="Train YOLOv9 on Packaging Line Defect Dataset")
     parser.add_argument("--data", type=str, default="data.yaml", help="Path to data.yaml")
-    parser.add_argument("--model", type=str, default="yolov8s.pt", help="Base model (yolov8n.pt or yolov8s.pt)")
+    parser.add_argument("--model", type=str, default="yolov9t.pt", help="Base model (yolov9t.pt, yolov9s.pt, yolov9c.pt)")
     parser.add_argument("--epochs", type=int, default=60, help="Number of training epochs")
     parser.add_argument("--batch", type=int, default=16, help="Batch size (16 for 6GB VRAM, reduce to 8 if OOM)")
     parser.add_argument("--imgsz", type=int, default=640, help="Image resolution for training")

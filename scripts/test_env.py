@@ -38,7 +38,7 @@ def run_diagnostics():
         print("      -> ERROR: PyTorch is NOT installed!")
 
     # 3. Ultralytics YOLO Check
-    print("\n[3/4] Ultralytics YOLOv8 Check:")
+    print("\n[3/4] Ultralytics YOLOv9 Check:")
     try:
         import ultralytics
         print(f"      - Ultralytics version: v{ultralytics.__version__} [OK]")

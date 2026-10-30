@@ -2,8 +2,8 @@
 =============================================================================
 Project: AI-Driven Packaging Line Defect Sorter
 Module: backend/models/pytorch_model.py
-Purpose: PyTorch and YOLOv8 inspection model implementation.
-         Supports YOLOv8 weights (.pt / .onnx / .engine) and PyTorch models
+Purpose: PyTorch and YOLOv9 inspection model implementation.
+         Supports YOLOv9 weights (.pt / .onnx / .engine) and PyTorch models
          with CUDA acceleration and standardized defect output.
 =============================================================================
 """
@@ -25,7 +25,7 @@ DEFECT_CLASSES = {"dent", "label_missing", "seal_broken", "wrong_print", "defect
 
 class PyTorchInspectionModel(BaseInspectionModel):
     """
-    Production-ready PyTorch / YOLOv8 inspection model.
+    Production-ready PyTorch / YOLOv9 inspection model.
     Loads trained weights (e.g. models/best.pt) and executes defect detection.
     Pre-processing and inference are strictly isolated from UI and database layers.
     """
@@ -85,10 +85,10 @@ class PyTorchInspectionModel(BaseInspectionModel):
                 self.model = YOLO(str(target_path))
                 if self.device.startswith("cuda"):
                     self.model.to(0)
-                self.model_type = "Ultralytics-YOLOv8"
+                self.model_type = "Ultralytics-YOLOv9"
                 self.class_names = self.model.names if hasattr(self.model, "names") else {}
                 self.is_loaded = True
-                print(f"[PyTorchInspectionModel] Successfully loaded YOLO model on {self.device_name}")
+                print(f"[PyTorchInspectionModel] Successfully loaded YOLOv9 model on {self.device_name}")
                 return
             except Exception as yolo_err:
                 print(f"[PyTorchInspectionModel] YOLO loader notice: {yolo_err}. Trying TorchScript/Torch...")
@@ -173,7 +173,7 @@ class PyTorchInspectionModel(BaseInspectionModel):
         highest_conf = 0.0
         primary_defect_type = "none"
 
-        if self.model_type == "Ultralytics-YOLOv8":
+        if self.model_type.startswith("Ultralytics"):
             results = self.model.predict(
                 source=img,
                 conf=self.confidence_threshold,

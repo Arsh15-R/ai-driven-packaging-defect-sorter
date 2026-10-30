@@ -77,7 +77,7 @@ refresh_interval = st.sidebar.slider("Refresh rate (sec)", min_value=1, max_valu
 st.sidebar.markdown("---")
 st.sidebar.subheader("Conveyor Thresholds")
 conf_display = st.sidebar.slider("Decision Threshold (Conf)", min_value=0.20, max_value=0.90, value=0.50, step=0.05)
-st.sidebar.info("Model: **YOLOv8s** (Packaging Line Weights)")
+st.sidebar.info("Model: **YOLOv9** (Packaging Line Weights)")
 
 # --- Main Dashboard Header ---
 col_header, col_status = st.columns([3, 1])

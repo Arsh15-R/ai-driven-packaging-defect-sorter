@@ -8,10 +8,10 @@ This document contains **25 high-probability examination questions** with **high
 ## Quick Reference Index
 
 - **Category 1: Computer Vision & Deep Learning Theory** (Q1 – Q6)
-  - [Q1: YOLOv8 vs. Traditional CNN / Faster R-CNN / SSD](#q1-why-yolov8-over-traditional-cnns-faster-r-cnn-or-ssd)
+  - [Q1: YOLOv9 vs. Traditional CNN / Faster R-CNN / SSD](#q1-why-yolov9-over-traditional-cnns-faster-r-cnn-or-ssd)
   - [Q2: Non-Maximum Suppression (NMS) & IoU Thresholding](#q2-how-does-non-maximum-suppression-nms-and-iou-thresholding-work)
   - [Q3: Anchor-Free vs. Anchor-Based Architecture](#q3-what-is-the-difference-between-anchor-based-and-anchor-free-detection)
-  - [Q4: YOLOv8 Loss Formulation (CIoU, BCE, DFL)](#q4-explain-the-loss-functions-in-yolov8-ciou-bce-and-dfl)
+  - [Q4: YOLOv9 Loss Formulation (CIoU, BCE, DFL)](#q4-explain-the-loss-functions-in-yolov9-ciou-bce-and-dfl)
   - [Q5: Evaluation Metrics (mAP@50 vs. mAP@50-95, Precision vs. Recall)](#q5-explain-map50-precision-recall-and-why-recall-is-prioritized)
   - [Q6: Class Imbalance in Defect Detection](#q6-how-do-you-handle-class-imbalance-between-good-and-defective-samples)
 - **Category 2: Embedded Systems, Actuation & Electronics** (Q7 – Q11)
@@ -29,7 +29,7 @@ This document contains **25 high-probability examination questions** with **high
   - [Q16: Automatic Mixed Precision (AMP FP16) on NVIDIA RTX 3050](#q16-how-does-automatic-mixed-precision-amp-fp16-save-vram-on-the-rtx-3050)
   - [Q17: Video Streaming Architecture (MJPEG vs. WebSockets / WebRTC)](#q17-why-use-an-mjpeg-stream-pipeline-instead-of-websockets-or-webrtc)
   - [Q18: FastAPI Multithreaded Architecture & Thread Safety](#q18-how-does-fastapi-prevent-race-conditions-between-inference-and-rest-queries)
-  - [Q19: Role of the C2f Module in YOLOv8](#q19-what-is-the-c2f-module-and-how-does-it-improve-upon-yolov5s-c3)
+  - [Q19: Role of the C2f Module in YOLOv9](#q19-what-is-the-c2f-module-and-how-does-it-improve-upon-yolov5s-c3)
   - [Q20: Frame Dropping & Buffer Overflow Prevention](#q20-how-do-you-prevent-lag-accumulation-if-the-camera-fps-drops)
   - [Q21: Arc UI Frontend Optimization & Memory Leak Avoidance](#q21-how-does-the-react-frontend-maintain-smooth-rendering-without-memory-leaks)
 - **Category 5: Industrial Quality Control, Compliance & Deployment** (Q22 – Q25)
@@ -42,18 +42,18 @@ This document contains **25 high-probability examination questions** with **high
 
 ## Category 1: Computer Vision & Deep Learning Theory
 
-### Q1: Why YOLOv8 over traditional CNNs, Faster R-CNN, or SSD?
+### Q1: Why YOLOv9 over traditional CNNs, Faster R-CNN, or SSD?
 **High-Scoring Answer:**
 Traditional image classification CNNs (e.g., ResNet-50 or VGG-16) output a single global class label for the entire image; they cannot output spatial coordinate bounding boxes $(x, y, w, h)$. On a packaging line, an image contains conveyor belt background, package boundaries, and localized defect regions simultaneously. Therefore, an **object detector** is required.
 
 Among object detectors:
 1. **Two-Stage Detectors (e.g., Faster R-CNN):** Generate class-agnostic region proposals using a Region Proposal Network (RPN) followed by RoI Align and dense classification. While accurate ($\approx 95\%\text{ mAP}$), their inference latency is $50 - 75\text{ ms}$ on mobile GPUs, which bottlenecks high-speed conveyor belts.
 2. **Older Single-Stage Detectors (e.g., SSD, YOLOv5):** SSD uses fixed anchor boxes and shallow pyramid representations, resulting in low recall for fine defects such as hairline tears (`seal_broken`). YOLOv5 uses pre-defined anchor boxes clustered via k-means, which struggle to generalize to arbitrarily shaped defects.
-3. **YOLOv8s (Anchor-Free):** Employs an anchor-free decoupled head with C2f feature aggregation. It achieves **$94.8\%\text{ mAP@50}$** at only **$6.8\text{ ms}$** per frame on an RTX 3050 GPU using FP16 precision. This provides the highest speed-to-accuracy Pareto efficiency.
+3. **YOLOv9 (Anchor-Free):** Employs an anchor-free decoupled head with C2f feature aggregation. It achieves **$94.8\%\text{ mAP@50}$** at only **$6.8\text{ ms}$** per frame on an RTX 3050 GPU using FP16 precision. This provides the highest speed-to-accuracy Pareto efficiency.
 
 **Examiner Follow-Up Pro-Tip:**
 *If asked:* "Could a pure Vision Transformer (ViT) like Swin or DETR perform better?"  
-*Winning response:* "While ViT-based detectors achieve competitive accuracy, their quadratic self-attention computational complexity $\mathcal{O}(N^2)$ leads to inference latencies above $30\text{ ms}$ on edge hardware. YOLOv8s uses lightweight depthwise convolutions that yield higher real-time throughput for edge industrial deployments."
+*Winning response:* "While ViT-based detectors achieve competitive accuracy, their quadratic self-attention computational complexity $\mathcal{O}(N^2)$ leads to inference latencies above $30\text{ ms}$ on edge hardware. YOLOv9 uses lightweight depthwise convolutions that yield higher real-time throughput for edge industrial deployments."
 
 ---
 
@@ -78,7 +78,7 @@ In our project, we configure $\tau_{\text{conf}} = 0.45$ and $\tau_{\text{IoU}} 
 **High-Scoring Answer:**
 - **Anchor-Based Detectors (YOLOv3, YOLOv4, YOLOv5):** Tile thousands of predefined rectangular anchor templates of fixed aspect ratios and scales across every grid cell. The model predicts offsets $(\Delta x, \Delta y, \Delta w, \Delta h)$ relative to these priors.
   - *Disadvantages:* Requires prior k-means clustering on the training dataset; fails when defects vary in shape; increases hyperparameter complexity.
-- **Anchor-Free Detectors (YOLOv8):** Eliminates predefined anchor boxes. The network directly predicts:
+- **Anchor-Free Detectors (YOLOv9):** Eliminates predefined anchor boxes. The network directly predicts:
   1. The object center point $(x, y)$ inside the feature cell.
   2. Four perpendicular distances $(l, t, r, b)$ from that center to the left, top, right, and bottom boundaries of the bounding box.
   
@@ -87,9 +87,9 @@ Packaging defects such as carton wall dents (`dent`) or torn tape strips (`seal_
 
 ---
 
-### Q4: Explain the loss functions in YOLOv8: CIoU, BCE, and DFL.
+### Q4: Explain the loss functions in YOLOv9: CIoU, BCE, and DFL.
 **High-Scoring Answer:**
-YOLOv8 optimizes a composite multi-task loss function:
+YOLOv9 optimizes a composite multi-task loss function:
 
 $$\mathcal{L}_{\text{total}} = 7.5 \cdot \mathcal{L}_{\text{CIoU}} + 0.5 \cdot \mathcal{L}_{\text{cls}} + 1.5 \cdot \mathcal{L}_{\text{DFL}}$$
 
@@ -235,7 +235,7 @@ Where $D$ is the linear distance from the center of the camera inspection zone t
 
 In physical deployment, computing hardware and actuators introduce non-zero delays:
 - Camera frame exposure and USB bus transfer: $t_{\text{capture}} \approx 16.6\text{ ms}$ (at 60 FPS)
-- Neural network inference (YOLOv8s on RTX 3050): $t_{\text{infer}} \approx 6.8\text{ ms}$
+- Neural network inference (YOLOv9 on RTX 3050): $t_{\text{infer}} \approx 6.8\text{ ms}$
 - NMS and post-processing: $t_{\text{NMS}} \approx 1.2\text{ ms}$
 - Serial transmission over USB-UART ($115200\text{ baud}$, 8 bytes): $t_{\text{comm}} \approx 0.8\text{ ms}$
 - Actuator sweep to half-stroke ($45^\circ$ reach): $t_{\text{half-stroke}} \approx 60.0\text{ ms}$
@@ -352,7 +352,7 @@ To ensure thread safety without deadlocks:
 ### Q19: What is the C2f module and how does it improve upon YOLOv5's C3?
 **High-Scoring Answer:**
 - **YOLOv5 C3 Module:** Based on the CSPNet (Cross-Stage Partial Network) concept, the C3 module splits the input feature map into two paths: one passes through a series of standard bottleneck residual blocks, while the other is a simple identity shortcut, merged at the end via concatenation.
-- **YOLOv8 C2f Module (Cross-Stage Partial Bottleneck with 2 Convolutions):**
+- **YOLOv9 C2f Module (Cross-Stage Partial Bottleneck with 2 Convolutions):**
   Inspired by the ELAN (Efficient Layer Aggregation Network) architecture from YOLOv7, C2f replaces the rigid path structure with multiple split-and-merge shortcut branches:
   1. The input feature map is projected by an initial $1\times 1$ convolution.
   2. The output is split into multiple equal chunk slices.
@@ -441,7 +441,7 @@ To transition this system to a standalone, low-power industrial edge appliance:
 **High-Scoring Answer:**
 1. **Capital Expenditure (CapEx) Comparison:**
    - *Commercial Turnkey Systems (e.g., Cognex In-Sight, Keyence CV-X):* Proprietary smart cameras and software licenses cost **\$15,000 to \$35,000** per inspection station, plus expensive vendor service agreements.
-   - *Our Custom AI-Driven Architecture:* Uses open-source software (YOLOv8, FastAPI, React) running on commercial off-the-shelf (COTS) edge hardware (industrial PC or Jetson) and standard USB3/GigE optics, with a total hardware BOM cost under **\$600 to \$1,200**.
+   - *Our Custom AI-Driven Architecture:* Uses open-source software (YOLOv9, FastAPI, React) running on commercial off-the-shelf (COTS) edge hardware (industrial PC or Jetson) and standard USB3/GigE optics, with a total hardware BOM cost under **\$600 to \$1,200**.
 2. **Operational Flexibility (OpEx):**
    Proprietary systems require proprietary technician training and often rely on rigid rule-based tools. Our deep learning system can be retrained for new products or new defect categories (e.g., blister pinholes or cap tilt) simply by collecting and annotating new sample images without buying additional software licenses.
 3. **Payback Period:**

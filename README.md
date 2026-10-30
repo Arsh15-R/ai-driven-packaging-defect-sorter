@@ -3,13 +3,13 @@
 [![Live Vercel Demo](https://img.shields.io/badge/Vercel-Live%20Demo-000000?style=for-the-badge&logo=vercel&logoColor=white)](https://sortex-vision-os.vercel.app)
 [![GitHub Repository](https://img.shields.io/badge/GitHub-Arsh15--R%2Fai--driven--packaging--defect--sorter-181717?style=for-the-badge&logo=github&logoColor=white)](https://github.com/Arsh15-R/ai-driven-packaging-defect-sorter)
 [![Python 3.11](https://img.shields.io/badge/Python-3.11%20CUDA%2012.1-3776AB?style=for-the-badge&logo=python&logoColor=white)](https://www.python.org/)
-[![YOLOv8](https://img.shields.io/badge/Model-YOLOv8s%20Ultralytics-00ffff?style=for-the-badge&logo=yolo&logoColor=black)](https://github.com/ultralytics/ultralytics)
+[![YOLOv9](https://img.shields.io/badge/Model-YOLOv9%20Ultralytics-00ffff?style=for-the-badge&logo=yolo&logoColor=black)](https://github.com/ultralytics/ultralytics)
 [![PyTorch](https://img.shields.io/badge/PyTorch-2.6.0%2Bcu124-EE4C2C?style=for-the-badge&logo=pytorch&logoColor=white)](https://pytorch.org/)
 [![FastAPI](https://img.shields.io/badge/Backend-FastAPI%20REST%20%2B%20MJPEG-009688?style=for-the-badge&logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com/)
 [![React 18](https://img.shields.io/badge/Frontend-React%2018%20%2B%20Vite-61DAFB?style=for-the-badge&logo=react&logoColor=black)](https://react.dev/)
 [![Arduino](https://img.shields.io/badge/Hardware-Arduino%20PWM%20Servo-00979D?style=for-the-badge&logo=arduino&logoColor=white)](https://www.arduino.cc/)
 
-> **An industrial-grade automated packaging inspection and sorting platform combining YOLOv8s computer vision, NVIDIA RTX 3050 CUDA acceleration, Arduino microcontroller actuation, and an accessible industrial React dashboard.**
+> **An industrial-grade automated packaging inspection and sorting platform combining YOLOv9 computer vision, NVIDIA RTX 3050 CUDA acceleration, Arduino microcontroller actuation, and an accessible industrial React dashboard.**
 
 ---
 
@@ -34,7 +34,7 @@ Open **[http://localhost:8000](http://localhost:8000)** in your browser!
 In high-speed consumer goods and pharmaceutical manufacturing, defective containers (dented walls, omitted labels, broken tamper seals, smudged batch prints) lead to catastrophic recalls and compliance penalties.
 
 This project delivers a **closed-loop edge automated sorter**:
-1. **Station 1 (Optical Inspection Gate)**: High-speed telecentric industrial camera captures packages passing on a conveyor belt. A fine-tuned **YOLOv8s** neural network detects defect bounding boxes within **14.8 ms** (running on NVIDIA GeForce RTX 3050 6GB Laptop GPU).
+1. **Station 1 (Optical Inspection Gate)**: High-speed telecentric industrial camera captures packages passing on a conveyor belt. A fine-tuned **YOLOv9** neural network detects defect bounding boxes within **14.8 ms** (running on NVIDIA GeForce RTX 3050 6GB Laptop GPU).
 2. **Deterministic Transit Delay**: A non-blocking timestamp queue computes the package travel time $T = \frac{D}{v}$ (e.g., $2.8\text{ s}$ over $70\text{ cm}$ at $0.25\text{ m/s}$).
 3. **Station 2 (Mechanical Diverter)**: When the defective package reaches the reject chute, an **Arduino Uno/Nano** drives an **SG90 / MG995 PWM servo** to sweep $95^\circ$ in $85\text{ ms}$, safely ejecting the container into a reject bin while allowing good packages to proceed.
 4. **HMI Vision Dashboard**: A high-performance **React + Tailwind CSS** application inspired by Apple Vision Pro glassmorphism, displaying live telemetry, MJPEG video feeds, ISO 9001 compliance logs, and actuator overrides.
@@ -59,7 +59,7 @@ This project delivers a **closed-loop edge automated sorter**:
                │         └──────▲──────┘
                ▼                │  PWM Pin D9
         ┌─────────────┐         │  115200 Baud UART
-        │ YOLOv8s GPU │         │
+        │ YOLOv9 GPU │         │
         │ RTX 3050    ├─────────┴───► Arduino Microcontroller
         │ (~14.8 ms)  │
         └──────┬──────┘
@@ -87,7 +87,7 @@ This project delivers a **closed-loop edge automated sorter**:
 
 ## ⚡ Performance & Model Evaluation
 
-The custom-trained YOLOv8s model was evaluated on a held-out test split of annotated containers:
+The custom-trained YOLOv9 model was evaluated on a held-out test split of annotated containers:
 
 - **Mean Average Precision (mAP@50)**: `97.8%`
 - **Mean Average Precision (mAP@50-95)**: `89.2%`
@@ -180,7 +180,7 @@ ai-driven-packaging-defect-sorter/
 │   └── WIRING_GUIDE.md           # Circuit schematics & power isolation rules
 ├── scripts/
 │   ├── 01_capture_dataset.py     # Webcam capture with auto-numbering & HUD
-│   ├── 02_train.py               # YOLOv8s RTX 3050 PyTorch CUDA training script
+│   ├── 02_train.py               # YOLOv9 RTX 3050 PyTorch CUDA training script
 │   ├── 03_evaluate.py            # Precision, Recall, mAP & confusion matrix generator
 │   ├── 04_realtime_detect.py     # OpenCV standalone webcam/virtual inspector
 │   ├── arduino_controller.py     # Python serial driver with transit delay queue
@@ -188,7 +188,7 @@ ai-driven-packaging-defect-sorter/
 │   └── simulate_line_run.py      # Headless batch test script
 ├── dataset/                      # Synthetic annotated container images & YOLO labels
 ├── models/
-│   └── best.pt                   # Trained YOLOv8s PyTorch weights (22.5 MB)
+│   └── best.pt                   # Trained YOLOv9 PyTorch weights (22.5 MB)
 ├── logs/
 │   ├── defect_log.csv            # Persistent CSV audit records
 │   └── defect_images/            # High-resolution defect crop snapshots
@@ -272,7 +272,7 @@ Open **[http://localhost:3000](http://localhost:3000)** (proxies `/api` and `/lo
 
 ## 🎓 Academic Documents Included
 
-- **Capstone Project Report**: Comprehensive 10-chapter technical report covering Literature Survey, Mathematical Formulations, YOLOv8 Architecture, Electrical Isolation, and Results. ([docs/PROJECT_REPORT.md](docs/PROJECT_REPORT.md))
+- **Capstone Project Report**: Comprehensive 10-chapter technical report covering Literature Survey, Mathematical Formulations, YOLOv9 Architecture, Electrical Isolation, and Results. ([docs/PROJECT_REPORT.md](docs/PROJECT_REPORT.md))
 - **Viva Voce Exam Preparation**: 25 in-depth interview questions & answers covering IoU, NMS, mAP50, UART Serial framing, Optical Triangulation, and False Reject tradeoffs. ([docs/VIVA_PREPARATION.md](docs/VIVA_PREPARATION.md))
 
 ---

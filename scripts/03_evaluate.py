@@ -25,7 +25,7 @@ def evaluate_model(
     split: str = "val"
 ):
     """
-    Evaluates the trained YOLOv8 model on validation or test split.
+    Evaluates the trained YOLOv9 model on validation or test split.
     """
     print("\n" + "=" * 65)
     print("      PACKAGING DEFECT SORTER - MODEL EVALUATION SUITE      ")
@@ -53,7 +53,7 @@ def evaluate_model(
     print(f"[INFO] Running validation metrics on split: '{split}'...")
     print("-" * 65)
 
-    # Run YOLOv8 validation
+    # Run YOLOv9 validation
     metrics = model.val(
         data=str(data_file),
         split=split,
@@ -139,7 +139,7 @@ def test_single_images(model_path: str = "models/best.pt", test_dir: str = "data
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Evaluate YOLOv8 Packaging Defect Model")
+    parser = argparse.ArgumentParser(description="Evaluate YOLOv9 Packaging Defect Model")
     parser.add_argument("--model", type=str, default="models/best.pt", help="Path to best.pt weights")
     parser.add_argument("--data", type=str, default="data.yaml", help="Path to data.yaml")
     parser.add_argument("--split", type=str, default="val", choices=["val", "test"], help="Dataset split to evaluate")

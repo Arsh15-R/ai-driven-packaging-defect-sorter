@@ -5,7 +5,7 @@ Script: 04_realtime_detect.py
 Purpose: Real-time packaging inspection pipeline:
          - Supports BOTH Physical USB Webcam (--source 0) AND
            100% Software Digital Twin Conveyor Simulator (--source virtual)
-         - YOLOv8 inference with GPU acceleration (RTX 3050)
+         - YOLOv9 inference with GPU acceleration
          - Object transit tracking & trigger debouncing
          - Physical Arduino pusher actuation OR Animated Virtual Pusher
          - Real-time CSV and snapshot image logging for quality assurance
@@ -114,15 +114,15 @@ class PackagingLineInspector:
             print(f"[INFO] Initialized defect log at {self.csv_log_path.resolve()}")
 
     def _load_model(self, model_path: str) -> YOLO:
-        """Loads YOLOv8 weights with automatic fallback."""
+        """Loads YOLOv9 weights with automatic fallback."""
         path = Path(model_path)
         if not path.exists():
-            fallback = Path("runs/detect/packaging_defect_model/weights/best.pt")
+            fallback = Path("runs/detect/runs/detect/packaging_defect_yolov9/weights/best.pt")
             if fallback.exists():
                 path = fallback
             else:
-                print(f"[WARN] Custom weights not found at '{model_path}'. Using base 'yolov8s.pt'.")
-                path = "yolov8s.pt"
+                print(f"[WARN] Custom weights not found at '{model_path}'. Using base 'yolov9t.pt'.")
+                path = "yolov9t.pt"
 
         print(f"[INFO] Loading YOLO model from: {path}")
         model = YOLO(str(path))

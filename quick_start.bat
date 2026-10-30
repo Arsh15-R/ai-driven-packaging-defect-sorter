@@ -14,7 +14,7 @@ echo.
 echo   --- 100%% SOFTWARE SIMULATION (NO HARDWARE NEEDED) ---
 echo   [3] Run Standalone OpenCV Conveyor Sorter (Window with Pusher Physics)
 echo   [4] Generate Synthetic Dataset (75 Box Images & YOLO Labels)
-echo   [5] Train YOLOv8s Model on GPU / CUDA (Uses Synthetic Dataset)
+echo   [5] Train YOLOv9 Model on GPU / CUDA (Uses Synthetic Dataset)
 echo   [6] Evaluate Model Performance (mAP, Precision, Recall, Confusion Matrix)
 echo.
 echo   --- HARDWARE MODE (WHEN WEBCAM / ARDUINO READY) ---
@@ -75,7 +75,7 @@ goto menu
 
 :train
 cls
-echo Starting YOLOv8s Training on RTX 3050...
+echo Starting YOLOv9 Training...
 python scripts\02_train.py --epochs 30 --batch 16
 pause
 goto menu

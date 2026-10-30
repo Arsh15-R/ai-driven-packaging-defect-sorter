@@ -3,7 +3,7 @@
 Project: AI-Driven Packaging Line Defect Sorter
 Script: dataset_splitter.py (Utility Helper)
 Purpose: Automatically split annotated images & label txt files into
-         train (70%), val (20%), and test (10%) sets for YOLOv8.
+         train (70%), val (20%), and test (10%) sets for YOLOv9.
 =============================================================================
 """
 

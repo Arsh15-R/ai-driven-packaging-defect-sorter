@@ -235,7 +235,7 @@ export const CameraView: React.FC<CameraViewProps> = ({ onFrameCaptured, isCaptu
                 Camera Standby
               </div>
               <p className="text-xs text-slate-400 mt-1 leading-relaxed">
-                Start your webcam to begin real-time product defect detection with YOLOv8.
+                Start your webcam to begin real-time product defect detection with YOLOv9.
               </p>
             </div>
             <button

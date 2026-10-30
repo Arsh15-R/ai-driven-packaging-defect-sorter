@@ -16,7 +16,8 @@ env/
 
 # Ultralytics intermediate training runs & large base downloads
 runs/
-yolov8s.pt
+yolov9*.pt
+yolov8*.pt
 
 # Frontend dependencies & build artifacts
 node_modules/

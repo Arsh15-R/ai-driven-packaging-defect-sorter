@@ -75,7 +75,7 @@ def open_webcam(camera_index: int = 0) -> cv2.VideoCapture:
         print(" -> Try camera index 1 or 2 if using an external USB webcam.")
         sys.exit(1)
 
-    # Set preferred resolution (720p is ideal for YOLOv8 inspection)
+    # Set preferred resolution (720p is ideal for YOLOv9 inspection)
     cap.set(cv2.CAP_PROP_FRAME_WIDTH, 1280)
     cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 720)
     cap.set(cv2.CAP_PROP_FPS, 30)

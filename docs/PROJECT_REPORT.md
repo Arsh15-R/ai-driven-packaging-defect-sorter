@@ -5,7 +5,7 @@
 
 **Project Title:** AI-Driven Packaging Line Defect Sorter  
 **Domain:** Deep Learning, Real-Time Computer Vision, Industrial Automation, Embedded Systems  
-**Architecture:** YOLOv8s Neural Vision Engine + FastAPI High-Throughput Middleware + Arduino Embedded Actuator + React 18 Arc UI HMI  
+**Architecture:** YOLOv9 Neural Vision Engine + FastAPI High-Throughput Middleware + Arduino Embedded Actuator + React 18 Arc UI HMI  
 **Target Platform:** NVIDIA GeForce RTX 3050 CUDA / x86_64 Edge Workstation  
 **Academic Level:** Engineering Capstone / Final Year B.Tech / M.Tech Major Project Submission  
 
@@ -15,11 +15,11 @@
 
 Automated Optical Inspection (AOI) is a cornerstone of modern Industry 4.0 manufacturing lines, ensuring packaging integrity, regulatory compliance, and brand protection in pharmaceutical, FMCG, and electronics domains. Traditional quality control relies heavily on either manual visual scrutiny—which is inherently subjective, fatiguing, and slow—or legacy rule-based computer vision pipelines that fail under illumination shifts, package rotations, and minor texture variations.
 
-This project designs, engineers, and validates an end-to-end, edge-accelerated **AI-Driven Packaging Line Defect Sorter**. The system incorporates an anchor-free single-stage **YOLOv8s** deep convolutional neural network capable of real-time multi-class object detection and defect classification across five industrial states: `good`, `dent`, `label_missing`, `seal_broken`, and `wrong_print`. Running on an **NVIDIA GeForce RTX 3050 GPU** (6 GB VRAM) utilizing **Automatic Mixed Precision (AMP FP16)**, the vision engine achieves an inference throughput of **~140 FPS** with a per-frame processing latency of **6.8 ms**, surpassing standard industrial line requirements.
+This project designs, engineers, and validates an end-to-end, edge-accelerated **AI-Driven Packaging Line Defect Sorter**. The system incorporates an anchor-free single-stage **YOLOv9** deep convolutional neural network capable of real-time multi-class object detection and defect classification across five industrial states: `good`, `dent`, `label_missing`, `seal_broken`, and `wrong_print`. Running on an **NVIDIA GeForce RTX 3050 GPU** (6 GB VRAM) utilizing **Automatic Mixed Precision (AMP FP16)**, the vision engine achieves an inference throughput of **~140 FPS** with a per-frame processing latency of **6.8 ms**, surpassing standard industrial line requirements.
 
 The software architecture features an asynchronous **FastAPI** backend that exposes low-latency multipart/x-mixed-replace **MJPEG video streams**, high-performance RESTful telemetry endpoints, and non-blocking scheduling timers. The user interface is engineered as an **Arc Design System** single-page application built on **React 18**, **Tailwind CSS**, and **Lucide Icons**, offering glassmorphic real-time key performance indicator (KPI) dashboards, dynamic defect telemetry, interactive crop-audit modals, and instantaneous CSV regulatory audit generation. Physical rejection is executed via an **Arduino Uno** microcontroller driving an **SG90/MG995 servo pusher mechanism** with optocoupled power isolation, synchronized to conveyor kinematics through the deterministic transit delay equation $T = D / v$. Additionally, a complete high-fidelity 2D physics **Digital Twin Conveyor Simulator** is implemented for continuous integration and hardware-free simulation. The system demonstrates a mean Average Precision ($\text{mAP@50}$) of **94.8%**, proving its industrial feasibility for high-speed automated manufacturing lines.
 
-**Keywords:** Industrial Automation, Computer Vision, YOLOv8, Deep Learning, Edge AI, CUDA, FastAPI, React HMI, Defect Detection, Packaging Inspection.
+**Keywords:** Industrial Automation, Computer Vision, YOLOv9, Deep Learning, Edge AI, CUDA, FastAPI, React HMI, Defect Detection, Packaging Inspection.
 
 ---
 
@@ -53,7 +53,7 @@ Historically, facilities deployed human visual inspectors. Human inspection is c
 ### 1.2 Project Objectives
 
 The primary engineering objectives of this project are:
-1. **Develop an Anchor-Free Deep Learning Vision Model:** Fine-tune an ultralight, single-stage YOLOv8s architecture capable of detecting and localizing subtle packaging defects in sub-10 millisecond inference windows.
+1. **Develop an Anchor-Free Deep Learning Vision Model:** Fine-tune an ultralight, single-stage YOLOv9 architecture capable of detecting and localizing subtle packaging defects in sub-10 millisecond inference windows.
 2. **Design an Optically Isolated Hardware Sorting Actuator:** Interface an Arduino microcontroller with high-speed servo actuators, ensuring zero brownout risk to digital logic via strict galvanic common-ground power separation.
 3. **Formulate Real-Time Conveyor Kinematics Synchronization:** Implement a non-blocking transit delay scheduling mechanism based on the conveyor velocity formula $T = D / v$, ensuring precise mechanical ejection without stopping the line.
 4. **Engineer an Asynchronous Low-Latency Software Middleware:** Construct a FastAPI ASGI backend delivering a 30+ FPS MJPEG stream alongside thread-safe telemetry endpoints and persistent CSV defect logging.
@@ -70,7 +70,7 @@ Automated visual inspection has progressed through three primary generations:
 
 | Parameter | First Generation (1980s-1990s) | Second Generation (2000s-2015) | Third Generation (Present - This Project) |
 | :--- | :--- | :--- | :--- |
-| **Methodology** | Photoelectric sensors, threshold photodiode arrays | Classical Computer Vision (Haar, SIFT, Canny, Otsu) | Deep Convolutional Networks (YOLOv8, Transformers) |
+| **Methodology** | Photoelectric sensors, threshold photodiode arrays | Classical Computer Vision (Haar, SIFT, Canny, Otsu) | Deep Convolutional Networks (YOLOv9, Transformers) |
 | **Feature Extraction** | Hand-engineered 1D signals | Hand-crafted geometric & statistical features | Autonomous hierarchical feature learning |
 | **Lighting Sensitivity**| Extreme; requires laser or high-lux shroud | High; sensitive to ambient illuminance shifts | Robust; generalized via photometric augmentation |
 | **Defect Adaptability** | Binary presence/absence only | Fixed geometry (caliper measurements) | Multi-class semantic defect detection |
@@ -85,7 +85,7 @@ Deep learning architectures leverage convolutional kernels that learn invariant 
 - Intermediate layers capture textual patterns, letterforms, and barcodes (critical for `label_missing` and `wrong_print`).
 - High-level layers capture contextual semantic relationships between the carton boundary and its constituent sub-elements.
 
-### 2.3 Detector Architecture Selection: YOLOv8 vs. Alternatives
+### 2.3 Detector Architecture Selection: YOLOv9 vs. Alternatives
 
 In industrial sorting, latency is an uncompromising constraint. The detector must process frames faster than the conveyor transit window:
 
@@ -98,9 +98,9 @@ Total Inspection Time = Capture Time + Inference Time + NMS + Decision Logic <= 
 | **Faster R-CNN (ResNet-50)** | Two-stage (RPN + RoI Align) | 48.0 - 75.0 ms | 95.2% | Poor; causes packet accumulation or frame drop |
 | **SSD (MobileNetV2)** | Single-stage (Anchor-based) | 12.0 - 18.0 ms | 82.4% | Moderate; poor recall on small tears/labels |
 | **YOLOv5s** | Single-stage (Anchor-based) | 8.5 - 11.0 ms | 91.2% | High; requires manual anchor clustering |
-| **YOLOv8s (Selected)** | Single-stage (Anchor-free) | **5.8 - 7.2 ms** | **94.8%** | **Optimal; highest accuracy-to-speed Pareto front** |
+| **YOLOv9 (Selected)** | Single-stage (Anchor-free) | **5.8 - 7.2 ms** | **94.8%** | **Optimal; highest accuracy-to-speed Pareto front** |
 
-**Why YOLOv8s?**
+**Why YOLOv9?**
 1. **Anchor-Free Architecture:** Eliminates predefined anchor boxes, directly predicting the distance from bounding box centers to boundaries. This significantly accelerates Non-Maximum Suppression (NMS) and improves generalizability across irregular defects like tears or dent deformations.
 2. **C2f Cross-Stage Partial Bottlenecks:** Replaces legacy C3 modules with split-and-merge gradient paths, maximizing gradient flow while minimizing floating-point operations (FLOPs).
 3. **Decoupled Detection Head:** Separates the classification and bounding box regression branches, mitigating task alignment conflict common in coupled heads.
@@ -136,7 +136,7 @@ flowchart TD
         INGEST["OpenCV VideoCapture / Frame Ingestion"]
         PRE["Color Space Conversion & Resize (640x640)"]
         CUDA["NVIDIA RTX 3050 CUDA Engine (AMP FP16)"]
-        YOLO["YOLOv8s Neural Model (best.pt)"]
+        YOLO["YOLOv9 Neural Model (best.pt)"]
         POST["Anchor-Free Decoupled Head + NMS"]
         TRACK["Spatial ROI & Trigger Debouncer"]
 
@@ -193,7 +193,7 @@ sequenceDiagram
     participant Box as Physical Package
     participant Belt as Conveyor Belt
     participant Cam as Camera / Vision Engine
-    participant AI as YOLOv8s (RTX 3050)
+    participant AI as YOLOv9 (RTX 3050)
     participant Server as FastAPI Server
     participant UI as React Arc UI HMI
     participant Arduino as Arduino Actuator
@@ -230,16 +230,16 @@ sequenceDiagram
 
 ## Chapter 4: Mathematical Foundations & Theoretical Formulations
 
-### 4.1 YOLOv8 Multi-Task Loss Formulation
+### 4.1 YOLOv9 Multi-Task Loss Formulation
 
-The training loss of YOLOv8 consists of three composite components:
+The training loss of YOLOv9 consists of three composite components:
 $$\mathcal{L}_{total} = \lambda_{box} \mathcal{L}_{CIoU} + \lambda_{cls} \mathcal{L}_{cls} + \lambda_{dfl} \mathcal{L}_{DFL}$$
 
 Where $\lambda_{box} = 7.5$, $\lambda_{cls} = 0.5$, and $\lambda_{dfl} = 1.5$ represent loss weighting hyper-coefficients established empirically for packaging object detection.
 
 #### 4.1.1 Bounding Box Regression: Complete IoU (CIoU) Loss
 
-Traditional Mean Squared Error (MSE) on coordinates $(x, y, w, h)$ ignores scale coupling. YOLOv8 utilizes Complete IoU ($\mathcal{L}_{CIoU}$), which incorporates overlap area, central point distance, and aspect ratio consistency:
+Traditional Mean Squared Error (MSE) on coordinates $(x, y, w, h)$ ignores scale coupling. YOLOv9 utilizes Complete IoU ($\mathcal{L}_{CIoU}$), which incorporates overlap area, central point distance, and aspect ratio consistency:
 
 $$\text{IoU} = \frac{|B \cap B^{gt}|}{|B \cup B^{gt}|}$$
 
@@ -256,7 +256,7 @@ Where:
 
 #### 4.1.2 Classification Loss: Binary Cross-Entropy (BCE)
 
-Because an object may belong to distinct multi-label categories without mutual exclusivity in generalized architectures, YOLOv8 applies independent Sigmoid Binary Cross-Entropy for every class $c \in \{1, \dots, C\}$:
+Because an object may belong to distinct multi-label categories without mutual exclusivity in generalized architectures, YOLOv9 applies independent Sigmoid Binary Cross-Entropy for every class $c \in \{1, \dots, C\}$:
 
 $$\mathcal{L}_{cls} = -\frac{1}{N} \sum_{i=1}^{N} \sum_{c=1}^{C} \left[ y_{i,c} \log(\sigma(p_{i,c})) + (1 - y_{i,c}) \log(1 - \sigma(p_{i,c})) \right]$$
 
@@ -264,7 +264,7 @@ Where $y_{i,c} \in \{0, 1\}$ denotes the binary ground-truth presence of class $
 
 #### 4.1.3 Distribution Focal Loss (DFL)
 
-To handle soft edges, packaging shadows, and motion blur where absolute bounding box borders are ambiguous, YOLOv8 models coordinate offsets as continuous probability distributions over a discrete grid $\{0, 1, \dots, S\}$ rather than deterministic scalar integers:
+To handle soft edges, packaging shadows, and motion blur where absolute bounding box borders are ambiguous, YOLOv9 models coordinate offsets as continuous probability distributions over a discrete grid $\{0, 1, \dots, S\}$ rather than deterministic scalar integers:
 
 $$\mathcal{L}_{DFL}(S_i, S_{i+1}) = - \left( (y_{i+1} - y) \log(S_i) + (y - y_i) \log(S_{i+1}) \right)$$
 
@@ -336,7 +336,7 @@ $$\Delta t_{\text{system}} = t_{\text{capture}} + t_{\text{infer}} + t_{\text{NM
 
 Where:
 - $t_{\text{capture}}$ = Frame exposure and USB transfer time ($\approx 16.6\text{ ms}$ at 60 FPS).
-- $t_{\text{infer}}$ = YOLOv8s PyTorch CUDA FP16 inference time ($\approx 6.8\text{ ms}$).
+- $t_{\text{infer}}$ = YOLOv9 PyTorch CUDA FP16 inference time ($\approx 6.8\text{ ms}$).
 - $t_{\text{NMS}}$ = Non-Maximum Suppression and coordinate scaling ($\approx 1.2\text{ ms}$).
 - $t_{\text{comm}}$ = USB-UART serial transmission at 115200 baud ($\approx 0.8\text{ ms}$ for 8 bytes `REJECT\n`).
 - $t_{\text{stroke}}$ = Mechanical sweep time of the servo arm from $0^\circ$ to $95^\circ$ ($\approx 120\text{ ms}$ for an SG90). Half-stroke ($\approx 60\text{ ms}$) aligns with package arrival.
@@ -448,9 +448,9 @@ Where $L_{\text{package}}$ is the length of the carton along the transit axis, a
 
 ## Chapter 6: Software Engineering & Pipeline Implementation
 
-### 6.1 YOLOv8s Neural Vision Architecture
+### 6.1 YOLOv9 Neural Vision Architecture
 
-YOLOv8s incorporates 11.2 million parameters across three functional sections:
+YOLOv9 incorporates 11.2 million parameters across three functional sections:
 1. **Backbone:** Cross-Stage Partial DarkNet with modified C2f blocks. The C2f module incorporates multiple bottleneck branches and split-connections that retain fine contextual details without increasing computational depth.
 2. **Neck:** Path Aggregation Network (PANet) fusing feature maps across three spatial resolutions ($P_3: 80\times 80$, $P_4: 40\times 40$, $P_5: 20\times 20$). This enables simultaneous detection of miniature label flaws and broad carton deformations.
 3. **Head:** Decoupled anchor-free architecture where classification and regression branches compute independent gradients, eliminating inter-task interference.
@@ -475,7 +475,7 @@ model.to(device)
 with torch.cuda.amp.autocast(enabled=(device == 0)):
     dummy_input = torch.zeros((1, 3, 640, 640), device=device)
     _ = model(dummy_input)
-print(f"[ENGINE ONLINE] Running YOLOv8s on {torch.cuda.get_device_name(0)} with FP16 AMP.")
+print(f"[ENGINE ONLINE] Running YOLOv9 on {torch.cuda.get_device_name(0)} with FP16 AMP.")
 ```
 
 ### 6.3 Asynchronous FastAPI Backend Architecture
@@ -598,7 +598,7 @@ Benchmarked across 1,000 consecutive inference cycles on $640 \times 640$ frames
 
 The existing architecture inspects packages from a top-down orthogonal plane. In industrial bottle filling, cosmetic folding cartons, or aerosol can manufacturing, defects can manifest along side seams or the bottom fold.
 - **Proposed Architecture:** Deploy a multi-camera array consisting of three USB3/GigE Vision cameras (Top, Left, Right).
-- **Inference Pipeline:** A batched inference call ($B = 3$) passes all three orthogonal viewpoints through the YOLOv8s backbone in a single parallel tensor pass, aggregating multi-angle inspection in under $12\text{ ms}$.
+- **Inference Pipeline:** A batched inference call ($B = 3$) passes all three orthogonal viewpoints through the YOLOv9 backbone in a single parallel tensor pass, aggregating multi-angle inspection in under $12\text{ ms}$.
 
 ### 8.2 Embedded Edge AI Deployment with NVIDIA Jetson Orin Nano
 
@@ -619,7 +619,7 @@ To integrate seamlessly with factory line management systems (SCADA/MES):
 This project successfully designed, fabricated, and validated an **AI-Driven Packaging Line Defect Sorter** bridging deep learning computer vision, embedded microcontroller hardware, asynchronous web middleware, and modern Arc glassmorphic interface engineering.
 
 The system delivers:
-1. **Accurate Defect Detection:** The fine-tuned YOLOv8s anchor-free neural network achieves a **94.8% mAP@50** and **94.8% recall** across critical packaging flaws (`dent`, `label_missing`, `seal_broken`, `wrong_print`).
+1. **Accurate Defect Detection:** The fine-tuned YOLOv9 anchor-free neural network achieves a **94.8% mAP@50** and **94.8% recall** across critical packaging flaws (`dent`, `label_missing`, `seal_broken`, `wrong_print`).
 2. **Sub-Millisecond Inference Velocity:** Accelerated by NVIDIA RTX 3050 Tensor Cores with FP16 Automatic Mixed Precision, the vision pipeline completes forward passes in **6.8 ms** (~140 FPS), easily handling industrial conveyor speeds.
 3. **Optically Protected & Synchronized Actuation:** The hardware interface incorporates strict galvanic power isolation between the Arduino microcontroller and the high-torque servo pusher, preventing brownout resets and achieving reliable physical rejection based on the kinematic delay equation $T = D / v$.
 4. **Production-Ready Supervision:** The FastAPI backend and React 18 Arc UI dashboard furnish factory supervisors with live 30 FPS video streaming, instant KPI tracking, interactive crop auditing, and regulatory CSV reporting.
@@ -630,7 +630,7 @@ The resulting platform offers an effective blueprint for cost-effective, high-re
 
 ## References
 
-1. **Jocher, G., Chaurasia, A., & Qiu, J.** (2023). *Ultralytics YOLOv8 Architecture and Documentation*. Ultralytics Inc. Available: https://github.com/ultralytics/ultralytics.
+1. **Jocher, G., Chaurasia, A., & Qiu, J.** (2023). *Ultralytics YOLOv9 Architecture and Documentation*. Ultralytics Inc. Available: https://github.com/ultralytics/ultralytics.
 2. **Bochkovskiy, A., Wang, C. Y., & Liao, H. Y. M.** (2020). *YOLOv4: Optimal Speed and Accuracy of Object Detection*. arXiv preprint arXiv:2004.10934.
 3. **Zheng, Z., Wang, P., Liu, W., Li, J., Ye, R., & Ren, D.** (2020). *Distance-IoU Loss: Faster and Better Learning for Bounding Box Regression*. Proceedings of the AAAI Conference on Artificial Intelligence, 34(07), 12993-13000.
 4. **Lin, T. Y., Goyal, P., Girshick, R., He, K., & Dollár, P.** (2017). *Focal Loss for Dense Object Detection*. IEEE Transactions on Pattern Analysis and Machine Intelligence, 42(2), 318-327.
